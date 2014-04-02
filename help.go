@@ -15,14 +15,14 @@ var helpEnviron = &Command{
 	Category: "cx",
 	Short:    "environment variables used by cx",
 	Long: `
-Several environment variables affect hk's behavior.
+Several environment variables affect cx's behavior.
 
 CLOUD66_API_URL
 
   The base URL hk will use to make api requests in the format:
   https://host[:port]/
 
-  Its default value is https://www.cloud66.com/api/2
+  Its default value is https://app.cloud66.com/api/2
 
 CXDEBUG
 
