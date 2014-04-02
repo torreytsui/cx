@@ -17,7 +17,7 @@ var subcmds = map[string]func(){
 }
 
 const (
-	sourceGit = "git@bitbucket.org:cloud66/c66-go-toolbelt.git"
+	sourceGit = "git@github.com:cloud66/cx.git"
 )
 
 var (

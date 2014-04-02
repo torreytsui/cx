@@ -334,7 +334,6 @@ func fetch(url string) (io.ReadCloser, error) {
 	default:
 		return nil, fmt.Errorf("bad http status from %s: %v", url, resp.Status)
 	}
-	panic("not reached")
 }
 
 func findLatestVersion() (*CxLatest, error) {
