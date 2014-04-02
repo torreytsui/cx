@@ -21,3 +21,14 @@ _testmain.go
 
 *.exe
 *.test
+
+/source_dev.sh
+/source_stage.sh
+
+/cx
+
+build/
+
+/cxdist/tmp/
+
+/cxdist/cxdist
