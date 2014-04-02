@@ -22,6 +22,11 @@ func areSameRemotes(lhs string, rhs string) (bool, error) {
 		return true, nil
 	}
 
+	// if the different is only the .git at the end, then they are the same
+	if lhs + ".git" == rhs || rhs + ".git" == lhs {
+		return true, nil
+	}
+
 	lhsParsed, err := url.Parse(lhs)
 	if err != nil {
 		return false, err
