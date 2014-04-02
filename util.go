@@ -72,6 +72,9 @@ func appendFiles(files []string, filename string) error {
 func must(err error) {
 	if err != nil {
 		printFatal(err.Error())
+		if debugMode {
+			log.Fatal(err)
+		}
 	}
 }
 

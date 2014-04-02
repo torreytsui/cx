@@ -125,6 +125,9 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Request-Id", uuid.New())
+  if os.Getenv("CXTOKEN") != "" {
+    req.Header.Set("X-CxToken", os.Getenv("CXTOKEN"))
+  }
 	useragent := c.UserAgent
 	if useragent == "" {
 		useragent = defaultUserAgent

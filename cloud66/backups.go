@@ -29,7 +29,7 @@ var VerifyStatus = map[int]string {
 
 type ManagedBackup struct {
   Id            int          `json:"id"`
-  ServerUid      string      `json:"server_uid"`
+  ServerUid     string       `json:"server_uid"`
   Filename      string       `json:"file_name"`
   DbType        string       `json:"db_type"`
   DatabaseName  string       `json:"database_name"`
