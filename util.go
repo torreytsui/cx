@@ -73,7 +73,7 @@ func must(err error) {
 	if err != nil {
 		printFatal(err.Error())
 		if debugMode {
-			panic(err)
+			log.Fatal(err)
 		}
 	}
 }
