@@ -55,6 +55,8 @@ type Response struct {
   Count    int
 }
 
+type filterFunction func(item interface{}) bool
+
 func init() {
   baseAPIURL = os.Getenv("CLOUD66_API_URL")
   if baseAPIURL == "" {

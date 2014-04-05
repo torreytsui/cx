@@ -69,6 +69,27 @@ func (c *Client) StackList() ([]Stack, error) {
 	return stacksRes, c.DoReq(req, &stacksRes)
 }
 
+func (c *Client) StackListWithFilter(filter filterFunction) ([]Stack, error) {
+  req, err := c.NewRequest("GET", "/stacks.json", nil)
+  if err != nil {
+    return nil, err
+  }
+
+  var stacksRes []Stack
+  err = c.DoReq(req, &stacksRes)
+  if err != nil {
+    return nil, err
+  }
+
+  var result []Stack
+  for _, item := range stacksRes {
+    if filter(item) {
+      result = append(result, item)
+    }
+  }
+  return result, nil
+}
+
 func (c *Client) StackInfo(stackName string) (*Stack, error) {
   stack, err := c.FindStackByName(stackName)
   if err != nil {

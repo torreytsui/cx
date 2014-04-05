@@ -104,8 +104,9 @@ var commands = []*Command{
 }
 
 var (
-	flagStack     *cloud66.Stack
-	flagStackName string
+	flagStack     	*cloud66.Stack
+	flagStackName 	string
+	flagEnvironment string
 )
 
 func main() {
@@ -149,6 +150,7 @@ func main() {
 			}
 			if cmd.NeedsStack {
 				cmd.Flag.StringVar(&flagStackName, "s", "", "stack name")
+				cmd.Flag.StringVar(&flagEnvironment, "e", "", "stack environment")
 			}
 			if err := cmd.Flag.Parse(args[1:]); err != nil {
 				os.Exit(2)
@@ -218,6 +220,14 @@ func recoverPanic() {
 	}
 }
 
+func filterByEnvironment(item interface{}) bool {
+	if flagEnvironment == "" {
+		return true
+	}
+
+	return strings.HasPrefix(item.(cloud66.Stack).Environment, flagEnvironment)
+}
+
 func stack() (*cloud66.Stack, error) {
 	if flagStack != nil {
 		return flagStack, nil
@@ -225,7 +235,7 @@ func stack() (*cloud66.Stack, error) {
 
 	var err error
 	if flagStackName != "" {
-		stacks, err := client.StackList()
+		stacks, err := client.StackListWithFilter(filterByEnvironment)
 		if err != nil {
 			return nil, err
 		}

@@ -286,8 +286,18 @@ func fuzzyFind(s []string, item string) (int, error) {
 	for i := range s {
 		// look for identical matches first
 		if strings.ToLower(s[i]) == strings.ToLower(item) {
-			return i, nil
+			results = append(results, i)
 		}
+	}
+
+	if len(results) == 1 {
+		return results[0], nil
+	}
+	if len(results) > 1 {
+		return 0, errors.New("More than one match found for " + item + " you might get better results by passing the environment with -e")
+	}
+
+	for i := range s {
 		if strings.HasPrefix(strings.ToLower(s[i]), strings.ToLower(item)) {
 			results = append(results, i)
 		}
