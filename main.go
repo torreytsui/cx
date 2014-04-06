@@ -225,7 +225,7 @@ func filterByEnvironment(item interface{}) bool {
 		return true
 	}
 
-	return strings.HasPrefix(item.(cloud66.Stack).Environment, flagEnvironment)
+	return strings.HasPrefix(strings.ToLower(item.(cloud66.Stack).Environment), strings.ToLower(flagEnvironment))
 }
 
 func stack() (*cloud66.Stack, error) {
@@ -249,7 +249,12 @@ func stack() (*cloud66.Stack, error) {
 		}
 
 		flagStack = &stacks[idx]
-		fmt.Printf("Stack %s\n", flagStack.Name)
+		fmt.Printf("Stack %s ", flagStack.Name)
+		if flagEnvironment != "" {
+			fmt.Printf("(%s)\n", flagStack.Environment)
+		} else {
+			fmt.Println("")
+		}
 		return flagStack, err
 	}
 
