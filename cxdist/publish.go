@@ -67,19 +67,21 @@ func publish() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	manifestFile := filepath.Join(publishDir, flagVersion, "cx_"+flagVersion+".json")
+	manifestFile := filepath.Join(publishDir, flagVersion, "cx_" + flagVersion + ".json")
 	manifest, err := os.Create(manifestFile)
 	defer manifest.Close()
 
 	manifest.Write(b)
-	upload(manifestFile, S3_URL+"cx_"+flagVersion+".json")
+	upload(manifestFile, S3_URL+"cx_" + flagVersion + ".json")
 
-	// update the latest version file
-	latest := CxLatest{Version: flagVersion}
-	latest.upload()
+	// update the latest version file unless it's dev
+	if flagVersion != "dev" {
+		latest := CxLatest{Version: flagVersion}
+		latest.upload()
 
-	fmt.Println("Notifying Honeybadger of deploy")
-	resetHoneybadger()
+		fmt.Println("Notifying Honeybadger of deploy")
+		resetHoneybadger()
+	}
 
 	fmt.Printf("Version %s published and is live now\n", flagVersion)
 }

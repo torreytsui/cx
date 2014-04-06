@@ -40,7 +40,7 @@ func usage() {
 func main() {
 	log.SetFlags(log.Lshortfile)
 
-	flags.StringVar(&flagVersion, "v", "snapshot", "build version")
+	flags.StringVar(&flagVersion, "v", "dev", "build version")
 	flags.StringVar(&flagBranch, "b", "master", "build branch")
 
 	if len(os.Args) == 1 {
