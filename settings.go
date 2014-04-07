@@ -68,10 +68,16 @@ func printSettingList(w io.Writer, settings []cloud66.StackSetting) {
 }
 
 func listSetting(w io.Writer, a cloud66.StackSetting) {
+	var readonly string
+	if a.Readonly {
+		readonly = "readonly"
+	} else {
+		readonly = "read/write"
+	}
 	listRec(w,
 		a.Key,
 		a.Value,
-		a.Readonly,
+		readonly,
 	)
 }
 

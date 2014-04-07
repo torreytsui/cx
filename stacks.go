@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 	"sort"
+	"strings"
 	"text/tabwriter"
 
 	"cloud66.com/cx/cloud66"
@@ -11,7 +12,7 @@ import (
 
 var cmdStacks = &Command{
 	Run:      runStacks,
-	Usage:    "stacks [<names>][.<environment>]",
+	Usage:    "stacks [<names>] [-e <environment>]",
 	Category: "stack",
 	Short:    "list stacks",
 	Long: `
@@ -28,9 +29,16 @@ Examples:
     $ cx stacks mystack-2
     mystack-2   development  Jan 2 12:34
 
-    $ cx stacks mystack.staging
+    $ cx stacks mystack -e staging
     mystack     staging      Feb 2 12:34
 `,
+}
+
+var
+	flagForcedEnvironment string
+
+func init() {
+	cmdStacks.Flag.StringVar(&flagForcedEnvironment, "e", "", "stack environment")
 }
 
 func runStacks(cmd *Command, names []string) {
@@ -39,7 +47,13 @@ func runStacks(cmd *Command, names []string) {
 	var stacks []cloud66.Stack
 	if len(names) == 0 {
 		var err error
-		stacks, err = client.StackList()
+		stacks, err = client.StackListWithFilter(func (item interface{}) bool {
+			if flagForcedEnvironment == "" {
+				return true
+			}
+
+			return strings.HasPrefix(strings.ToLower(item.(cloud66.Stack).Environment), strings.ToLower(flagForcedEnvironment))
+		})
 		must(err)
 	} else {
 		stackch := make(chan *cloud66.Stack, len(names))
@@ -49,7 +63,7 @@ func runStacks(cmd *Command, names []string) {
 				stackch <- nil
 			} else {
 				go func(stackname string) {
-					if stack, err := client.StackInfo(stackname); err != nil {
+					if stack, err := client.StackInfoWithEnvironment(stackname, flagForcedEnvironment); err != nil {
 						errch <- err
 					} else {
 						stackch <- stack

@@ -91,7 +91,23 @@ func (c *Client) StackListWithFilter(filter filterFunction) ([]Stack, error) {
 }
 
 func (c *Client) StackInfo(stackName string) (*Stack, error) {
-  stack, err := c.FindStackByName(stackName)
+  stack, err := c.FindStackByName(stackName, "")
+  if err != nil {
+    return nil, err
+  }
+
+  uid := stack.Uid
+  req, err := c.NewRequest("GET", "/stacks/" + uid + ".json", nil)
+  if err != nil {
+    return nil, err
+  }
+
+  var stacksRes *Stack
+  return stacksRes, c.DoReq(req, &stacksRes)
+}
+
+func (c *Client) StackInfoWithEnvironment(stackName, environment string) (*Stack, error) {
+  stack, err := c.FindStackByName(stackName, environment)
   if err != nil {
     return nil, err
   }
@@ -116,19 +132,11 @@ func (c *Client) StackSettings(uid string) ([]StackSetting, error) {
   return settingsRes, c.DoReq(req, &settingsRes)
 }
 
-func (c *Client) FindStackByName(stackName string) (*Stack, error) {
+func (c *Client) FindStackByName(stackName, environment string) (*Stack, error) {
   stacks, err := c.StackList()
-  parts := strings.Split(stackName, ".")
-
-  // this could be either abc or abc.production (if there is more than one abc stack)
-  name := strings.ToLower(parts[0])
-  environment := strings.ToLower(parts[len(parts) - 1:len(parts)][0])
-  if environment == name {
-    environment = ""
-  }
 
   for _, b := range stacks {
-    if (strings.ToLower(b.Name) == name) && (environment == "" || environment == b.Environment) {
+    if (strings.ToLower(b.Name) == strings.ToLower(stackName)) && (environment == "" || environment == b.Environment) {
       return &b, err
     }
   }
