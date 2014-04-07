@@ -45,3 +45,33 @@ func (c *Client) ServerSshPrivateKey(uid string) (string, error) {
   var sshRes *Ssh
   return sshRes.Key, c.DoReq(req, &sshRes)
 }
+
+func (c *Client) ServerSettings(uid string) ([]StackSetting, error) {
+  req, err := c.NewRequest("GET", "/servers/" + uid + "/settings.json", nil)
+
+  if err != nil {
+    return nil, err
+  }
+
+  var settingsRes []StackSetting
+  return settingsRes, c.DoReq(req, &settingsRes)
+}
+
+func (c *Client) ServerSet(uid string, key string, value string) (*GenericResponse, error) {
+  params := struct {
+		Key   string `json:"setting_name"`
+    Value string `json:"setting_value"`
+	}{
+		Key:   key,
+    Value: value,
+	}
+
+  req, err := c.NewRequest("POST", "/servers/" + uid + "/setting.json", params)
+  if err != nil {
+    return nil, err
+  }
+
+  var settingRes *GenericResponse
+  return settingRes, c.DoReq(req, &settingRes)
+}
+

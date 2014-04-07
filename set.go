@@ -12,7 +12,7 @@ var cmdSet = &Command{
 	Category:   "stack",
 	Short:      "sets the value of a setting on a stack",
 	Long: `This sets and applies the value of a setting on a stack. Applying some settings might require more
-  work and therefore this command will return after the setting application is started.
+  work and therefore this command will return immediately after the setting operation has started.
 
 Examples:
 

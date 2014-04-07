@@ -86,6 +86,8 @@ var commands = []*Command{
 	cmdOpen,
 	cmdSettings,
 	cmdSet,
+	cmdServerSettings,
+	cmdServerSet,
 	cmdLease,
 	cmdRestart,
 	cmdServers,
