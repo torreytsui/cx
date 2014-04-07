@@ -92,6 +92,7 @@ var commands = []*Command{
 	cmdSsh,
 	cmdBackups,
 	cmdDownloadBackup,
+	cmdClearCaches,
 
 	cmdVersion,
 	cmdUpdate,
