@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"cloud66.com/cx/cloud66"
+	"github.com/cloud66/cx/cloud66"
 )
 
 var _ = fmt.Print
