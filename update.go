@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -56,7 +55,8 @@ const (
 )
 
 func init() {
-	cmdUpdate.Flag.StringVar(&flagForcedVersion, "v", "", "forced version")
+	debugMode = os.Getenv("CXDEBUG") != ""
+
 	if os.Getenv("CX_PLATFORM") == "" {
 		currentPlatform = runtime.GOOS
 	} else {
@@ -71,16 +71,31 @@ func init() {
 }
 
 func runUpdate(cmd *Command, args []string) {
+	if len(args) > 0 {
+		if args[0] == "-v" {
+			flagForcedVersion = args[1]
+		} else {
+			cmd.printUsage()
+		}
+	}
+
+	if debugMode {
+		if flagForcedVersion == "" {
+			fmt.Println("No forced version")
+		} else {
+			fmt.Printf("Forced version is %s\n", flagForcedVersion)
+		}
+	}
 	updateIt, err := needUpdate()
 	if err != nil {
 		if debugMode {
-			log.Fatalf("Cannot verify need for update %v", err)
+			fmt.Printf("Cannot verify need for update %v\n", err)
 		}
 		return
 	}
 	if !updateIt {
 		if debugMode {
-			log.Println("No need for update")
+			fmt.Println("No need for update")
 		}
 		return
 	}
@@ -89,12 +104,12 @@ func runUpdate(cmd *Command, args []string) {
 	download, err := getVersionManifest(flagForcedVersion)
 	if err != nil {
 		if debugMode {
-			log.Fatalf("Error fetching manifest %v", err)
+			fmt.Printf("Error fetching manifest %v\n", err)
 		}
 	}
 	if download == nil {
 		if debugMode {
-			log.Fatal("Found no matching download for the current OS and ARCH")
+			fmt.Println("Found no matching download for the current OS and ARCH")
 		}
 		return
 	}
@@ -102,7 +117,7 @@ func runUpdate(cmd *Command, args []string) {
 	err = download.update()
 	if err != nil {
 		if debugMode {
-			log.Fatalf("Failed to update: %v", err)
+			fmt.Printf("Failed to update: %v\n", err)
 		}
 		return
 	}
@@ -111,18 +126,27 @@ func runUpdate(cmd *Command, args []string) {
 func needUpdate() (bool, error) {
 	// get the latest version from remote
 	if debugMode {
-		log.Println("Checking for latest version")
+		fmt.Println("Checking for latest version")
 	}
 	latest, err := findLatestVersion()
 	if err != nil {
 		return false, err
 	}
 
-	if flagForcedVersion == "" {
+	if debugMode {
+		fmt.Printf("Found %s as the latest version\n", latest.Version)
+	}
+
+	if flagForcedVersion != "" {
+		if debugMode {
+			fmt.Printf("Forcing update to %s\n", flagForcedVersion)
+		}
+		return true, nil
+	} else {
 		flagForcedVersion = latest.Version
 	}
 
-	if VERSION == latest.Version && flagForcedVersion == latest.Version {
+	if VERSION == latest.Version {
 		return false, nil
 	}
 
@@ -159,7 +183,7 @@ func backgroundRun() {
 	if b {
 		if err := update.SanityCheck(); err != nil {
 			if debugMode {
-				log.Println("Will not be able to replace the executable")
+				fmt.Println("Will not be able to replace the executable")
 			}
 			// fail
 			return
@@ -187,12 +211,12 @@ func (download *CxDownload) update() error {
 
 	err, errRecover := update.FromStream(bytes.NewBuffer(bin))
 	if errRecover != nil {
-		return fmt.Errorf("update and recovery errors: %q %q", err, errRecover)
+		return fmt.Errorf("update and recovery errors: %q %q\n", err, errRecover)
 	}
 	if err != nil {
 		return err
 	}
-	log.Printf("Updated v%s -> v%s.", VERSION, download.Version)
+	fmt.Printf("Updated v%s -> v%s.\n", VERSION, download.Version)
 	return nil
 }
 
@@ -223,7 +247,7 @@ func (download *CxDownload) decompress(r io.ReadCloser) ([]byte, error) {
 	// for darwin and windows the files are zipped
 	if download.Platform == "windows" || download.Platform == "darwin" {
 		if debugMode {
-			log.Printf("Decompressing for %s\n", download.Platform)
+			fmt.Printf("Decompressing for %s\n", download.Platform)
 		}
 		// write it to disk and unzip from there
 		dest, err := ioutil.TempFile("", "cx")
@@ -233,7 +257,7 @@ func (download *CxDownload) decompress(r io.ReadCloser) ([]byte, error) {
 		}
 
 		if debugMode {
-			log.Printf("Using temp file %s\n", dest.Name())
+			fmt.Printf("Using temp file %s\n", dest.Name())
 		}
 		writer, err := os.Create(dest.Name())
 		if err != nil {
@@ -251,7 +275,7 @@ func (download *CxDownload) decompress(r io.ReadCloser) ([]byte, error) {
 
 		for _, f := range zipper.File {
 			if debugMode {
-				log.Printf("Zipped file %s\n", f.Name)
+				fmt.Printf("Zipped file %s\n", f.Name)
 			}
 			var targetFile string
 			if download.Platform == "windows" {
@@ -303,7 +327,7 @@ func (download *CxDownload) decompress(r io.ReadCloser) ([]byte, error) {
 				return nil, err
 			}
 			if debugMode {
-				log.Printf("Gziped file %s\n", hdr.Name)
+				fmt.Printf("Gziped file %s\n", hdr.Name)
 			}
 			if hdr.Name == "cx_"+flagForcedVersion+"_linux_"+currentArch+"/cx" {
 				// this is the executable
@@ -320,7 +344,7 @@ func (download *CxDownload) decompress(r io.ReadCloser) ([]byte, error) {
 
 func fetch(url string) (io.ReadCloser, error) {
 	if debugMode {
-		log.Printf("Downloading %s\n", url)
+		fmt.Printf("Downloading %s\n", url)
 	}
 	resp, err := http.Get(url)
 	if err != nil {
@@ -339,7 +363,7 @@ func fetch(url string) (io.ReadCloser, error) {
 func findLatestVersion() (*CxLatest, error) {
 	path := DOWNLOAD_URL + "cx_latest.json"
 	if debugMode {
-		log.Printf("Dowloading cx manifest from %s\n", path)
+		fmt.Printf("Dowloading cx manifest from %s\n", path)
 	}
 	resp, err := http.Get(path)
 	if err != nil {

@@ -132,7 +132,7 @@ func main() {
 	}
 
 	if args[0] == cmdUpdate.Name() {
-		cmdUpdate.Run(cmdUpdate, args)
+		cmdUpdate.Run(cmdUpdate, args[1:])
 		return
 	} else if VERSION != "dev" {
 		defer backgroundRun()
