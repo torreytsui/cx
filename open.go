@@ -7,7 +7,7 @@ import (
 
 var cmdOpen = &Command{
 	Run:        runOpen,
-	Usage:      "open [-v <server name>|<server ip>]",
+	Usage:      "open [<server name>|<server ip>|<server role>]",
 	NeedsStack: true,
 	Category:   "stack",
 	Short:      "opens the web browser to visit the app served by the stack",
