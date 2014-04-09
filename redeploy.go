@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 )
 
 var cmdRedeploy = &Command{
@@ -18,10 +17,6 @@ var cmdRedeploy = &Command{
 }
 
 func runRedeploy(cmd *Command, args []string) {
-	if len(args) != 0 {
-		cmd.printUsage()
-		os.Exit(2)
-	}
 	stack := mustStack()
 	result, err := client.RedeployStack(stack.Uid)
 	if err != nil {
