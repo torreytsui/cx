@@ -64,6 +64,7 @@ func runVersion(cmd *Command, args []string) {
 	fmt.Println(VERSION)
 	if debugMode {
 		fmt.Println("Running in debug mode")
+		fmt.Printf("Build date: %s\n", BUILD_DATE)
 	}
 }
 

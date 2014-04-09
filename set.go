@@ -12,7 +12,7 @@ var cmdSet = &Command{
 	Category:   "stack",
 	Short:      "sets the value of a setting on a stack",
 	Long: `This sets and applies the value of a setting on a stack. Applying some settings might require more
-  work and therefore this command will return after the setting application is started.
+  work and therefore this command will return immediately after the setting operation has started.
 
 Examples:
 
@@ -38,6 +38,7 @@ func runSet(cmd *Command, args []string) {
 	for _, i := range settings {
 		if key == i.Key {
 			// yup. it's a good one
+			fmt.Printf("Please wait while your setting is applied...\n")
 			result, err := client.Set(stack.Uid, key, value)
 			if err != nil {
 				printFatal(err.Error())

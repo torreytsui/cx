@@ -66,7 +66,7 @@ func runSsh(cmd *Command, args []string) {
 		printFatal("Server '" + serverName + "' not found")
 	}
 
-	fmt.Printf("Found %s\n", server.Name)
+	fmt.Printf("Server: %s\n", server.Name)
 
 	err = sshToServer(*server)
 	if err != nil {
