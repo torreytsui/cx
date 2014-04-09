@@ -27,6 +27,16 @@ func areSameRemotes(lhs string, rhs string) (bool, error) {
 		return true, nil
 	}
 
+	if strings.HasPrefix(lhs, "git@") {
+		lhs = strings.Replace(lhs, ":", "/", 1)
+		lhs = strings.Replace(lhs, "git@", "git://", 1)
+	}
+
+	if strings.HasPrefix(rhs, "git@") {
+		rhs = strings.Replace(rhs, ":", "/", 1)
+		rhs = strings.Replace(rhs, "git@", "git://", 1)
+	}
+
 	lhsParsed, err := url.Parse(lhs)
 	if err != nil {
 		return false, err
