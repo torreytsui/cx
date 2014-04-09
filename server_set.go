@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
-	"cloud66.com/cx/cloud66"
+	"github.com/cloud66/cx/cloud66"
 )
 
 var cmdServerSet = &Command{

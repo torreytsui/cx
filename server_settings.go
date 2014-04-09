@@ -6,7 +6,7 @@ import (
 	"sort"
 	"text/tabwriter"
 
-	"cloud66.com/cx/cloud66"
+	"github.com/cloud66/cx/cloud66"
 )
 
 var cmdServerSettings = &Command{
@@ -24,7 +24,7 @@ Examples:
 
     $ cx server-settings -s mystack lion
     server.name         lion                                                       false
-    
+
     $ cx server-settings -s mystack db server-name
     server.name         tiger                                                      false
 `,
