@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"cloud66.com/cx/cloud66"
-	"cloud66.com/cx/term"
+	"github.com/cloud66/cx/cloud66"
+	"github.com/cloud66/cx/term"
 
 	"github.com/mgutz/ansi"
 )
