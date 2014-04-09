@@ -253,7 +253,7 @@ func stack() (*cloud66.Stack, error) {
 		}
 
 		flagStack = &stacks[idx]
-		fmt.Printf("Stack %s ", flagStack.Name)
+		fmt.Printf("Stack: %s ", flagStack.Name)
 		if flagEnvironment != "" {
 			fmt.Printf("(%s)\n", flagStack.Environment)
 		} else {
