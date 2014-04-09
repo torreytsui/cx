@@ -56,7 +56,7 @@ func runServerSettings(cmd *Command, args []string) {
 		printFatal("Server '" + serverName + "' not found")
 	}
 
-	fmt.Printf("Server %s\n", server.Name)
+	fmt.Printf("Server: %s\n", server.Name)
 
 	getServerSettings(*stack, *server, args)
 }
