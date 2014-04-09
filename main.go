@@ -118,6 +118,7 @@ func main() {
 
 	if os.Getenv("CXENVIRONMENT") != "" {
 		tokenFile = "cx_" + os.Getenv("CXENVIRONMENT") + ".json"
+		fmt.Printf("Running against %s environment\n", os.Getenv("CXENVIRONMENT"))
 		honeybadger.Environment = os.Getenv("CXENVIRONMENT")
 	} else {
 		honeybadger.Environment = "production"
