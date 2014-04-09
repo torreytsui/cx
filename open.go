@@ -81,7 +81,7 @@ func runOpen(cmd *Command, args []string) {
 	}
 
 	// open server's fqdn
-	fmt.Printf("Opening: %s\n", toOpen)
+	fmt.Printf("Opening %s\n", toOpen)
 	err := openURL(toOpen)
 	if err != nil {
 		printFatal(err.Error())
