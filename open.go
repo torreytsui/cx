@@ -26,14 +26,6 @@ var cmdOpen = &Command{
   `,
 }
 
-// var (
-// 	flagServer string
-// )
-
-// func init() {
-// 	cmdOpen.Flag.StringVar(&flagServer, "v", "", "server to connect to")
-// }
-
 func runOpen(cmd *Command, args []string) {
 	stack := mustStack()
 
@@ -63,7 +55,7 @@ func runOpen(cmd *Command, args []string) {
 			printFatal("Server '" + serverName + "' not found")
 		}
 
-		fmt.Printf("Server: %s\n", server.Name)		
+		fmt.Printf("Server: %s\n", server.Name)
 		toOpen = "http://" + server.DnsRecord
 	} else {
 		// is the stack load balanced?
@@ -75,7 +67,7 @@ func runOpen(cmd *Command, args []string) {
 			if err != nil {
 				printFatal(err.Error())
 			}
-			fmt.Printf("Server: %s\n", servers[0].Name)		
+			fmt.Printf("Server: %s\n", servers[0].Name)
 			toOpen = "http://" + servers[0].DnsRecord
 		}
 	}
