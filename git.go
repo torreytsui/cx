@@ -48,7 +48,7 @@ func areSameRemotes(lhs string, rhs string) (bool, error) {
 	}
 
 	// http and https are the same
-	if rhsParsed.Path == lhsParsed.Path {
+	if (rhsParsed.Path == lhsParsed.Path) && (rhsParsed.Host == lhsParsed.Host) {
 		return true, nil
 	}
 
