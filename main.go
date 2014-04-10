@@ -10,8 +10,8 @@ import (
 	"runtime"
 	"strings"
 
-	"cloud66.com/cx/cloud66"
-	"cloud66.com/cx/term"
+	"github.com/cloud66/cx/cloud66"
+	"github.com/cloud66/cx/term"
 
 	"github.com/jcoene/honeybadger"
 	"github.com/mgutz/ansi"
@@ -22,17 +22,18 @@ type Command struct {
 	Flag       flag.FlagSet
 	NeedsStack bool
 
-	Usage    string
-	Category string
-	Short    string
-	Long     string
+	Usage    	string
+	Category 	string
+	Short    	string
+	Long     	string
 }
 
 var (
-	client    cloud66.Client
-	debugMode bool   = false
-	VERSION   string = "dev"
-	tokenFile string = "cx.json"
+	client    	cloud66.Client
+	debugMode 	bool   = false
+	VERSION   	string = "dev"
+	BUILD_DATE	string = ""
+	tokenFile 	string = "cx.json"
 )
 
 func (c *Command) printUsage() {
@@ -86,12 +87,15 @@ var commands = []*Command{
 	cmdOpen,
 	cmdSettings,
 	cmdSet,
+	cmdServerSettings,
+	cmdServerSet,
 	cmdLease,
 	cmdRestart,
 	cmdServers,
 	cmdSsh,
 	cmdBackups,
 	cmdDownloadBackup,
+	cmdClearCaches,
 
 	cmdVersion,
 	cmdUpdate,
@@ -114,6 +118,7 @@ func main() {
 
 	if os.Getenv("CXENVIRONMENT") != "" {
 		tokenFile = "cx_" + os.Getenv("CXENVIRONMENT") + ".json"
+		fmt.Printf("Running against %s environment\n", os.Getenv("CXENVIRONMENT"))
 		honeybadger.Environment = os.Getenv("CXENVIRONMENT")
 	} else {
 		honeybadger.Environment = "production"
@@ -129,7 +134,7 @@ func main() {
 	}
 
 	if args[0] == cmdUpdate.Name() {
-		cmdUpdate.Run(cmdUpdate, args)
+		cmdUpdate.Run(cmdUpdate, args[1:])
 		return
 	} else if VERSION != "dev" {
 		defer backgroundRun()
@@ -249,7 +254,7 @@ func stack() (*cloud66.Stack, error) {
 		}
 
 		flagStack = &stacks[idx]
-		fmt.Printf("Stack %s ", flagStack.Name)
+		fmt.Printf("Stack: %s ", flagStack.Name)
 		if flagEnvironment != "" {
 			fmt.Printf("(%s)\n", flagStack.Environment)
 		} else {

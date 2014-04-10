@@ -221,3 +221,15 @@ func (c *Client) RedeployStack(uid string) (*GenericResponse, error) {
   var stacksRes *GenericResponse
   return stacksRes, c.DoReq(req, &stacksRes)
 }
+
+func (c *Client) ClearCachesStack(uid string) (*GenericResponse, error) {
+  req, err := c.NewRequest("POST", "/stacks/" + uid + "/clear_caches.json", nil)
+  if err != nil {
+    return nil, err
+  }
+  
+  var stacksRes *GenericResponse
+  return stacksRes, c.DoReq(req, &stacksRes)
+}
+
+

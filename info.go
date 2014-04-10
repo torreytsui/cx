@@ -8,11 +8,16 @@ import (
 
 var cmdInfo = &Command{
 	Run:      runInfo,
-	Usage:    "info",
+	Usage:    "info [-s <stack>] [-e <environment>]",
 	Category: "cx",
-	Short:    "shows information about your account, toolbelt and the current directory",
+	Short:    "shows information about your account, toolbelt and the current directory or the specified stack",
 	Long: `info lists the account information, toolbelt information and if applicable information about the
   your current directory.`,
+}
+
+func init() {
+	cmdInfo.Flag.StringVar(&flagStackName, "s", "", "stack name")
+	cmdInfo.Flag.StringVar(&flagEnvironment, "e", "", "stack environment")
 }
 
 func runInfo(cmd *Command, args []string) {
@@ -46,7 +51,13 @@ func stackInfo() error {
 	}
 
 	if stack != nil {
-		fmt.Printf("Current stack: %s\n", stack.Name)
+		fmt.Println()
+		fmt.Printf("Stack info: %s (%s)\n", stack.Name, stack.Environment)
+		fmt.Printf("Uid: %s\n", stack.Uid)
+		fmt.Printf("Git: %s (%s)\n", stack.Git, stack.GitBranch)
+		fmt.Printf("Hosted on: %s\n", stack.Cloud)
+		fmt.Printf("FQDN: %s\n", stack.Fqdn)
+		fmt.Printf("Framework: %s (%s)\n", stack.Framework, stack.Language)
 	}
 	return nil
 }

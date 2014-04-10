@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"cloud66.com/cx/cloud66"
+	"github.com/cloud66/cx/cloud66"
 )
 
 var cmdSsh = &Command{
@@ -66,7 +66,7 @@ func runSsh(cmd *Command, args []string) {
 		printFatal("Server '" + serverName + "' not found")
 	}
 
-	fmt.Printf("Found %s\n", server.Name)
+	fmt.Printf("Server: %s\n", server.Name)
 
 	err = sshToServer(*server)
 	if err != nil {

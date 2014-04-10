@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"cloud66.com/cx/cloud66"
+	"github.com/cloud66/cx/cloud66"
 )
 
 var _ = fmt.Print
@@ -27,6 +27,16 @@ func areSameRemotes(lhs string, rhs string) (bool, error) {
 	// if the different is only the .git at the end, then they are the same
 	if lhs + ".git" == rhs || rhs + ".git" == lhs {
 		return true, nil
+	}
+
+	if strings.HasPrefix(lhs, "git@") {
+		lhs = strings.Replace(lhs, ":", "/", 1)
+		lhs = strings.Replace(lhs, "git@", "git://", 1)
+	}
+
+	if strings.HasPrefix(rhs, "git@") {
+		rhs = strings.Replace(rhs, ":", "/", 1)
+		rhs = strings.Replace(rhs, "git@", "git://", 1)
 	}
 
 	lhsParsed, err := url.Parse(lhs)

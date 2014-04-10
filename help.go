@@ -18,15 +18,13 @@ var helpEnviron = &Command{
 Several environment variables affect cx's behavior.
 
 CLOUD66_API_URL
-
-  The base URL hk will use to make api requests in the format:
+	The base URL hk will use to make api requests in the format:
   https://host[:port]/
 
   Its default value is https://app.cloud66.com/api/2
 
 CXDEBUG
-
-  When this is set, cx prints the wire representation of each API
+	When this is set, cx prints the wire representation of each API
   request to stderr just before sending the request, and prints the
   response. This will most likely include your secret API key in
   the Authorization header field, so be careful with the output.
@@ -42,7 +40,6 @@ CX_APP_ID, CX_APP_SECRET
 	and secrects are overwritten. This is used for debugging and development purposes.
 
 CXSTACK
-
 	If set, it overrides the stack sent as a parameter to the commands.
 	This can be the name of the stack or its UID.
 
@@ -64,6 +61,7 @@ func runVersion(cmd *Command, args []string) {
 	fmt.Println(VERSION)
 	if debugMode {
 		fmt.Println("Running in debug mode")
+		fmt.Printf("Build date: %s\n", BUILD_DATE)
 	}
 }
 
