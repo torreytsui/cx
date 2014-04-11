@@ -34,6 +34,7 @@ var prepareGitMatches = []struct {
 	{ "Same URL - different users - https - https", "https://a:b@github.com/cloud66/stacks-test.git", "https://x:y@github.com/cloud66/stacks-test.git", true },
 	{ "Same URL - different users - git - https", "git://a:b@github.com/cloud66/stacks-test.git", "https://x:y@github.com/cloud66/stacks-test.git", true },
 	{ "Same URL - different users - git - git@", "git://a:b@github.com/cloud66/stacks-test.git", "git@github.com:cloud66/stacks-test.git", true },
+	{ "identical - allow spaces - https", "https://github.com/cloud66/stacks-test.git ", " https://github.com/cloud66/stacks-test.git", true },
 }
 
 func TestAreSameRemotes(t *testing.T) {
