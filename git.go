@@ -14,6 +14,8 @@ var _ = fmt.Print
 var _ = os.Stdout
 
 func areSameRemotes(lhs string, rhs string) (bool, error) {
+	lhs, rhs = strings.TrimSpace(lhs), strings.TrimSpace(rhs)
+
 	if debugMode {
 		fmt.Printf("Comparing '%s' and '%s'\n", lhs, rhs)
 	}
