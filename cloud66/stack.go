@@ -51,6 +51,12 @@ type StackSetting struct {
   Readonly          bool          `json:"readonly"`
 }
 
+type StackEnvVar struct {
+  Key               string        `json:"key"`
+  Value             interface{}   `json:"value"`
+  Readonly          bool          `json:"readonly"`
+}
+
 func (s Stack) Status() string {
   return stackStatus[s.StatusCode]
 }
@@ -130,6 +136,34 @@ func (c *Client) StackSettings(uid string) ([]StackSetting, error) {
 
   var settingsRes []StackSetting
   return settingsRes, c.DoReq(req, &settingsRes)
+}
+
+func (c *Client) StackEnvVars(uid string) ([]StackEnvVar, error) {
+  req, err := c.NewRequest("GET", "/stacks/" + uid + "/env_vars.json", nil)
+  if err != nil {
+    return nil, err
+  }
+
+  var envVarsRes []StackEnvVar
+  return envVarsRes, c.DoReq(req, &envVarsRes)
+}
+
+func (c *Client) StackEnvVarsSet(uid string, key string, value string) (*GenericResponse, error) {
+  params := struct {
+    Key   string `json:"env_key"`
+    Value string `json:"env_value"`
+  }{
+    Key:   key,
+    Value: value,
+  }  
+
+  req, err := c.NewRequest("POST", "/stacks/" + uid + "/env_vars_set.json", params)
+  if err != nil {
+    return nil, err
+  }
+
+  var envVarsRes *GenericResponse
+  return envVarsRes, c.DoReq(req, &envVarsRes)
 }
 
 func (c *Client) FindStackByName(stackName, environment string) (*Stack, error) {
