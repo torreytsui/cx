@@ -93,7 +93,7 @@ func (a envVarsByName) Less(i, j int) bool {
 	if a[i].Readonly == a[j].Readonly {
 		return a[i].Key < a[j].Key 
 	}
-	return boolToInt(a[i].Readonly) < boolToInt(a[j].Readonly)
+	return boolToInt(a[i].Readonly) > boolToInt(a[j].Readonly)
 }
 
 func boolToInt(b bool) int {
