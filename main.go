@@ -146,7 +146,10 @@ func main() {
 		ansi.DisableColors(true)
 	}
 
-	initClients()
+	// don't need registration if we are only checking the version
+	if args[0] != "version" {
+		initClients()
+	}
 
 	for _, cmd := range commands {
 		if cmd.Name() == args[0] && cmd.Run != nil {
