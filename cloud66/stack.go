@@ -43,6 +43,7 @@ type Stack struct {
   LastActivity    *time.Time `json:"last_activity_iso"`
   UpdatedAt       time.Time  `json:"updated_at_iso"`
   CreatedAt       time.Time  `json:"created_at_iso"`
+  DeployDir       string     `json:"deploy_directory"`
 }
 
 type StackSetting struct {
@@ -155,7 +156,7 @@ func (c *Client) StackEnvVarsSet(uid string, key string, value string) (*Generic
   }{
     Key:   key,
     Value: value,
-  }  
+  }
 
   req, err := c.NewRequest("POST", "/stacks/" + uid + "/env_vars_set.json", params)
   if err != nil {
@@ -261,9 +262,7 @@ func (c *Client) ClearCachesStack(uid string) (*GenericResponse, error) {
   if err != nil {
     return nil, err
   }
-  
+
   var stacksRes *GenericResponse
   return stacksRes, c.DoReq(req, &stacksRes)
 }
-
-

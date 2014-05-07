@@ -95,6 +95,7 @@ var commands = []*Command{
 	cmdRestart,
 	cmdServers,
 	cmdSsh,
+	cmdTail,
 	cmdBackups,
 	cmdDownloadBackup,
 	cmdClearCaches,
