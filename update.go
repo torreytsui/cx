@@ -181,13 +181,6 @@ func backgroundRun() {
 		return
 	}
 	if b {
-		if err := update.SanityCheck(); err != nil {
-			if debugMode {
-				fmt.Println("Will not be able to replace the executable")
-			}
-			// fail
-			return
-		}
 		self, err := osext.Executable()
 		if err != nil {
 			// fail update, couldn't figure out path to self
@@ -209,7 +202,7 @@ func (download *CxDownload) update() error {
 		return err
 	}
 
-	err, errRecover := update.FromStream(bytes.NewBuffer(bin))
+	err, errRecover := update.New().FromStream(bytes.NewBuffer(bin))
 	if errRecover != nil {
 		return fmt.Errorf("update and recovery errors: %q %q\n", err, errRecover)
 	}
