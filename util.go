@@ -255,6 +255,8 @@ func runCommand(command string, args, env []string) error {
 }
 
 func startProgram(command string, args []string) error {
+	fmt.Println("Arguments passed to CL: [args]")
+	fmt.Println(args)
 	if runtime.GOOS != "windows" {
 		p, err := exec.LookPath(command)
 		if err != nil {
@@ -267,7 +269,7 @@ func startProgram(command string, args []string) error {
 	if debugMode {
 		fmt.Printf("Running Command %s with (%s)\n", command, args)
 	}
-
+	
 	cmd := exec.Command(command, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

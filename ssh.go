@@ -82,7 +82,7 @@ func sshToServer(server cloud66.Server) error {
 		// get the content and write the file
 		fmt.Println("Fetching SSH key...")
 		sshKey, err := client.ServerSshPrivateKey(server.Uid)
-
+		
 		if err != nil {
 			return err
 		}
