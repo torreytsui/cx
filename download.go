@@ -133,7 +133,7 @@ func sshToServerToDownload(server cloud66.Server, filePath string, targetDirecto
 	}
 
 	fmt.Printf("Connecting to %s (%s)...\n", server.Name, server.Address)
-	fmt.Println(server.UserName + "@" + server.Address + ":" + filePath + " " + targetDir)
+
 	return startProgram("scp", []string{
 		"-i", sshFile,
 		"-o", "UserKnownHostsFile=/dev/null",
