@@ -136,6 +136,7 @@ func sshToServerToDownload(server cloud66.Server, filePath string, targetDirecto
 
 	return startProgram("scp", []string{
 		"-i", sshFile,
+		"-r",
 		"-o", "UserKnownHostsFile=/dev/null",
 		"-o", "CheckHostIP=no",
 		"-o", "StrictHostKeyChecking=no",

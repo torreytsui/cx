@@ -136,6 +136,7 @@ func sshToServerToUpload(server cloud66.Server, filePath string, targetDirectory
 	
 	return startProgram("scp", []string{
 		"-i", sshFile,
+		"-r",
 		"-o", "UserKnownHostsFile=/dev/null",
 		"-o", "CheckHostIP=no",
 		"-o", "StrictHostKeyChecking=no",
