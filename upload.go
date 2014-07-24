@@ -48,8 +48,6 @@ func runUpload(cmd *Command, args []string) {
 		os.Exit(2)
 	}
 
-	fmt.Println("args:>>>")
-	fmt.Println(args)
 	stack := mustStack()
 
 	// args start after stack name
@@ -85,15 +83,8 @@ func runUpload(cmd *Command, args []string) {
 	fmt.Printf("Server: %s\n", server.Name)
 
 	if targetDirectory == "" {
-		fmt.Println("calling run upload without targetDirectory")
-		fmt.Println("and filePath is:")
-		fmt.Println(filePath)
 		err = sshToServerToUpload(*server, filePath)
 	} else {
-		fmt.Println("calling run upload with ")
-		fmt.Println(targetDirectory)
-		fmt.Println("and filePath is:")
-		fmt.Println(filePath)
 		err = sshToServerToUpload(*server, filePath, targetDirectory)
 	}
 	
@@ -111,19 +102,9 @@ func sshToServerToUpload(server cloud66.Server, filePath string, targetDirectory
 	
 	// if target directory specified
 	if len(targetDirectory) > 0 {
-		fmt.Println("targetDirectory specified")
 		targetDir = targetDirectory[0]
-		fmt.Println(targetDir)
 	}
 	
-	fmt.Println("targetDir")
-	fmt.Println(targetDir)
-	fmt.Println("sshFile")
-	fmt.Println(sshFile)
-	fmt.Println("server name and address")
-	fmt.Println(server.Name)
-	fmt.Println(server.Address)
-
 	// do we have the key?
 	if b, _ := fileExists(sshFile); !b {
 		// get the content and write the file
@@ -153,22 +134,6 @@ func sshToServerToUpload(server cloud66.Server, filePath string, targetDirectory
 
 	fmt.Printf("Connecting to %s (%s)...\n", server.Name, server.Address)
 	
-	// if target directory is specified, ssh into server and create directory. 
-	// Nothing happens if directory already exists
-	if len(targetDirectory) > 0 {
-		startProgram("ssh", []string{
-			server.UserName + "@" + server.Address,
-			"-i", sshFile,
-			"-o", "UserKnownHostsFile=/dev/null",
-			"-o", "CheckHostIP=no",
-			"-o", "StrictHostKeyChecking=no",
-			"-o", "LogLevel=QUIET",
-			"-A",
-			"-p", "22",
-			"mkdir -p " + targetDir,
-		})
-	}
-
 	return startProgram("scp", []string{
 		"-i", sshFile,
 		"-o", "UserKnownHostsFile=/dev/null",
