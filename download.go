@@ -11,7 +11,7 @@ import (
 
 var cmdDownload = &Command{
 	Run:        runDownload,
-	Usage:      "download -s <stack> <server> /path/to/source/file (optional: /path/to/target/directory)",
+	Usage:      "download -s <stack> <server name>|<server ip>|<server role> /path/to/source/file (optional: /path/to/target/directory)",
 	NeedsStack: true,
 	Category:   "stack",
 	Short:      "copies a file from the remote server to your local computer",

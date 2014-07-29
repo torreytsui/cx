@@ -11,7 +11,7 @@ import (
 
 var cmdRun = &Command{
 	Run:        runRun,
-	Usage: 		"run -s <stack> <server> <command>",
+	Usage: 		"run -s <stack> <server name>|<server ip>|<server role> '<command>'",
 	NeedsStack: true,
 	Category:   "stack",
 	Short:      "executes a command directly on the server",
@@ -32,7 +32,8 @@ var cmdRun = &Command{
 
   Examples:
 	$ cx run -s mystack lion 'ls -la'
-	$ cx run -s mystack lion 'pwd'
+	$ cx run -s mystack 52.65.34.98 'ls -la'
+	$ cx run -s mystack web 'ls -la'
   `,
 }
 
@@ -41,6 +42,10 @@ func runRun(cmd *Command, args []string) {
 		printFatal("Not supported on Windows")
 		os.Exit(2)
 	}
+
+	// tests here
+	fmt.Println("\n")
+	fmt.Println("calling runSsh")
 
 	stack := mustStack()
 	

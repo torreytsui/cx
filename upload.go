@@ -11,7 +11,7 @@ import (
 
 var cmdUpload = &Command{
 	Run:        runUpload,
-	Usage:      "upload -s <stack> <server> /path/to/source/file (optional: /path/to/target/directory)",
+	Usage:      "upload -s <stack> <server name>|<server ip>|<server role> /path/to/source/file (optional: /path/to/target/directory)",
 	NeedsStack: true,
 	Category:   "stack",
 	Short:      "copies a file from your local computer to the remote server",
@@ -37,8 +37,9 @@ var cmdUpload = &Command{
   Examples:
 
     $ cx upload -s mystack lion /path/to/source/file
+    $ cx upload -s mystack lion /path/to/source/file /path/to/target/directory
     $ cx upload -s mystack 52.65.34.98 /path/to/source/file
-    $ cx upload -s mystack 52.65.34.98 /path/to/source/file /path/to/target/directory
+    $ cx upload -s mystack web /path/to/source/file /path/to/target/directory
   `,
 }
 
