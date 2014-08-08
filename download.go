@@ -97,7 +97,7 @@ func sshToServerToDownload(server cloud66.Server, filePath string, targetDirecto
 	sshFile := filepath.Join(homePath(), ".ssh", "cx_"+server.StackUid)
 
 	// default target directory
-	var defaultDir string = "~/"
+	var defaultDir string = "."
 	var targetDir string = defaultDir
 
 	// if target directory specified
