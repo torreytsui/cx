@@ -43,10 +43,6 @@ func runRun(cmd *Command, args []string) {
 		os.Exit(2)
 	}
 
-	// tests here
-	fmt.Println("\n")
-	fmt.Println("calling runSsh")
-
 	stack := mustStack()
 	
 	// args start after stack name
@@ -88,7 +84,9 @@ func sshToServerForCommand(server cloud66.Server, userCommand string) error {
 	// do we have the key?
 	if b, _ := fileExists(sshFile); !b {
 		// get the content and write the file
-		fmt.Println("Fetching SSH key...")
+		if debugMode {
+			fmt.Println("Fetching SSH key...")
+		}		
 		sshKey, err := client.ServerSshPrivateKey(server.Uid)
 
 		if err != nil {
