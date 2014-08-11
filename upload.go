@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	
+
 	"github.com/cloud66/cx/cloud66"
 )
 
@@ -15,9 +15,9 @@ var cmdUpload = &Command{
 	NeedsStack: true,
 	Category:   "stack",
 	Short:      "copies a file from your local computer to the remote server",
-	Long: `This command will copy a file from your local computer to the remote server. 
+	Long: `This command will copy a file from your local computer to the remote server.
 
-  This command will upload the files to the '/tmp' directory by default. 
+  This command will upload the files to the '/tmp' directory by default.
   To copy the file to a specific directory in the remote server,
   specify the target directory location in the command line.
 
@@ -74,8 +74,7 @@ func runUpload(cmd *Command, args []string) {
 
 	server, err := findServer(servers, serverName)
 	if err != nil {
-		fmt.Println("")
-		printError("server not found, please speficy server in command.")
+		printError("server not found, please ensure correct server is specified in command.")
 		os.Exit(2)
 	}
 
@@ -90,7 +89,7 @@ func runUpload(cmd *Command, args []string) {
 	} else {
 		err = sshToServerToUpload(*server, filePath, targetDirectory)
 	}
-	
+
 	if err != nil {
 		printFatal(err.Error())
 	}
@@ -102,18 +101,18 @@ func sshToServerToUpload(server cloud66.Server, filePath string, targetDirectory
 	// default target directory
 	var defaultDir string = "/tmp"
 	var targetDir string = defaultDir
-	
+
 	// if target directory specified
 	if len(targetDirectory) > 0 {
 		targetDir = targetDirectory[0]
 	}
-	
+
 	// do we have the key?
 	if b, _ := fileExists(sshFile); !b {
 		// get the content and write the file
 		fmt.Println("Fetching SSH key...")
 		sshKey, err := client.ServerSshPrivateKey(server.Uid)
-		
+
 		if err != nil {
 			return err
 		}
@@ -136,7 +135,7 @@ func sshToServerToUpload(server cloud66.Server, filePath string, targetDirectory
 	}
 
 	fmt.Printf("Connecting to %s (%s)...\n", server.Name, server.Address)
-	
+
 	return startProgram("scp", []string{
 		"-i", sshFile,
 		"-r",
