@@ -74,7 +74,9 @@ func runUpload(cmd *Command, args []string) {
 
 	server, err := findServer(servers, serverName)
 	if err != nil {
-		printFatal(err.Error())
+		fmt.Println("")
+		printError("server not found, please speficy server in command.")
+		os.Exit(2)
 	}
 
 	if server == nil {
