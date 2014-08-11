@@ -279,8 +279,9 @@ func stack(toSdout ...bool) (*cloud66.Stack, error) {
 			fmt.Printf("Stack: %s ", flagStack.Name)
 			if flagEnvironment != "" {
 				fmt.Printf("(%s)\n", flagStack.Environment)
+			} else {
+				fmt.Println("")
 			}
-			fmt.Println("")
 		}
 
 		return flagStack, err
