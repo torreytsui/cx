@@ -1,71 +1,71 @@
 package cloud66
 
 import (
-  "fmt"
-  "io"
-  "os"
-	"errors"
-  "runtime"
-  "path/filepath"
-  "bytes"
-  "reflect"
+	"bytes"
 	"encoding/json"
-  "log"
-  "strings"
-  "net/http"
+	"errors"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
 	"net/http/httputil"
+	"os"
+	"path/filepath"
+	"reflect"
+	"runtime"
+	"strings"
 
 	"code.google.com/p/go-uuid/uuid"
-  "code.google.com/p/goauth2/oauth"
+	"code.google.com/p/goauth2/oauth"
 )
 
 const (
-  baseURL                  = "https://app.cloud66.com"
-  productionClientId       = "d4631fd51633bef0c04c6f946428a61fb9089abf4c1e13c15e9742cafd84a91f"
-  productionClientSecret   = "e663473f7b991504eb561e208995de15550f499b6840299df588cebe981ba48e"
-  scope                    = "public redeploy jobs users admin"
-  redirectURL              = "urn:ietf:wg:oauth:2.0:oob"
+	baseURL                = "https://app.cloud66.com"
+	productionClientId     = "d4631fd51633bef0c04c6f946428a61fb9089abf4c1e13c15e9742cafd84a91f"
+	productionClientSecret = "e663473f7b991504eb561e208995de15550f499b6840299df588cebe981ba48e"
+	scope                  = "public redeploy jobs users admin"
+	redirectURL            = "urn:ietf:wg:oauth:2.0:oob"
 )
 
 var (
-  defaultUserAgent  string
-  baseAPIURL        string
-  defaultAPIURL     string
-  clientId          = os.Getenv("CX_APP_ID")
-  clientSecret      = os.Getenv("CX_APP_SECRET")
-  authURL           string
-  tokenURL          string
+	defaultUserAgent string
+	baseAPIURL       string
+	defaultAPIURL    string
+	clientId         = os.Getenv("CX_APP_ID")
+	clientSecret     = os.Getenv("CX_APP_SECRET")
+	authURL          string
+	tokenURL         string
 )
 
 type GenericResponse struct {
-  Status     bool   `json:"ok"`
-  Message    string `json:"message"`
+	Status  bool   `json:"ok"`
+	Message string `json:"message"`
 }
 
 type Client struct {
-	HTTP               *http.Client
-	URL                string
-	UserAgent          string
-	Debug              bool
-	AdditionalHeaders  http.Header
+	HTTP              *http.Client
+	URL               string
+	UserAgent         string
+	Debug             bool
+	AdditionalHeaders http.Header
 }
 
 type Response struct {
-  Response json.RawMessage
-  Count    int
+	Response json.RawMessage
+	Count    int
 }
 
 type filterFunction func(item interface{}) bool
 
 func init() {
-  baseAPIURL = os.Getenv("CLOUD66_API_URL")
-  if baseAPIURL == "" {
-    baseAPIURL = baseURL
-  }
+	baseAPIURL = os.Getenv("CLOUD66_API_URL")
+	if baseAPIURL == "" {
+		baseAPIURL = baseURL
+	}
 
-  defaultAPIURL  = baseAPIURL + "/api/2"
-  authURL        = baseAPIURL + "/oauth/authorize"
-  tokenURL       = baseAPIURL + "/oauth/token"
+	defaultAPIURL = baseAPIURL + "/api/3"
+	authURL = baseAPIURL + "/oauth/authorize"
+	tokenURL = baseAPIURL + "/oauth/token"
 }
 
 func (c *Client) Get(v interface{}, path string) error {
@@ -127,9 +127,9 @@ func (c *Client) NewRequest(method, path string, body interface{}) (*http.Reques
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Request-Id", uuid.New())
-  if os.Getenv("CXTOKEN") != "" {
-    req.Header.Set("X-CxToken", os.Getenv("CXTOKEN"))
-  }
+	if os.Getenv("CXTOKEN") != "" {
+		req.Header.Set("X-CxToken", os.Getenv("CXTOKEN"))
+	}
 	useragent := c.UserAgent
 	if useragent == "" {
 		useragent = defaultUserAgent
@@ -153,6 +153,7 @@ func (c *Client) APIReq(v interface{}, meth, path string, body interface{}) erro
 }
 
 func (c *Client) DoReq(req *http.Request, v interface{}) error {
+
 	if c.Debug {
 		dump, err := httputil.DumpRequestOut(req, true)
 		if err != nil {
@@ -186,13 +187,13 @@ func (c *Client) DoReq(req *http.Request, v interface{}) error {
 		return err
 	}
 
-  // open the wrapper
-  var r Response
-  err = json.NewDecoder(res.Body).Decode(&r)
-  if err != nil {
-    return err
-  }
-  buffer := bytes.NewBuffer(r.Response)
+	// open the wrapper
+	var r Response
+	err = json.NewDecoder(res.Body).Decode(&r)
+	if err != nil {
+		return err
+	}
+	buffer := bytes.NewBuffer(r.Response)
 
 	switch t := v.(type) {
 	case nil:
@@ -210,9 +211,9 @@ type Error struct {
 }
 
 type errorResp struct {
-  Error        string  `json:"error"`
-  Description  string  `json:"error_description"`
-  Details      string  `json:"details"`
+	Error       string `json:"error"`
+	Description string `json:"error_description"`
+	Details     string `json:"details"`
 }
 
 func checkResp(res *http.Response) error {
@@ -222,11 +223,11 @@ func checkResp(res *http.Response) error {
 		if err != nil {
 			return errors.New("Unexpected error: " + res.Status)
 		}
-    if e.Details != "" {
-		  return Error{error: errors.New(e.Details), Id: e.Error}
-    } else {
-      return Error{error: errors.New(e.Description), Id: e.Error}
-    }
+		if e.Details != "" {
+			return Error{error: errors.New(e.Details), Id: e.Error}
+		} else {
+			return Error{error: errors.New(e.Description), Id: e.Error}
+		}
 
 	}
 	if msg := res.Header.Get("X-Cloud66-Warning"); msg != "" {
@@ -236,68 +237,68 @@ func checkResp(res *http.Response) error {
 }
 
 func Authorize(tokenDir, tokenFile string) {
-  err := os.MkdirAll(tokenDir, 0777)
-  if err != nil {
-    fmt.Printf("Failed to create directory for the token at %s\n", tokenDir)
-  }
-  cachefile := filepath.Join(tokenDir, tokenFile)
+	err := os.MkdirAll(tokenDir, 0777)
+	if err != nil {
+		fmt.Printf("Failed to create directory for the token at %s\n", tokenDir)
+	}
+	cachefile := filepath.Join(tokenDir, tokenFile)
 
-  if clientId == "" {
-    clientId = productionClientId
-  }
-  if clientSecret == "" {
-    clientSecret = productionClientSecret
-  }
-  config := &oauth.Config{
-    ClientId:     clientId,
-    ClientSecret: clientSecret,
-    RedirectURL:  redirectURL,
-    Scope:        scope,
-    AuthURL:      authURL,
-    TokenURL:     tokenURL,
-    TokenCache:   oauth.CacheFile(cachefile),
-  }
-  transport := &oauth.Transport{Config: config}
-  _, err = config.TokenCache.Token()
+	if clientId == "" {
+		clientId = productionClientId
+	}
+	if clientSecret == "" {
+		clientSecret = productionClientSecret
+	}
+	config := &oauth.Config{
+		ClientId:     clientId,
+		ClientSecret: clientSecret,
+		RedirectURL:  redirectURL,
+		Scope:        scope,
+		AuthURL:      authURL,
+		TokenURL:     tokenURL,
+		TokenCache:   oauth.CacheFile(cachefile),
+	}
+	transport := &oauth.Transport{Config: config}
+	_, err = config.TokenCache.Token()
 
-  // do we already have access?
-  if err != nil {
+	// do we already have access?
+	if err != nil {
 
-    url := config.AuthCodeURL("")
-    fmt.Println("Please open the following URL in your browser and paste the access code here:")
-    fmt.Println(url)
+		url := config.AuthCodeURL("")
+		fmt.Println("Please open the following URL in your browser and paste the access code here:")
+		fmt.Println(url)
 
-    var s string
-    fmt.Println("Authorization Code:")
-    fmt.Scan(&s)
+		var s string
+		fmt.Println("Authorization Code:")
+		fmt.Scan(&s)
 
-    _, err := transport.Exchange(s)
-    if err != nil {
-      log.Fatal("Exchange:", err)
-    }
+		_, err := transport.Exchange(s)
+		if err != nil {
+			log.Fatal("Exchange:", err)
+		}
 
-    fmt.Printf("Token is cached in %v\n", config.TokenCache)
-    os.Exit(1)
-  }
+		fmt.Printf("Token is cached in %v\n", config.TokenCache)
+		os.Exit(1)
+	}
 }
 
 func GetClient(tokenDir, tokenFile, version string) Client {
-  cachefile := filepath.Join(tokenDir, tokenFile)
-  defaultUserAgent = "cx/" + version + " (" + runtime.GOOS + "; " + runtime.GOARCH + ")"
+	cachefile := filepath.Join(tokenDir, tokenFile)
+	defaultUserAgent = "cx/" + version + " (" + runtime.GOOS + "; " + runtime.GOARCH + ")"
 
-  config := &oauth.Config{
-    ClientId:     clientId,
-    ClientSecret: clientSecret,
-    RedirectURL:  redirectURL,
-    Scope:        scope,
-    AuthURL:      authURL,
-    TokenURL:     tokenURL,
-    TokenCache:   oauth.CacheFile(cachefile),
-  }
+	config := &oauth.Config{
+		ClientId:     clientId,
+		ClientSecret: clientSecret,
+		RedirectURL:  redirectURL,
+		Scope:        scope,
+		AuthURL:      authURL,
+		TokenURL:     tokenURL,
+		TokenCache:   oauth.CacheFile(cachefile),
+	}
 
-  transport := &oauth.Transport{Config: config}
-  token, _ := config.TokenCache.Token()
-  transport.Token = token
+	transport := &oauth.Transport{Config: config}
+	token, _ := config.TokenCache.Token()
+	transport.Token = token
 
-  return Client{ HTTP : transport.Client() }
+	return Client{HTTP: transport.Client()}
 }

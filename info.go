@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"runtime"
 	"strings"
 )
@@ -33,14 +34,19 @@ func runInfo(cmd *Command, args []string) {
 }
 
 func accountInfo() error {
-	userInfo, err := client.UserInfo()
+	accountInfos, err := client.AccountInfos()
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("Account owner: %s\n", userInfo.Owner)
-	fmt.Printf("Running %d stack(s)\n", userInfo.StackCount)
-	fmt.Printf("Used clouds: %s\n", strings.Join(userInfo.UsedClouds, ", "))
+	if len(accountInfos) != 1 {
+		printFatal("User associated with this request returning multiple (or zero) references")
+		os.Exit(2)
+	}
+	var accountInfo = accountInfos[0]
+	fmt.Printf("Account owner: %s\n", accountInfo.Owner)
+	fmt.Printf("Running %d stack(s)\n", accountInfo.StackCount)
+	fmt.Printf("Used clouds: %s\n", strings.Join(accountInfo.UsedClouds, ", "))
 	return nil
 }
 
