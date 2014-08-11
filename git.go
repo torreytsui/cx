@@ -25,7 +25,7 @@ func areSameRemotes(lhs string, rhs string) (bool, error) {
 	}
 
 	// if the different is only the .git at the end, then they are the same
-	if lhs + ".git" == rhs || rhs + ".git" == lhs {
+	if lhs+".git" == rhs || rhs+".git" == lhs {
 		return true, nil
 	}
 

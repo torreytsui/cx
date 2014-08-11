@@ -38,7 +38,7 @@ Examples:
 
 func runEnvVars(cmd *Command, envVarKeys []string) {
 	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
-	defer w.Flush()	
+	defer w.Flush()
 	var envVars []cloud66.StackEnvVar
 	var err error
 	stack := mustStack()
@@ -87,18 +87,18 @@ func listEnvVar(w io.Writer, a cloud66.StackEnvVar) {
 
 type envVarsByName []cloud66.StackEnvVar
 
-func (a envVarsByName) Len() int           { return len(a) }
-func (a envVarsByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a envVarsByName) Less(i, j int) bool { 
+func (a envVarsByName) Len() int      { return len(a) }
+func (a envVarsByName) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a envVarsByName) Less(i, j int) bool {
 	if a[i].Readonly == a[j].Readonly {
-		return a[i].Key < a[j].Key 
+		return a[i].Key < a[j].Key
 	}
 	return boolToInt(a[i].Readonly) > boolToInt(a[j].Readonly)
 }
 
 func boolToInt(b bool) int {
-    if b {
-        return 1
-    }
-    return 0
+	if b {
+		return 1
+	}
+	return 0
 }

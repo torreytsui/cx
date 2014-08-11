@@ -39,6 +39,5 @@ func runEnvVarsSet(cmd *Command, args []string) {
 	} else {
 		fmt.Println(result.Message)
 	}
-	return		
-}	
-
+	return
+}

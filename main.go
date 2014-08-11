@@ -22,18 +22,18 @@ type Command struct {
 	Flag       flag.FlagSet
 	NeedsStack bool
 
-	Usage    	string
-	Category 	string
-	Short    	string
-	Long     	string
+	Usage    string
+	Category string
+	Short    string
+	Long     string
 }
 
 var (
-	client    	cloud66.Client
-	debugMode 	bool   = false
-	VERSION   	string = "dev"
-	BUILD_DATE	string = ""
-	tokenFile 	string = "cx.json"
+	client     cloud66.Client
+	debugMode  bool   = false
+	VERSION    string = "dev"
+	BUILD_DATE string = ""
+	tokenFile  string = "cx.json"
 )
 
 func (c *Command) printUsage() {
@@ -93,9 +93,12 @@ var commands = []*Command{
 	cmdEnvVarsSet,
 	cmdLease,
 	cmdRestart,
+	cmdRun,
 	cmdServers,
 	cmdSsh,
 	cmdTail,
+	cmdUpload,
+	cmdDownload,
 	cmdBackups,
 	cmdDownloadBackup,
 	cmdClearCaches,
@@ -111,8 +114,8 @@ var commands = []*Command{
 }
 
 var (
-	flagStack     	*cloud66.Stack
-	flagStackName 	string
+	flagStack       *cloud66.Stack
+	flagStackName   string
 	flagEnvironment string
 )
 
@@ -131,6 +134,7 @@ func main() {
 
 	// make sure command is specified, disallow global args
 	args := os.Args[1:]
+
 	if len(args) < 1 || strings.IndexRune(args[0], '-') == 0 {
 		printUsageTo(os.Stderr)
 		os.Exit(2)
@@ -153,6 +157,7 @@ func main() {
 	}
 
 	for _, cmd := range commands {
+
 		if cmd.Name() == args[0] && cmd.Run != nil {
 			defer recoverPanic()
 
@@ -167,7 +172,15 @@ func main() {
 				os.Exit(2)
 			}
 			if cmd.NeedsStack {
-				s, err := stack()
+				// by default print server output to stdout
+				var toSdout bool = true
+
+				// when command is 'run', do not print server output to stdout
+				if args[0] == "run" {
+					toSdout = false
+				}
+
+				s, err := stack(toSdout)
 				switch {
 				case err == nil && s == nil:
 					msg := "no stack specified"
@@ -239,7 +252,7 @@ func filterByEnvironment(item interface{}) bool {
 	return strings.HasPrefix(strings.ToLower(item.(cloud66.Stack).Environment), strings.ToLower(flagEnvironment))
 }
 
-func stack() (*cloud66.Stack, error) {
+func stack(toSdout ...bool) (*cloud66.Stack, error) {
 	if flagStack != nil {
 		return flagStack, nil
 	}
@@ -260,12 +273,17 @@ func stack() (*cloud66.Stack, error) {
 		}
 
 		flagStack = &stacks[idx]
-		fmt.Printf("Stack: %s ", flagStack.Name)
-		if flagEnvironment != "" {
-			fmt.Printf("(%s)\n", flagStack.Environment)
-		} else {
-			fmt.Println("")
+
+		// toSdout is of type []bool. Take first value
+		if len(toSdout) == 0 || toSdout[0] == true {
+			fmt.Printf("Stack: %s ", flagStack.Name)
+			if flagEnvironment != "" {
+				fmt.Printf("(%s)\n", flagStack.Environment)
+			} else {
+				fmt.Println("")
+			}
 		}
+
 		return flagStack, err
 	}
 

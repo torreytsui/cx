@@ -38,8 +38,8 @@ func runOpen(cmd *Command, args []string) {
 	// are we connecting to a server?
 	if len(args) == 1 {
 
-	// get the server
-	serverName := args[0]
+		// get the server
+		serverName := args[0]
 
 		servers, err := client.Servers(stack.Uid)
 		if err != nil {
