@@ -275,12 +275,15 @@ func stack(toSdout ...bool) (*cloud66.Stack, error) {
 		flagStack = &stacks[idx]
 
 		// toSdout is of type []bool. Take first value
-		if toSdout[0] == true {
+		if len(toSdout) == 0 || toSdout[0] == true {
 			fmt.Printf("Stack: %s ", flagStack.Name)
+			if flagEnvironment != "" {
+				fmt.Printf("(%s)\n", flagStack.Environment)
+			} else {
+				fmt.Println("")
+			}
 		}
-		if flagEnvironment != "" {
-			fmt.Printf("(%s)\n", flagStack.Environment)
-		}
+
 		return flagStack, err
 	}
 

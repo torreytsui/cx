@@ -289,7 +289,6 @@ func fuzzyFind(s []string, item string) (int, error) {
 			results = append(results, i)
 		}
 	}
-
 	if len(results) == 1 {
 		return results[0], nil
 	}

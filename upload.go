@@ -15,9 +15,9 @@ var cmdUpload = &Command{
 	NeedsStack: true,
 	Category:   "stack",
 	Short:      "copies a file from your local computer to the remote server",
-	Long: `This command will copy a file from your local computer to the remote server. 
+	Long: `This command will copy a file from your local computer to the remote server.
 
-  This command will upload the files to the '/tmp' directory by default. 
+  This command will upload the files to the '/tmp' directory by default.
   To copy the file to a specific directory in the remote server,
   specify the target directory location in the command line.
 
@@ -74,7 +74,8 @@ func runUpload(cmd *Command, args []string) {
 
 	server, err := findServer(servers, serverName)
 	if err != nil {
-		printFatal(err.Error())
+		printError("server not found, please ensure correct server is specified in command.")
+		os.Exit(2)
 	}
 
 	if server == nil {
