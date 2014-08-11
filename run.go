@@ -11,7 +11,7 @@ import (
 
 var cmdRun = &Command{
 	Run:        runRun,
-	Usage: 		"run -s <stack> <server name>|<server ip>|<server role> '<command>'",
+	Usage:      "run -s <stack> <server name>|<server ip>|<server role> '<command>'",
 	NeedsStack: true,
 	Category:   "stack",
 	Short:      "executes a command directly on the server",
@@ -44,7 +44,7 @@ func runRun(cmd *Command, args []string) {
 	}
 
 	stack := mustStack()
-	
+
 	// args start after stack name
 	if len(args) != 2 {
 		cmd.printUsage()
@@ -86,7 +86,7 @@ func sshToServerForCommand(server cloud66.Server, userCommand string) error {
 		// get the content and write the file
 		if debugMode {
 			fmt.Println("Fetching SSH key...")
-		}		
+		}
 		sshKey, err := client.ServerSshPrivateKey(server.Uid)
 
 		if err != nil {

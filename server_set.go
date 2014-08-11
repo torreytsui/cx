@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"github.com/cloud66/cx/cloud66"
+	"os"
 )
 
 var cmdServerSet = &Command{

@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	
+
 	"github.com/cloud66/cx/cloud66"
 )
 
@@ -81,9 +81,9 @@ func runDownload(cmd *Command, args []string) {
 	}
 
 	fmt.Printf("Server: %s\n", server.Name)
-	
+
 	if targetDirectory == "" {
-			err = sshToServerToDownload(*server, filePath)
+		err = sshToServerToDownload(*server, filePath)
 	} else {
 		err = sshToServerToDownload(*server, filePath, targetDirectory)
 	}
@@ -104,13 +104,13 @@ func sshToServerToDownload(server cloud66.Server, filePath string, targetDirecto
 	if len(targetDirectory) > 0 {
 		targetDir = targetDirectory[0]
 	}
-	
+
 	// do we have the key?
 	if b, _ := fileExists(sshFile); !b {
 		// get the content and write the file
 		fmt.Println("Fetching SSH key...")
 		sshKey, err := client.ServerSshPrivateKey(server.Uid)
-		
+
 		if err != nil {
 			return err
 		}
