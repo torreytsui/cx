@@ -267,7 +267,7 @@ func startProgram(command string, args []string) error {
 	if debugMode {
 		fmt.Printf("Running Command %s with (%s)\n", command, args)
 	}
-	
+
 	cmd := exec.Command(command, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

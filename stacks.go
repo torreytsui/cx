@@ -34,8 +34,7 @@ Examples:
 `,
 }
 
-var
-	flagForcedEnvironment string
+var flagForcedEnvironment string
 
 func init() {
 	cmdStacks.Flag.StringVar(&flagForcedEnvironment, "e", "", "stack environment")
@@ -47,7 +46,7 @@ func runStacks(cmd *Command, names []string) {
 	var stacks []cloud66.Stack
 	if len(names) == 0 {
 		var err error
-		stacks, err = client.StackListWithFilter(func (item interface{}) bool {
+		stacks, err = client.StackListWithFilter(func(item interface{}) bool {
 			if flagForcedEnvironment == "" {
 				return true
 			}

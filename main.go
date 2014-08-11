@@ -22,18 +22,18 @@ type Command struct {
 	Flag       flag.FlagSet
 	NeedsStack bool
 
-	Usage    	string
-	Category 	string
-	Short    	string
-	Long     	string
+	Usage    string
+	Category string
+	Short    string
+	Long     string
 }
 
 var (
-	client    	cloud66.Client
-	debugMode 	bool   = false
-	VERSION   	string = "dev"
-	BUILD_DATE	string = ""
-	tokenFile 	string = "cx.json"
+	client     cloud66.Client
+	debugMode  bool   = false
+	VERSION    string = "dev"
+	BUILD_DATE string = ""
+	tokenFile  string = "cx.json"
 )
 
 func (c *Command) printUsage() {
@@ -114,8 +114,8 @@ var commands = []*Command{
 }
 
 var (
-	flagStack     	*cloud66.Stack
-	flagStackName 	string
+	flagStack       *cloud66.Stack
+	flagStackName   string
 	flagEnvironment string
 )
 
@@ -134,7 +134,7 @@ func main() {
 
 	// make sure command is specified, disallow global args
 	args := os.Args[1:]
-	
+
 	if len(args) < 1 || strings.IndexRune(args[0], '-') == 0 {
 		printUsageTo(os.Stderr)
 		os.Exit(2)
@@ -179,7 +179,7 @@ func main() {
 				if args[0] == "run" {
 					toSdout = false
 				}
-				
+
 				s, err := stack(toSdout)
 				switch {
 				case err == nil && s == nil:
@@ -276,7 +276,7 @@ func stack(toSdout ...bool) (*cloud66.Stack, error) {
 
 		// toSdout is of type []bool. Take first value
 		if toSdout[0] == true {
-			fmt.Printf("Stack: %s ", flagStack.Name)	
+			fmt.Printf("Stack: %s ", flagStack.Name)
 		}
 		if flagEnvironment != "" {
 			fmt.Printf("(%s)\n", flagStack.Environment)
