@@ -1,8 +1,6 @@
 package main
 
-import (
-	"fmt"
-)
+import "github.com/cloud66/cx/cloud66"
 
 var cmdRestart = &Command{
 	Run:        runRestart,
@@ -18,10 +16,9 @@ For more information on restart command, please refer to help.cloud66.com
 
 func runRestart(cmd *Command, args []string) {
 	stack := mustStack()
-	result, err := client.RestartStack(stack.Uid)
-	if err != nil {
-		printFatal(err.Error())
-	} else {
-		fmt.Println(result.Message)
+	async_result, err := client.InvokeStackAction(stack.Uid, "restart")
+	var async_error = client.WaitForAsyncActionComplete(stack.Uid, async_result, err, cloud66.DefaultCheckFrequency, cloud66.DefaultTimeout)
+	if async_error != nil {
+		printFatal(async_error.Error())
 	}
 }

@@ -140,7 +140,7 @@ func (c *Client) StackSettings(uid string) ([]StackSetting, error) {
 }
 
 func (c *Client) StackEnvVars(uid string) ([]StackEnvVar, error) {
-	req, err := c.NewRequest("GET", "/stacks/"+uid+"/env_vars.json", nil)
+	req, err := c.NewRequest("GET", "/stacks/"+uid+"/environments.json", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -190,7 +190,7 @@ func (c *Client) Servers(uid string) ([]Server, error) {
 }
 
 func (c *Client) ManagedBackups(uid string) ([]ManagedBackup, error) {
-	req, err := c.NewRequest("GET", "/stacks/"+uid+"/managed_backups.json", nil)
+	req, err := c.NewRequest("GET", "/stacks/"+uid+"/backups.json", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -217,16 +217,6 @@ func (c *Client) Set(uid string, key string, value string) (*GenericResponse, er
 	return settingRes, c.DoReq(req, &settingRes)
 }
 
-func (c *Client) RestartStack(uid string) (*GenericResponse, error) {
-	req, err := c.NewRequest("POST", "/stacks/"+uid+"/restart.json", nil)
-	if err != nil {
-		return nil, err
-	}
-
-	var stacksRes *GenericResponse
-	return stacksRes, c.DoReq(req, &stacksRes)
-}
-
 func (c *Client) Lease(uid string, ipAddress *string, timeToOpen *int, port *int) (*GenericResponse, error) {
 	params := struct {
 		TimeToOpen *int    `json:"time_to_open"`
@@ -248,20 +238,19 @@ func (c *Client) Lease(uid string, ipAddress *string, timeToOpen *int, port *int
 }
 
 func (c *Client) RedeployStack(uid string) (*GenericResponse, error) {
-	req, err := c.NewRequest("POST", "/stacks/"+uid+"/redeploy.json", nil)
+	req, err := c.NewRequest("POST", "/stacks/"+uid+"/deployments.json", nil)
 	if err != nil {
 		return nil, err
 	}
-
 	var stacksRes *GenericResponse
 	return stacksRes, c.DoReq(req, &stacksRes)
 }
 
-func (c *Client) ClearCachesStack(uid string) (*AsyncResult, error) {
+func (c *Client) InvokeStackAction(uid string, action string) (*AsyncResult, error) {
 	params := struct {
 		Command string `json:"command"`
 	}{
-		Command: "clear_caches",
+		Command: action,
 	}
 	req, err := c.NewRequest("POST", "/stacks/"+uid+"/actions.json", params)
 	if err != nil {

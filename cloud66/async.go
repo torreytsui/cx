@@ -26,7 +26,7 @@ type AsyncResult struct {
 
 func (c *Client) WaitForAsyncActionComplete(uid string, async_result *AsyncResult, err error, checkFrequency time.Duration, timeout time.Duration) error {
 	if err == nil {
-		fmt.Printf("Executing: %s\n", async_result.Action)
+		fmt.Printf("Executing \"%s\"\n..", async_result.Action)
 		var timeoutTime = time.Now().Add(timeout)
 		var timedOut = false
 		for async_result.FinishedAt == nil && timedOut != true {
@@ -39,9 +39,8 @@ func (c *Client) WaitForAsyncActionComplete(uid string, async_result *AsyncResul
 		if timedOut {
 			fmt.Println("")
 			err = errors.New("timed-out after " + strconv.FormatInt(int64(timeout)/int64(time.Second), 10) + " second(s)")
-
 		} else {
-			fmt.Println("done!")
+			fmt.Println("complete!")
 			if async_result.Outcome != "" {
 				fmt.Println(async_result.Outcome)
 			}

@@ -68,7 +68,7 @@ func getServerSettings(stack cloud66.Stack, server cloud66.Server, settingNames 
 	var settings []cloud66.StackSetting
 	var err error
 
-	settings, err = client.ServerSettings(server.Uid)
+	settings, err = client.ServerSettings(stack.Uid, server.Uid)
 	must(err)
 
 	// filter out the server name

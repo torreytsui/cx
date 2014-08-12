@@ -1,8 +1,6 @@
 package cloud66
 
-import (
-	"time"
-)
+import "time"
 
 type Server struct {
 	Uid              string      `json:"uid"`
@@ -31,8 +29,8 @@ func (s Server) Health() string {
 	return healthStatus[s.HealthCode]
 }
 
-func (c *Client) ServerSshPrivateKey(uid string) (string, error) {
-	req, err := c.NewRequest("GET", "/servers/"+uid+"/ssh_private_key.json", nil)
+func (c *Client) ServerSshPrivateKey(stack_uid string) (string, error) {
+	req, err := c.NewRequest("GET", "/stacks/"+stack_uid+"/servers/ssh_private_key.json", nil)
 	if err != nil {
 		return "", err
 	}
@@ -46,8 +44,8 @@ func (c *Client) ServerSshPrivateKey(uid string) (string, error) {
 	return sshRes.Key, c.DoReq(req, &sshRes)
 }
 
-func (c *Client) ServerSettings(uid string) ([]StackSetting, error) {
-	req, err := c.NewRequest("GET", "/servers/"+uid+"/settings.json", nil)
+func (c *Client) ServerSettings(stackUid string, serverUid string) ([]StackSetting, error) {
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/servers/"+serverUid+"/settings.json", nil)
 
 	if err != nil {
 		return nil, err

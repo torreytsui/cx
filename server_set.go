@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/cloud66/cx/cloud66"
 	"os"
+
+	"github.com/cloud66/cx/cloud66"
 )
 
 var cmdServerSet = &Command{
@@ -60,7 +61,7 @@ func executeServerSet(stack cloud66.Stack, server cloud66.Server, args []string)
 	key := args[0]
 	value := args[1]
 
-	settings, err := client.ServerSettings(server.Uid)
+	settings, err := client.ServerSettings(stack.Uid, server.Uid)
 	must(err)
 
 	// check to see if it's a valid setting
