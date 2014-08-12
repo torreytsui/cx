@@ -158,7 +158,7 @@ func (c *Client) StackEnvVarsSet(uid string, key string, value string) (*Generic
 		Value: value,
 	}
 
-	req, err := c.NewRequest("POST", "/stacks/"+uid+"/env_vars_set.json", params)
+	req, err := c.NewRequest("PUT", "/stacks/"+uid+"/environments/"+key+".json", params)
 	if err != nil {
 		return nil, err
 	}
@@ -200,19 +200,17 @@ func (c *Client) ManagedBackups(uid string) ([]ManagedBackup, error) {
 }
 
 func (c *Client) Set(uid string, key string, value string) (*GenericResponse, error) {
+	key = strings.Replace(key, ".", "-", -1)
 	params := struct {
-		Key   string `json:"setting_name"`
-		Value string `json:"setting_value"`
+		Value string `json:"value"`
 	}{
-		Key:   key,
 		Value: value,
 	}
-
-	req, err := c.NewRequest("POST", "/stacks/"+uid+"/setting.json", params)
+	// fmt.Println("/stacks/" + uid + "/settings/" + key + ".json")
+	req, err := c.NewRequest("PUT", "/stacks/"+uid+"/settings/"+key+".json", params)
 	if err != nil {
 		return nil, err
 	}
-
 	var settingRes *GenericResponse
 	return settingRes, c.DoReq(req, &settingRes)
 }

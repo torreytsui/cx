@@ -1,6 +1,9 @@
 package cloud66
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 type Server struct {
 	Uid              string      `json:"uid"`
@@ -56,15 +59,14 @@ func (c *Client) ServerSettings(stackUid string, serverUid string) ([]StackSetti
 }
 
 func (c *Client) ServerSet(stackUid string, serverUid string, key string, value string) (*GenericResponse, error) {
+	key = strings.Replace(key, ".", "-", -1)
 	params := struct {
-		Key   string `json:"setting_name"`
-		Value string `json:"setting_value"`
+		Value string `json:"value"`
 	}{
-		Key:   key,
 		Value: value,
 	}
 
-	req, err := c.NewRequest("PUT", "/stacks/"+stackUid+"/servers/"+serverUid+"/setting.json", params)
+	req, err := c.NewRequest("PUT", "/stacks/"+stackUid+"/servers/"+serverUid+"/settings/"+key+".json", params)
 	if err != nil {
 		return nil, err
 	}
