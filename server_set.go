@@ -69,7 +69,7 @@ func executeServerSet(stack cloud66.Stack, server cloud66.Server, args []string)
 		if key == i.Key {
 			// yup. it's a good one
 			fmt.Printf("Please wait while your setting is applied...\n")
-			result, err := client.ServerSet(server.Uid, key, value)
+			result, err := client.ServerSet(stack.Uid, server.Uid, key, value)
 			if err != nil {
 				printFatal(err.Error())
 			} else {

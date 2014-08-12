@@ -55,7 +55,7 @@ func (c *Client) ServerSettings(stackUid string, serverUid string) ([]StackSetti
 	return settingsRes, c.DoReq(req, &settingsRes)
 }
 
-func (c *Client) ServerSet(uid string, key string, value string) (*GenericResponse, error) {
+func (c *Client) ServerSet(stackUid string, serverUid string, key string, value string) (*GenericResponse, error) {
 	params := struct {
 		Key   string `json:"setting_name"`
 		Value string `json:"setting_value"`
@@ -64,7 +64,7 @@ func (c *Client) ServerSet(uid string, key string, value string) (*GenericRespon
 		Value: value,
 	}
 
-	req, err := c.NewRequest("POST", "/servers/"+uid+"/setting.json", params)
+	req, err := c.NewRequest("PUT", "/stacks/"+stackUid+"/servers/"+serverUid+"/setting.json", params)
 	if err != nil {
 		return nil, err
 	}
