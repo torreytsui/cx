@@ -264,15 +264,15 @@ func (c *Client) Lease(uid string, ipAddress *string, timeToOpen *int, port *int
 
 func (c *Client) LeaseSync(uid string, ipAddress *string, timeToOpen *int, port *int) (*GenericResponse, error) {
 	async_result, err := c.Lease(uid, ipAddress, timeToOpen, port)
-	var async_error = c.WaitForAsyncActionComplete(uid, async_result, err, 2*time.Second, 2*time.Minute, false)
-	if async_error != nil {
+	err = c.WaitForAsyncActionComplete(uid, async_result, err, 2*time.Second, 2*time.Minute, false)
+	if err != nil {
 		return nil, err
 	}
 	stacksRes := GenericResponse{
 		Status:  true,
 		Message: *async_result.Outcome,
 	}
-	return &stacksRes, async_error
+	return &stacksRes, err
 }
 
 func (c *Client) RedeployStack(uid string) (*GenericResponse, error) {

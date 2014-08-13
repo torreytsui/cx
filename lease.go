@@ -39,8 +39,8 @@ func runLease(cmd *Command, args []string) {
 	stack := mustStack()
 
 	async_result, err := client.Lease(stack.Uid, &flagIp, &flagTimeToOpen, &flagPort)
-	var async_error = client.WaitForAsyncActionComplete(stack.Uid, async_result, err, 2*time.Second, 2*time.Minute, true)
-	if async_error != nil {
-		printFatal(async_error.Error())
+	err = client.WaitForAsyncActionComplete(stack.Uid, async_result, err, 2*time.Second, 2*time.Minute, true)
+	if err != nil {
+		printFatal(err.Error())
 	}
 }

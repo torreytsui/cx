@@ -103,11 +103,13 @@ func sshToServerForCommand(server cloud66.Server, userCommand string) error {
 
 	// open the firewall
 	var timeToOpen = 2
-	_, err := client.Lease(server.StackUid, nil, &timeToOpen, nil)
+	_, err := client.LeaseSync(server.StackUid, nil, &timeToOpen, nil)
 	must(err)
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("lease opened")
 
 	return startProgram("ssh", []string{
 		server.UserName + "@" + server.Address,
