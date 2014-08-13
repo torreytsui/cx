@@ -1,6 +1,7 @@
 package cloud66
 
 import (
+	"errors"
 	"strings"
 	"time"
 )
@@ -26,25 +27,36 @@ type Server struct {
 	AvailabilityZone string      `json:"availability_zone"`
 	ExtIpV4          string      `json:"ext_ipv4"`
 	HealthCode       int         `json:"health_state"`
+	SshPrivateKey    *string     `json:"ssh_private_key"`
 }
 
 func (s Server) Health() string {
 	return healthStatus[s.HealthCode]
 }
 
-func (c *Client) ServerSshPrivateKey(stack_uid string) (string, error) {
-	req, err := c.NewRequest("GET", "/stacks/"+stack_uid+"/servers/ssh_private_key.json", nil)
+func (c *Client) ServerSshPrivateKey(stackUid string, serverUid string) (string, error) {
+	server, err := c.getServer(stackUid, serverUid, true)
 	if err != nil {
 		return "", err
 	}
-
-	type Ssh struct {
-		Ok  bool   `json:"ok"`
-		Key string `json:"private_key"`
+	if server.SshPrivateKey == nil {
+		return "", errors.New("SshPrivateKey not returned by server")
 	}
+	return *server.SshPrivateKey, nil
+}
 
-	var sshRes *Ssh
-	return sshRes.Key, c.DoReq(req, &sshRes)
+func (c *Client) getServer(stackUid string, serverUid string, includeSshKey bool) (*Server, error) {
+	params := struct {
+		Value bool `json:"include_private_key"`
+	}{
+		Value: includeSshKey,
+	}
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/servers/"+serverUid+".json", params)
+	if err != nil {
+		return nil, err
+	}
+	var serverRes *Server
+	return serverRes, c.DoReq(req, &serverRes)
 }
 
 func (c *Client) ServerSettings(stackUid string, serverUid string) ([]StackSetting, error) {

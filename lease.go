@@ -1,8 +1,6 @@
 package main
 
-import (
-	"fmt"
-)
+import "time"
 
 var cmdLease = &Command{
 	Run:        runLease,
@@ -34,19 +32,15 @@ var (
 func init() {
 	cmdLease.Flag.IntVar(&flagTimeToOpen, "t", 20, "time to open")
 	cmdLease.Flag.IntVar(&flagPort, "p", 22, "port")
-	cmdLease.Flag.StringVar(&flagIp, "f", "", "from IP")
+	cmdLease.Flag.StringVar(&flagIp, "f", "AUTO", "from IP")
 }
 
 func runLease(cmd *Command, args []string) {
 	stack := mustStack()
 
-	result, err := client.Lease(stack.Uid, &flagIp, &flagTimeToOpen, &flagPort)
-	must(err)
-
-	if err != nil {
-		printFatal(err.Error())
-	} else {
-		fmt.Println(result.Message)
+	async_result, err := client.Lease(stack.Uid, &flagIp, &flagTimeToOpen, &flagPort)
+	var async_error = client.WaitForAsyncActionComplete(stack.Uid, async_result, err, 2*time.Second, 2*time.Minute, true)
+	if async_error != nil {
+		printFatal(async_error.Error())
 	}
-
 }

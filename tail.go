@@ -77,7 +77,7 @@ func tailLog(stack cloud66.Stack, server cloud66.Server, logName string) error {
 	if b, _ := fileExists(sshFile); !b {
 		// get the content and write the file
 		fmt.Println("Fetching SSH key...")
-		sshKey, err := client.ServerSshPrivateKey(server.Uid)
+		sshKey, err := client.ServerSshPrivateKey(server.StackUid, server.Uid)
 
 		if err != nil {
 			return err

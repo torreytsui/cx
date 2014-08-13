@@ -15,9 +15,9 @@ var cmdRun = &Command{
 	NeedsStack: true,
 	Category:   "stack",
 	Short:      "executes a command directly on the server",
-	Long: `This command will execute a command directly on the remote server. 
+	Long: `This command will execute a command directly on the remote server.
 
-  For this purpose, this command will open the firewall for SSH from your IP address temporaritly (20 minutes), downloads the keys if you don't have them, starts a SSH session, 
+  For this purpose, this command will open the firewall for SSH from your IP address temporaritly (20 minutes), downloads the keys if you don't have them, starts a SSH session,
   and executes the command specified.
 
   You need to have the right access permissions to use this command.
@@ -87,8 +87,7 @@ func sshToServerForCommand(server cloud66.Server, userCommand string) error {
 		if debugMode {
 			fmt.Println("Fetching SSH key...")
 		}
-		sshKey, err := client.ServerSshPrivateKey(server.Uid)
-
+		sshKey, err := client.ServerSshPrivateKey(server.StackUid, server.Uid)
 		if err != nil {
 			return err
 		}
@@ -103,7 +102,8 @@ func sshToServerForCommand(server cloud66.Server, userCommand string) error {
 	}
 
 	// open the firewall
-	_, err := client.Lease(server.StackUid, nil, nil, nil)
+	var timeToOpen = 2
+	_, err := client.Lease(server.StackUid, nil, &timeToOpen, nil)
 	must(err)
 	if err != nil {
 		return err

@@ -215,24 +215,64 @@ func (c *Client) Set(uid string, key string, value string) (*GenericResponse, er
 	return settingRes, c.DoReq(req, &settingRes)
 }
 
-func (c *Client) Lease(uid string, ipAddress *string, timeToOpen *int, port *int) (*GenericResponse, error) {
-	params := struct {
-		TimeToOpen *int    `json:"time_to_open"`
-		IpAddress  *string `json:"ip_address"`
-		Port       *int    `json:"port"`
-	}{
-		TimeToOpen: timeToOpen,
-		IpAddress:  ipAddress,
-		Port:       port,
+func (c *Client) Lease(uid string, ipAddress *string, timeToOpen *int, port *int) (*AsyncResult, error) {
+
+	var (
+		theIpAddress  *string
+		theTimeToOpen *int
+		thePort       *int
+	)
+
+	// set defaults
+	if ipAddress == nil {
+		var value = "AUTO"
+		theIpAddress = &value
+	} else {
+		theIpAddress = ipAddress
+	}
+	if timeToOpen == nil {
+		var value = 20
+		theTimeToOpen = &value
+	} else {
+		theTimeToOpen = timeToOpen
+	}
+	if port == nil {
+		var value = 22
+		thePort = &value
+	} else {
+		thePort = port
 	}
 
-	req, err := c.NewRequest("POST", "/stacks/"+uid+"/lease.json", params)
+	params := struct {
+		TimeToOpen *int    `json:"ttl"`
+		IpAddress  *string `json:"from_ip"`
+		Port       *int    `json:"port"`
+	}{
+		TimeToOpen: theTimeToOpen,
+		IpAddress:  theIpAddress,
+		Port:       thePort,
+	}
+
+	req, err := c.NewRequest("POST", "/stacks/"+uid+"/firewalls.json", params)
 	if err != nil {
 		return nil, err
 	}
 
-	var leaseRes *GenericResponse
-	return leaseRes, c.DoReq(req, &leaseRes)
+	var asyncRes *AsyncResult
+	return asyncRes, c.DoReq(req, &asyncRes)
+}
+
+func (c *Client) LeaseSync(uid string, ipAddress *string, timeToOpen *int, port *int) (*GenericResponse, error) {
+	async_result, err := c.Lease(uid, ipAddress, timeToOpen, port)
+	var async_error = c.WaitForAsyncActionComplete(uid, async_result, err, 2*time.Second, 2*time.Minute, false)
+	if async_error != nil {
+		return nil, err
+	}
+	stacksRes := GenericResponse{
+		Status:  true,
+		Message: *async_result.Outcome,
+	}
+	return &stacksRes, async_error
 }
 
 func (c *Client) RedeployStack(uid string) (*GenericResponse, error) {

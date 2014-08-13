@@ -28,7 +28,7 @@ func runClearCaches(cmd *Command, args []string) {
 	stack := mustStack()
 
 	async_result, err := client.InvokeStackAction(stack.Uid, "clear_caches")
-	var async_error = client.WaitForAsyncActionComplete(stack.Uid, async_result, err, cloud66.DefaultCheckFrequency, cloud66.DefaultTimeout)
+	var async_error = client.WaitForAsyncActionComplete(stack.Uid, async_result, err, cloud66.DefaultCheckFrequency, cloud66.DefaultTimeout, true)
 	if async_error != nil {
 		printFatal(async_error.Error())
 	}
