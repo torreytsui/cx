@@ -1,11 +1,5 @@
 package main
 
-import (
-	"time"
-
-	"github.com/cloud66/cloud66"
-)
-
 var cmdLease = &Command{
 	Run:        runLease,
 	Usage:      "lease [-f <from IP>] [-t <time to open>] [-p <port>]",
@@ -42,25 +36,9 @@ func init() {
 func runLease(cmd *Command, args []string) {
 	stack := mustStack()
 
-	asyncId, err := startLease(stack.Uid, &flagIp, &flagTimeToOpen, &flagPort)
-	if err != nil {
-		printFatal(err.Error())
-	}
-	genericRes, err := endLease(*asyncId, stack.Uid)
+	genericRes, err := client.LeaseSync(stack.Uid, &flagIp, &flagTimeToOpen, &flagPort)
 	if err != nil {
 		printFatal(err.Error())
 	}
 	printGenericResponse(*genericRes)
-}
-
-func startLease(stackUid string, ipAddress *string, timeToOpen *int, port *int) (*int, error) {
-	asyncRes, err := client.Lease(stackUid, ipAddress, timeToOpen, port)
-	if err != nil {
-		return nil, err
-	}
-	return &asyncRes.Id, err
-}
-
-func endLease(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
-	return client.WaitStackAsyncAction(asyncId, stackUid, 2*time.Second, 5*time.Minute)
 }
