@@ -15,13 +15,13 @@ type AsyncResult struct {
 	Id              int        `json:"id"`
 	User            string     `json:"user"`
 	ResourceType    string     `json:"resource_type"`
-	ResourceId      int        `json:"resource_id"`
+	ResourceId      string     `json:"resource_id"`
 	Action          string     `json:"action"`
 	StartedVia      string     `json:"started_via"`
 	StartedAt       time.Time  `json:"started_at"`
 	FinishedAt      *time.Time `json:"finished_at"`
 	FinishedSuccess *bool      `json:"finished_success"`
-	FinishedMessage *string    `json:"finished_message"`
+	FinishedMessage string     `json:"finished_message"`
 }
 
 func (c *Client) WaitStackAsyncAction(asyncId int, stackUid string, checkFrequency time.Duration, timeout time.Duration) (*GenericResponse, error) {
@@ -29,18 +29,18 @@ func (c *Client) WaitStackAsyncAction(asyncId int, stackUid string, checkFrequen
 
 	// declare vars
 	var (
-		asyncResult *AsyncResult
-		err         error
+		asyncRes *AsyncResult
+		err      error
 	)
 
 	for {
 		// fetch the current status of the async action
-		asyncResult, err = c.getStackAsyncAction(asyncId, stackUid)
+		asyncRes, err = c.getStackAsyncAction(asyncId, stackUid)
 		if err != nil {
 			return nil, err
 		}
 		// check for a result!
-		if asyncResult.FinishedAt != nil {
+		if asyncRes.FinishedAt != nil {
 			break
 		}
 		// check for client-side time-out
@@ -50,24 +50,15 @@ func (c *Client) WaitStackAsyncAction(asyncId int, stackUid string, checkFrequen
 		// sleep for checkFrequency secs between lookup requests
 		time.Sleep(checkFrequency)
 	}
-
 	// response
 	genericRes := GenericResponse{
-		Status:  *asyncResult.FinishedSuccess,
-		Message: *asyncResult.FinishedMessage,
+		Status:  *asyncRes.FinishedSuccess,
+		Message: asyncRes.FinishedMessage,
 	}
-
 	return &genericRes, err
 }
 
 func (c *Client) getStackAsyncAction(asyncId int, stackUid string) (*AsyncResult, error) {
-	// params := struct {
-	// 	// ResourceType string `json:"resource_type"`
-	// 	ResourceId int `json:"resource_id"`
-	// }{
-	// 	// ResourceType: resourceType,
-	// 	ResourceId: stackId,
-	// }
 	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/actions/"+strconv.Itoa(asyncId)+".json", nil)
 	if err != nil {
 		return nil, err

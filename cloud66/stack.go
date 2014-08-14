@@ -283,13 +283,13 @@ func (c *Client) RedeployStack(uid string) (*GenericResponse, error) {
 	return stacksRes, c.DoReq(req, &stacksRes)
 }
 
-func (c *Client) InvokeStackAction(uid string, action string) (*AsyncResult, error) {
+func (c *Client) InvokeStackAction(stackUid string, action string) (*AsyncResult, error) {
 	params := struct {
 		Command string `json:"command"`
 	}{
 		Command: action,
 	}
-	req, err := c.NewRequest("POST", "/stacks/"+uid+"/actions.json", params)
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/actions.json", params)
 	if err != nil {
 		return nil, err
 	}

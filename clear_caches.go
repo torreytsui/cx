@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"os"
+	"time"
 
 	"github.com/cloud66/cx/cloud66"
 )
@@ -27,7 +27,6 @@ func runClearCaches(cmd *Command, args []string) {
 		os.Exit(2)
 	}
 	stack := mustStack()
-
 	asyncId, err := startClearCaches(stack.Uid)
 	if err != nil {
 		printFatal(err.Error())
@@ -36,21 +35,7 @@ func runClearCaches(cmd *Command, args []string) {
 	if err != nil {
 		printFatal(err.Error())
 	}
-
-	var result string
-	if genericRes.Status == true {
-		result = "Success"
-		if genericRes.Message != "" {
-			result = result + ": " + genericRes.Message
-		}
-		fmt.Println(result)
-	} else {
-		result = "Failed"
-		if genericRes.Message != "" {
-			result = result + ": " + genericRes.Message
-		}
-		printFatal(result)
-	}
+	printGenericResponse(*genericRes)
 }
 
 func startClearCaches(stackUid string) (*int, error) {
@@ -62,5 +47,5 @@ func startClearCaches(stackUid string) (*int, error) {
 }
 
 func endClearCaches(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
-	return client.WaitStackAsyncAction(asyncId, stackUid, cloud66.DefaultCheckFrequency, cloud66.DefaultTimeout)
+	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute)
 }
