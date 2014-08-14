@@ -1,7 +1,5 @@
 package main
 
-import "time"
-
 var cmdLease = &Command{
 	Run:        runLease,
 	Usage:      "lease [-f <from IP>] [-t <time to open>] [-p <port>]",
@@ -36,11 +34,11 @@ func init() {
 }
 
 func runLease(cmd *Command, args []string) {
-	stack := mustStack()
+	// stack := mustStack()
 
-	async_result, err := client.Lease(stack.Uid, &flagIp, &flagTimeToOpen, &flagPort)
-	err = client.WaitForAsyncActionComplete(stack.Uid, async_result, err, 2*time.Second, 2*time.Minute, true)
-	if err != nil {
-		printFatal(err.Error())
-	}
+	// asyncResult, err := client.Lease(stack.Uid, &flagIp, &flagTimeToOpen, &flagPort)
+	// err = client.WaitStackAsyncAction(stack.Uid, asyncResult, err, 2*time.Second, 2*time.Minute, true)
+	// if err != nil {
+	// printFatal(err.Error())
+	// }
 }

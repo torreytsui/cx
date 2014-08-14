@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/cloud66/cx/cloud66"
@@ -27,9 +28,39 @@ func runClearCaches(cmd *Command, args []string) {
 	}
 	stack := mustStack()
 
-	async_result, err := client.InvokeStackAction(stack.Uid, "clear_caches")
-	err = client.WaitForAsyncActionComplete(stack.Uid, async_result, err, cloud66.DefaultCheckFrequency, cloud66.DefaultTimeout, true)
+	asyncId, err := startClearCaches(stack.Uid)
 	if err != nil {
 		printFatal(err.Error())
 	}
+	genericRes, err := endClearCaches(*asyncId, stack.Uid)
+	if err != nil {
+		printFatal(err.Error())
+	}
+
+	var result string
+	if genericRes.Status == true {
+		result = "Success"
+		if genericRes.Message != "" {
+			result = result + ": " + genericRes.Message
+		}
+		fmt.Println(result)
+	} else {
+		result = "Failed"
+		if genericRes.Message != "" {
+			result = result + ": " + genericRes.Message
+		}
+		printFatal(result)
+	}
+}
+
+func startClearCaches(stackUid string) (*int, error) {
+	asyncRes, err := client.InvokeStackAction(stackUid, "clear_caches")
+	if err != nil {
+		return nil, err
+	}
+	return &asyncRes.Id, err
+}
+
+func endClearCaches(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
+	return client.WaitStackAsyncAction(asyncId, stackUid, cloud66.DefaultCheckFrequency, cloud66.DefaultTimeout)
 }

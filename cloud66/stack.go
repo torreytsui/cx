@@ -262,17 +262,16 @@ func (c *Client) Lease(uid string, ipAddress *string, timeToOpen *int, port *int
 	return asyncRes, c.DoReq(req, &asyncRes)
 }
 
-func (c *Client) LeaseSync(uid string, ipAddress *string, timeToOpen *int, port *int) (*GenericResponse, error) {
-	async_result, err := c.Lease(uid, ipAddress, timeToOpen, port)
-	err = c.WaitForAsyncActionComplete(uid, async_result, err, 2*time.Second, 2*time.Minute, false)
+func (c *Client) LeaseSync(stackUid string, ipAddress *string, timeToOpen *int, port *int) (*GenericResponse, error) {
+	asyncRes, err := c.Lease(stackUid, ipAddress, timeToOpen, port)
 	if err != nil {
 		return nil, err
 	}
-	stacksRes := GenericResponse{
-		Status:  true,
-		Message: *async_result.Outcome,
+	genericRes, err := c.WaitStackAsyncAction(asyncRes.Id, stackUid, 2*time.Second, 2*time.Minute)
+	if err != nil {
+		return nil, err
 	}
-	return &stacksRes, err
+	return genericRes, err
 }
 
 func (c *Client) RedeployStack(uid string) (*GenericResponse, error) {

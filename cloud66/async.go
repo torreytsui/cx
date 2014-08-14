@@ -2,70 +2,73 @@ package cloud66
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"time"
 )
 
 const (
-	DefaultCheckFrequency = 3 * time.Second   // every 10 seconds
-	DefaultTimeout        = 600 * time.Second // 10 minutes
+	DefaultCheckFrequency = 15 * time.Second // every 10 seconds
+	DefaultTimeout        = 10 * time.Minute // 10 minutes
 )
 
 type AsyncResult struct {
-	Id           int        `json:"id"`
-	User         string     `json:"user"`
-	ResourceType string     `json:"resource_type"`
-	ResourceId   int        `json:"resource_id"`
-	Action       string     `json:"action"`
-	StartedVia   string     `json:"started_via"`
-	StartedAt    time.Time  `json:"started_at"`
-	FinishedAt   *time.Time `json:"finished_at"`
-	Outcome      *string    `json:"outcome"`
+	Id              int        `json:"id"`
+	User            string     `json:"user"`
+	ResourceType    string     `json:"resource_type"`
+	ResourceId      int        `json:"resource_id"`
+	Action          string     `json:"action"`
+	StartedVia      string     `json:"started_via"`
+	StartedAt       time.Time  `json:"started_at"`
+	FinishedAt      *time.Time `json:"finished_at"`
+	FinishedSuccess *bool      `json:"finished_success"`
+	FinishedMessage *string    `json:"finished_message"`
 }
 
-func (c *Client) WaitForAsyncActionComplete(uid string, async_result *AsyncResult, err error, checkFrequency time.Duration, timeout time.Duration, showOutput bool) error {
-	if err == nil {
-		if showOutput {
-			fmt.Printf("Executing \"%s\"\n..", async_result.Action)
+func (c *Client) WaitStackAsyncAction(asyncId int, stackUid string, checkFrequency time.Duration, timeout time.Duration) (*GenericResponse, error) {
+	var timeoutTime = time.Now().Add(timeout)
+
+	// declare vars
+	var (
+		asyncResult *AsyncResult
+		err         error
+	)
+
+	for {
+		// fetch the current status of the async action
+		asyncResult, err = c.getStackAsyncAction(asyncId, stackUid)
+		if err != nil {
+			return nil, err
 		}
-		var timeoutTime = time.Now().Add(timeout)
-		var timedOut = false
-		for async_result.FinishedAt == nil && timedOut != true {
-			if showOutput {
-				fmt.Printf(".")
-			}
-			// sleep for checkFrequency secs between lookup requests
-			time.Sleep(checkFrequency)
-			async_result, err = c.getStackAsyncAction(uid, async_result.ResourceType, async_result.ResourceId, async_result.Id)
-			timedOut = time.Now().After(timeoutTime)
+		// check for a result!
+		if asyncResult.FinishedAt != nil {
+			break
 		}
-		if timedOut {
-			if showOutput {
-				fmt.Println("")
-			}
-			err = errors.New("timed-out after " + strconv.FormatInt(int64(timeout)/int64(time.Second), 10) + " second(s)")
-		} else {
-			if showOutput {
-				fmt.Println("complete!")
-			}
-			if async_result.Outcome != nil {
-				fmt.Println(async_result.Outcome)
-			}
+		// check for client-side time-out
+		if time.Now().After(timeoutTime) {
+			return nil, errors.New("timed-out after " + strconv.FormatInt(int64(timeout)/int64(time.Second), 10) + " second(s)")
 		}
+		// sleep for checkFrequency secs between lookup requests
+		time.Sleep(checkFrequency)
 	}
-	return err
+
+	// response
+	genericRes := GenericResponse{
+		Status:  *asyncResult.FinishedSuccess,
+		Message: *asyncResult.FinishedMessage,
+	}
+
+	return &genericRes, err
 }
 
-func (c *Client) getStackAsyncAction(uid string, resourceType string, resourceId int, asyncActionId int) (*AsyncResult, error) {
-	params := struct {
-		ResourceType string `json:"resource_type"`
-		ResourceId   int    `json:"resource_id"`
-	}{
-		ResourceType: resourceType,
-		ResourceId:   resourceId,
-	}
-	req, err := c.NewRequest("GET", "/stacks/"+uid+"/actions/"+strconv.Itoa(asyncActionId)+".json", params)
+func (c *Client) getStackAsyncAction(asyncId int, stackUid string) (*AsyncResult, error) {
+	// params := struct {
+	// 	// ResourceType string `json:"resource_type"`
+	// 	ResourceId int `json:"resource_id"`
+	// }{
+	// 	// ResourceType: resourceType,
+	// 	ResourceId: stackId,
+	// }
+	req, err := c.NewRequest("GET", "/stacks/"+stackUid+"/actions/"+strconv.Itoa(asyncId)+".json", nil)
 	if err != nil {
 		return nil, err
 	}
