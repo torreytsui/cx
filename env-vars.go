@@ -6,7 +6,7 @@ import (
 	"sort"
 	"text/tabwriter"
 
-	"github.com/cloud66/cx/cloud66"
+	"github.com/cloud66/cloud66"
 )
 
 var cmdEnvVars = &Command{

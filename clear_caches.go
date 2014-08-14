@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/cloud66/cx/cloud66"
+	"github.com/cloud66/cloud66"
 )
 
 var cmdClearCaches = &Command{
