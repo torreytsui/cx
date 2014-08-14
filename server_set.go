@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/cloud66/cloud66"
+	"github.com/cloud66/go-cloud66"
 )
 
 var cmdServerSet = &Command{
