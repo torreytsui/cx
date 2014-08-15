@@ -1,9 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
 var cmdLease = &Command{
 	Run:        runLease,
 	Usage:      "lease [-f <from IP>] [-t <time to open>] [-p <port>]",
@@ -34,19 +30,15 @@ var (
 func init() {
 	cmdLease.Flag.IntVar(&flagTimeToOpen, "t", 20, "time to open")
 	cmdLease.Flag.IntVar(&flagPort, "p", 22, "port")
-	cmdLease.Flag.StringVar(&flagIp, "f", "", "from IP")
+	cmdLease.Flag.StringVar(&flagIp, "f", "AUTO", "from IP")
 }
 
 func runLease(cmd *Command, args []string) {
 	stack := mustStack()
 
-	result, err := client.Lease(stack.Uid, &flagIp, &flagTimeToOpen, &flagPort)
-	must(err)
-
+	genericRes, err := client.LeaseSync(stack.Uid, &flagIp, &flagTimeToOpen, &flagPort)
 	if err != nil {
 		printFatal(err.Error())
-	} else {
-		fmt.Println(result.Message)
 	}
-
+	printGenericResponse(*genericRes)
 }

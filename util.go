@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cloud66/cx/cloud66"
+	"github.com/cloud66/cloud66"
 	"github.com/cloud66/cx/term"
 
 	"github.com/mgutz/ansi"
@@ -88,6 +88,28 @@ func printFatal(message string, args ...interface{}) {
 
 func printWarning(message string, args ...interface{}) {
 	log.Println(colorizeMessage("yellow", "warning:", message, args...))
+}
+
+// potentially needs refactor --> genericresponse type?
+func printGenericResponse(genericRes cloud66.GenericResponse) {
+	var result string
+	if genericRes.Status == true {
+		result = "Success"
+		if genericRes.Message != "" {
+			result = result + ": " + genericRes.Message
+		} else {
+			result = result + "!"
+		}
+		log.Println(result)
+	} else {
+		result = "Failed"
+		if genericRes.Message != "" {
+			result = result + ": " + genericRes.Message
+		} else {
+			result = result + "!"
+		}
+		printFatal(result)
+	}
 }
 
 func mustConfirm(warning, desired string) {

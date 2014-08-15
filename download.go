@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/cloud66/cx/cloud66"
+	"github.com/cloud66/cloud66"
 )
 
 var cmdDownload = &Command{
@@ -18,7 +18,7 @@ var cmdDownload = &Command{
 	Long: `This command will copy a file from the remote server to your local computer.
 
   This command will download the files to the home directory by default.
-  To copy the file to a specific directory in your local computer, 
+  To copy the file to a specific directory in your local computer,
   specify the target directory location in the command line.
 
   This will open the firewall for SSH from your IP address temporaritly (20 minutes), downloads the keys if you don't have them
@@ -109,7 +109,7 @@ func sshToServerToDownload(server cloud66.Server, filePath string, targetDirecto
 	if b, _ := fileExists(sshFile); !b {
 		// get the content and write the file
 		fmt.Println("Fetching SSH key...")
-		sshKey, err := client.ServerSshPrivateKey(server.Uid)
+		sshKey, err := client.ServerSshPrivateKey(server.StackUid, server.Uid)
 
 		if err != nil {
 			return err
@@ -125,11 +125,12 @@ func sshToServerToDownload(server cloud66.Server, filePath string, targetDirecto
 	}
 
 	// open the firewall
+	var timeToOpen = 2
 	fmt.Printf("Opening access to %s...\n", server.Address)
-	_, err := client.Lease(server.StackUid, nil, nil, nil)
+	genericRes, err := client.LeaseSync(server.StackUid, nil, &timeToOpen, nil)
 	must(err)
-	if err != nil {
-		return err
+	if genericRes.Status != true {
+		printFatal("Unable to open server lease")
 	}
 
 	fmt.Printf("Connecting to %s (%s)...\n", server.Name, server.Address)

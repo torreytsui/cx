@@ -10,7 +10,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/cloud66/cx/cloud66"
+	"github.com/cloud66/cloud66"
 	"github.com/cloud66/cx/term"
 
 	"github.com/jcoene/honeybadger"

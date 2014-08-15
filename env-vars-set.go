@@ -3,6 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
+	"time"
+
+	"github.com/cloud66/cloud66"
 )
 
 var cmdEnvVarsSet = &Command{
@@ -11,10 +15,10 @@ var cmdEnvVarsSet = &Command{
 	NeedsStack: true,
 	Category:   "stack",
 	Short:      "sets the value of an environment variable on a stack",
-	Long: `This sets and applies the value of an environment variable on a stack.   
+	Long: `This sets and applies the value of an environment variable on a stack.
   This work happens in the background, therefore this command will return immediately after the operation has started.
   Warning! Applying environment variable changes to your stack will result in all your stack environment variables
-  being sent to your stack servers, and your processes being restarted immediately. 
+  being sent to your stack servers, and your processes being restarted immediately.
 
 Examples:
 
@@ -29,15 +33,56 @@ func runEnvVarsSet(cmd *Command, args []string) {
 		os.Exit(2)
 	}
 
-	key := args[0]
+	key := strings.ToUpper(args[0])
 	value := args[1]
 
 	stack := mustStack()
-	result, err := client.StackEnvVarsSet(stack.Uid, key, value)
+
+	envVars, err := client.StackEnvVars(stack.Uid)
+	must(err)
+
+	existing := false
+	for _, i := range envVars {
+		if i.Key == key {
+			if i.Readonly == true {
+				printFatal("The selected environment variable is readonly")
+			} else {
+				existing = true
+			}
+		}
+	}
+
+	fmt.Println("Please wait while your environment variable setting is applied...")
+
+	asyncId, err := startEnvVarSet(stack.Uid, key, value, existing)
 	if err != nil {
 		printFatal(err.Error())
-	} else {
-		fmt.Println(result.Message)
 	}
+	genericRes, err := endEnvVarSet(*asyncId, stack.Uid)
+	if err != nil {
+		printFatal(err.Error())
+	}
+	printGenericResponse(*genericRes)
+
 	return
+}
+
+func startEnvVarSet(stackUid string, key string, value string, existing bool) (*int, error) {
+	var (
+		asyncRes *cloud66.AsyncResult
+		err      error
+	)
+	if existing {
+		asyncRes, err = client.StackEnvVarSet(stackUid, key, value)
+	} else {
+		asyncRes, err = client.StackEnvVarNew(stackUid, key, value)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &asyncRes.Id, err
+}
+
+func endEnvVarSet(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
+	return client.WaitStackAsyncAction(asyncId, stackUid, 3*time.Second, 20*time.Minute)
 }

@@ -1,8 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"os"
+	"time"
+
+	"github.com/cloud66/cloud66"
 )
 
 var cmdClearCaches = &Command{
@@ -13,7 +15,7 @@ var cmdClearCaches = &Command{
 	Short:      "clears all existing stack code caches",
 	Long: `Clears all existing code caches.
   For improved performance, volatile code caches exist for your stack.
-  It is possible for a those volatile caches to become invalid if you switch branches, change git repository URL, or rebase or force a commit. 
+  It is possible for a those volatile caches to become invalid if you switch branches, change git repository URL, or rebase or force a commit.
   Since switching branch or changing git repository URL is done via the Cloud 66 interface, your volatile caches will automatically be purged.
   However, rebasing or forcing a commit doesn't have any association with Cloud 66, so this command can be used to purge the exising volatile caches.
 `,
@@ -25,10 +27,25 @@ func runClearCaches(cmd *Command, args []string) {
 		os.Exit(2)
 	}
 	stack := mustStack()
-	result, err := client.ClearCachesStack(stack.Uid)
+	asyncId, err := startClearCaches(stack.Uid)
 	if err != nil {
 		printFatal(err.Error())
-	} else {
-		fmt.Println(result.Message)
 	}
+	genericRes, err := endClearCaches(*asyncId, stack.Uid)
+	if err != nil {
+		printFatal(err.Error())
+	}
+	printGenericResponse(*genericRes)
+}
+
+func startClearCaches(stackUid string) (*int, error) {
+	asyncRes, err := client.InvokeStackAction(stackUid, "clear_caches")
+	if err != nil {
+		return nil, err
+	}
+	return &asyncRes.Id, err
+}
+
+func endClearCaches(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
+	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute)
 }

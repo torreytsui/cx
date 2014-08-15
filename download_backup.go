@@ -10,17 +10,20 @@ import (
 var cmdDownloadBackup = &Command{
 	Run:        runDownloadBackup,
 	Usage:      "download-backup [-d <download directory>] <backup Id>",
-	NeedsStack: false,
+	NeedsStack: true,
 	Category:   "stack",
-	Short:      "downloads a database backup.",
+	Short:      "downloads a database backup",
 	Long: `This downloads a backup from the available backups of a stack. This is limited to a single database type.
   The command might download multiple files in parallel and concatenate and untar them if needed. The resulting file
   can be used to manually restore the database.
 
-    -d allows you to set the directory used to download the backup. You need to have write permissions over that directory.
-       if no directory is specified, ~/cx_backups is used. If the directory does not exist, it will be created.
+  -d allows you to set the directory used to download the backup. You need to have write permissions over that directory
+  if no directory is specified, ~/cx_backups is used. If the directory does not exist, it will be created.
 
   The caller needs to have admin rights over the stack.
+
+  Example:
+  $ cx download-backup -s mystack 123
   `,
 }
 
@@ -36,21 +39,23 @@ func runDownloadBackup(cmd *Command, args []string) {
 		os.Exit(2)
 	}
 
+	stack := mustStack()
 	backupId, err := strconv.Atoi(args[0])
 	if err != nil {
 		cmd.printUsage()
 		os.Exit(2)
 	}
 
-	segment, err := client.GetBackupSegment(backupId, "")
+	segmentIndeces, err := client.GetBackupSegmentIndeces(stack.Uid, backupId)
 	must(err)
+	if len(segmentIndeces) < 1 {
+		printFatal("Cannot find file segments associated with this backup")
+	}
 
 	mainDir := filepath.Join(homePath(), "cx_backups")
 	if flagDownloadDir != "" {
 		mainDir = flagDownloadDir
 	}
-
-	fmt.Println(mainDir)
 
 	// create a download tmp folder
 	dir := filepath.Join(mainDir, "tmp", args[0])
@@ -58,24 +63,21 @@ func runDownloadBackup(cmd *Command, args []string) {
 	must(err)
 
 	var files = []string{}
-	for {
-		fmt.Printf("Downloading %s to %s...\n", segment.Filename, dir)
+	for _, segmentIndex := range segmentIndeces {
+
+		segment, err := client.GetBackupSegment(stack.Uid, backupId, segmentIndex.Extension)
+		must(err)
+
+		fmt.Printf("Downloading %s to %s\n", segmentIndex.Filename, dir)
 		// this should be moved to go routines
-		toFile := filepath.Join(dir, segment.Filename)
+		toFile := filepath.Join(dir, segmentIndex.Filename)
 		err = downloadFile(segment.Url, toFile)
 		must(err)
 
 		files = append(files, toFile)
-
-		if segment.NextExtension == "" {
-			break
-		}
-
-		segment, err = client.GetBackupSegment(backupId, segment.NextExtension)
-		must(err)
 	}
 
-	toFile := filepath.Join(homePath(), "cx_backups", "backup_"+args[0]+".tar")
+	toFile := filepath.Join(mainDir, "backup_"+args[0]+".tar")
 	fmt.Printf("Concatenating files to %s\n", toFile)
 	err = appendFiles(files, toFile)
 	if err != nil {

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/cloud66/cx/cloud66"
+	"github.com/cloud66/cloud66"
 )
 
 var cmdUpload = &Command{
@@ -111,7 +111,7 @@ func sshToServerToUpload(server cloud66.Server, filePath string, targetDirectory
 	if b, _ := fileExists(sshFile); !b {
 		// get the content and write the file
 		fmt.Println("Fetching SSH key...")
-		sshKey, err := client.ServerSshPrivateKey(server.Uid)
+		sshKey, err := client.ServerSshPrivateKey(server.StackUid, server.Uid)
 
 		if err != nil {
 			return err
@@ -127,11 +127,12 @@ func sshToServerToUpload(server cloud66.Server, filePath string, targetDirectory
 	}
 
 	// open the firewall
+	var timeToOpen = 2
 	fmt.Printf("Opening access to %s...\n", server.Address)
-	_, err := client.Lease(server.StackUid, nil, nil, nil)
+	genericRes, err := client.LeaseSync(server.StackUid, nil, &timeToOpen, nil)
 	must(err)
-	if err != nil {
-		return err
+	if genericRes.Status != true {
+		printFatal("Unable to open server lease")
 	}
 
 	fmt.Printf("Connecting to %s (%s)...\n", server.Name, server.Address)
