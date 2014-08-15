@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
+
+	"github.com/cloud66/cloud66"
 )
 
 var cmdSet = &Command{
@@ -39,16 +42,32 @@ func runSet(cmd *Command, args []string) {
 		if key == i.Key {
 			// yup. it's a good one
 			fmt.Printf("Please wait while your setting is applied...\n")
-			result, err := client.Set(stack.Uid, key, value)
+
+			asyncId, err := startSet(stack.Uid, key, value)
 			if err != nil {
 				printFatal(err.Error())
-			} else {
-				fmt.Println(result.Message)
 			}
+			genericRes, err := endSet(*asyncId, stack.Uid)
+			if err != nil {
+				printFatal(err.Error())
+			}
+			printGenericResponse(*genericRes)
 
 			return
 		}
 	}
 
 	printFatal(key + " is not a valid setting or does not apply to this stack")
+}
+
+func startSet(stackUid string, key string, value string) (*int, error) {
+	asyncRes, err := client.Set(stackUid, key, value)
+	if err != nil {
+		return nil, err
+	}
+	return &asyncRes.Id, err
+}
+
+func endSet(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
+	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute)
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/cloud66/cloud66"
 )
@@ -69,16 +70,32 @@ func executeServerSet(stack cloud66.Stack, server cloud66.Server, args []string)
 		if key == i.Key {
 			// yup. it's a good one
 			fmt.Printf("Please wait while your setting is applied...\n")
-			result, err := client.ServerSet(stack.Uid, server.Uid, key, value)
+
+			asyncId, err := startServerSet(stack.Uid, server.Uid, key, value)
 			if err != nil {
 				printFatal(err.Error())
-			} else {
-				fmt.Println(result.Message)
 			}
+			genericRes, err := endServerSet(*asyncId, stack.Uid)
+			if err != nil {
+				printFatal(err.Error())
+			}
+			printGenericResponse(*genericRes)
 
 			return
 		}
 	}
 
 	printFatal(key + " is not a valid setting or does not apply to this server")
+}
+
+func startServerSet(stackUid string, serverUid string, key string, value string) (*int, error) {
+	asyncRes, err := client.ServerSet(stackUid, serverUid, key, value)
+	if err != nil {
+		return nil, err
+	}
+	return &asyncRes.Id, err
+}
+
+func endServerSet(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
+	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute)
 }
