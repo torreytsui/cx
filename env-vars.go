@@ -15,7 +15,7 @@ var cmdEnvVars = &Command{
 	NeedsStack: true,
 	Category:   "stack",
 	Short:      "lists environement variables",
-	Long: `Lists all the environement variables of the given stack.  
+	Long: `Lists all the environement variables of the given stack.
   The environment_variables options can be a list of multiple environment_variables as separate parameters.
   To change environement variable values, use the env-vars-set command.
 
@@ -30,7 +30,7 @@ Examples:
     $ cx env-vars -s mystack RAILS_ENV
     RAILS_ENV 			production
 
-    $ cx env-vars -s mystack RAILS_ENV STACK_BASE 
+    $ cx env-vars -s mystack RAILS_ENV STACK_BASE
     RAILS_ENV 			production
     STACK_BASE      	/abc/def
 `,
@@ -57,7 +57,6 @@ func runEnvVars(cmd *Command, envVarKeys []string) {
 				filteredEnvVars = append(filteredEnvVars, i)
 			}
 		}
-
 		printEnvVarsList(w, filteredEnvVars)
 	}
 }
