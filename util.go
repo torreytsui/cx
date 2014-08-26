@@ -308,7 +308,11 @@ func fuzzyFind(s []string, item string, matchFirstIfMany bool) (int, error) {
 	for i := range s {
 		// look for identical matches first
 		if strings.ToLower(s[i]) == strings.ToLower(item) {
-			results = append(results, i)
+			if matchFirstIfMany {
+				return i, nil
+			} else {
+				results = append(results, i)
+			}
 		}
 	}
 	if len(results) == 1 {
@@ -320,14 +324,18 @@ func fuzzyFind(s []string, item string, matchFirstIfMany bool) (int, error) {
 
 	for i := range s {
 		if strings.HasPrefix(strings.ToLower(s[i]), strings.ToLower(item)) {
-			results = append(results, i)
+			if matchFirstIfMany {
+				return i, nil
+			} else {
+				results = append(results, i)
+			}
 		}
 	}
 
 	if len(results) == 0 {
 		return 0, errors.New("No match found for " + item)
 	}
-	if len(results) > 1 && !matchFirstIfMany {
+	if len(results) > 1 {
 		return 0, errors.New("More than one match found for " + item)
 	}
 
