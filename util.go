@@ -303,7 +303,7 @@ func startProgram(command string, args []string) error {
 // finds the item in the list without case sensitivity, and returns the index
 // of the item that matches or begins with the given item
 // if more than one match is found, it returns an error
-func fuzzyFind(s []string, item string) (int, error) {
+func fuzzyFind(s []string, item string, matchFirstIfMany bool) (int, error) {
 	var results []int
 	for i := range s {
 		// look for identical matches first
@@ -327,7 +327,7 @@ func fuzzyFind(s []string, item string) (int, error) {
 	if len(results) == 0 {
 		return 0, errors.New("No match found for " + item)
 	}
-	if len(results) > 1 {
+	if len(results) > 1 && !matchFirstIfMany {
 		return 0, errors.New("More than one match found for " + item)
 	}
 
@@ -358,15 +358,23 @@ func findServer(servers []cloud66.Server, serverName string) (*cloud66.Server, e
 	} else {
 		var names []string
 		var mappedServers []cloud66.Server
+		// collect the server names first
 		for _, server := range servers {
+			// if its an exact server name match then return the server
+			if server.Name == serverName {
+				return &server, nil
+			}
 			names = append(names, server.Name)
 			mappedServers = append(mappedServers, server)
+		}
+		// collect the server roles second
+		for _, server := range servers {
 			for _, role := range server.Roles {
 				names = append(names, role)
 				mappedServers = append(mappedServers, server)
 			}
 		}
-		idx, err := fuzzyFind(names, serverName)
+		idx, err := fuzzyFind(names, serverName, true)
 		if err != nil {
 			return nil, err
 		}
