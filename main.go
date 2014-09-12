@@ -102,6 +102,7 @@ var commands = []*Command{
 	cmdBackups,
 	cmdDownloadBackup,
 	cmdClearCaches,
+	cmdContainers,
 
 	cmdVersion,
 	cmdUpdate,
