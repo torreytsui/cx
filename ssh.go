@@ -97,7 +97,7 @@ func sshToServer(server cloud66.Server) error {
 	}
 
 	// open the firewall
-	var timeToOpen = 2
+	timeToOpen := 20
 	fmt.Printf("Opening access to %s...\n", server.Address)
 	genericRes, err := client.LeaseSync(server.StackUid, nil, &timeToOpen, nil)
 	must(err)

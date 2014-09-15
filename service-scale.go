@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/cloud66/cloud66"
 )
@@ -40,14 +41,11 @@ func runServiceScale(cmd *Command, args []string) {
 
 	// fetch servers info
 	servers, err := client.Servers(stack.Uid)
-	if err != nil {
-		printFatal(err.Error())
-	}
+	must(err)
 
 	if flagServer != "" {
 		server, err := findServer(servers, flagServer)
 		must(err)
-
 		if server == nil {
 			printFatal("Server '" + flagServer + "' not found")
 		}
@@ -65,49 +63,52 @@ func runServiceScale(cmd *Command, args []string) {
 
 	var absoluteCount int
 	if strings.ContainsAny(count, "+ & -") {
+
 		// fetch service information for existing counts
 		service, err := client.GetService(stack.Uid, serviceName, nil)
 		must(err)
 
 		serverCountCurrent := service.ServerContainerCountMap()
+		relativeCount, _ := strconv.Atoi(count)
 
-		if strings.Contains(count, "+") {
-
-		} else if strings.Contains(count, "-") {
-
+		for _, server := range servers {
+			if _, present := serverCountCurrent[server.Name]; present {
+				serverCountDesired[server.Uid] = relativeCount + serverCountCurrent[server.Name]
+			} else {
+				serverCountDesired[server.Uid] = relativeCount
+			}
 		}
 
 	} else {
 		absoluteCount, _ = strconv.Atoi(count)
 		for _, server := range servers {
-			serverCountDesired[server.Name] = absoluteCount
+			serverCountDesired[server.Uid] = absoluteCount
 		}
 	}
-	//
-	// 	serverUid = &server.Uid
-	//
-	// 	return
-	//
-	// 	asyncId, err := startServiceScale(stack.Uid, serviceName, count, serverUid)
-	// 	if err != nil {
-	// 		printFatal(err.Error())
-	// 	}
-	// 	genericRes, err := endServiceScale(*asyncId, stack.Uid)
-	// 	if err != nil {
-	// 		printFatal(err.Error())
-	// 	}
-	// 	printGenericResponse(*genericRes)
-	// 	return
-	// }
-	//
-	// func startServiceScale(stackUid string, serviceName string, count string, serverUid *string) (*int, error) {
-	// 	asyncRes, err := client.StopService(stackUid, serviceName, serverUid)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	return &asyncRes.Id, err
-	// }
-	//
-	// func endServiceScale(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
-	// 	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute)
+
+	// validate non < 0
+	for serverUid, count := range serverCountDesired {
+		if count < 0 {
+			serverCountDesired[serverUid] = 0
+		}
+	}
+
+	fmt.Println("Scaling your '" + serviceName + "' service")
+
+	asyncId, err := startServiceScale(stack.Uid, serviceName, serverCountDesired)
+	must(err)
+	genericRes, err := endServiceScale(*asyncId, stack.Uid)
+	must(err)
+	printGenericResponse(*genericRes)
+	return
+}
+
+func startServiceScale(stackUid string, serviceName string, serverCount map[string]int) (*int, error) {
+	asyncRes, err := client.ScaleService(stackUid, serviceName, serverCount)
+	must(err)
+	return &asyncRes.Id, err
+}
+
+func endServiceScale(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
+	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute)
 }
