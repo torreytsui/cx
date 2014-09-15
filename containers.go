@@ -14,7 +14,7 @@ import (
 
 var cmdContainers = &Command{
 	Run:        runContainers,
-	Usage:      "containers",
+	Usage:      "containers [--server <server name>|<server ip>|<server role>]",
 	NeedsStack: true,
 	Category:   "stack",
 	Short:      "lists all the running containers of a stack (or server)",
@@ -23,30 +23,24 @@ var cmdContainers = &Command{
   Examples:
 
   $ cx containers -s mystack
-  $ cx containers -s mystack orca
+  $ cx containers -s mystack --server orca
 `,
 }
 
-var (
-	flagServer string
-)
-
-func init() {
-	cmdContainers.Flag.StringVar(&flagServer, "server", "", "server filter")
-}
-
 func runContainers(cmd *Command, args []string) {
-	stack := mustStack()
-	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
-	defer w.Flush()
-
 	if len(args) > 0 {
 		cmd.printUsage()
 		os.Exit(2)
 	}
 
-	var server *cloud66.Server
-	if flagServer != "" {
+	stack := mustStack()
+	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
+	defer w.Flush()
+
+	var serverUid *string
+	if flagServer == "" {
+		serverUid = nil
+	} else {
 		servers, err := client.Servers(stack.Uid)
 		if err != nil {
 			printFatal(err.Error())
@@ -59,36 +53,20 @@ func runContainers(cmd *Command, args []string) {
 			printFatal("Server '" + flagServer + "' not found")
 		}
 		fmt.Printf("Server: %s\n", server.Name)
-	} else {
-		server = nil
+		serverUid = &server.Uid
 	}
 
-	var (
-		containers []cloud66.Container
-		container  *cloud66.Container
-		err        error
-	)
-	if server == nil {
-		containers, err = client.GetContainers(stack.Uid)
-		must(err)
-	} else {
-		container, err = client.GetContainer(stack.Uid, server.Uid)
-		must(err)
-
-		containers = make([]cloud66.Container, 1, 1)
-		if container != nil {
-			containers[0] = *container
-		}
-	}
+	containers, err := client.GetContainers(stack.Uid, serverUid, &flagServiceName)
+	must(err)
 
 	printContainerList(w, containers)
 }
 
 func printContainerList(w io.Writer, containers []cloud66.Container) {
 	listRec(w,
+		"SERVICE",
+		"SERVER",
 		"CONTAINER ID",
-		"SERVICE NAME",
-		"SERVER UID",
 		"IMAGE",
 		"STARTED AT",
 	)
@@ -107,9 +85,9 @@ func listContainer(w io.Writer, a cloud66.Container) {
 	// fmt.Println(t.Format("20060102150405"))
 
 	listRec(w,
-		a.Uid,
 		strings.ToLower(a.ServiceName),
-		a.ServerUid,
+		a.ServerName,
+		a.Uid,
 		a.Image,
 		prettyTime{t},
 	)
