@@ -21,7 +21,6 @@ var cmdContainers = &Command{
 	Long: `List all the running containers of a stack or a server.
 
 Examples:
-
 $ cx containers -s mystack
 $ cx containers -s mystack --server orca
 `,
