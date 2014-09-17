@@ -17,31 +17,29 @@ var cmdBackups = &Command{
 	Category:   "stack",
 	Short:      "lists all the managed backups of a stack",
 	Long: `This will list all the managed backups of a stack grouped by their database type and/or backup schedule
-  The list will include backup id, db type, db name, backup status, last activity, restore and verification statuses.
+The list will include backup id, db type, db name, backup status, last activity, restore and verification statuses.
+The -l option will return the latest successful backups.
 
-  -l will return the latest successful backups
+Examples:
+$ cx backups
+23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
+23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
+34067  mysql  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
+34066  redis  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
+12802  mysql  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
+12801  redis  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
 
-  Examples:
+$ cx backups mysql
+23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
+34067  mysql  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
+12802  mysql  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
 
-  $ cx backups
-  23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
-  23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
-  34067  mysql  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
-  34066  redis  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
-  12802  mysql  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
-  12801  redis  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
+$ cx backups -l
+23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
+23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
 
-  $ cx backups mysql
-  23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
-  34067  mysql  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
-  12802  mysql  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
-
-  $ cx backups -l
-  23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
-  23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
-
-  $ cx backups -l redis
-  23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
+$ cx backups -l redis
+23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
 `,
 }
 

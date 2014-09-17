@@ -20,10 +20,10 @@ var cmdContainers = &Command{
 	Short:      "lists all the running containers of a stack (or server)",
 	Long: `List all the running containers of a stack or a server.
 
-  Examples:
+Examples:
 
-  $ cx containers -s mystack
-  $ cx containers -s mystack --server orca
+$ cx containers -s mystack
+$ cx containers -s mystack --server orca
 `,
 }
 

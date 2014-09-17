@@ -16,14 +16,13 @@ var cmdEnvVarsSet = &Command{
 	Category:   "stack",
 	Short:      "sets the value of an environment variable on a stack",
 	Long: `This sets and applies the value of an environment variable on a stack.
-  This work happens in the background, therefore this command will return immediately after the operation has started.
-  Warning! Applying environment variable changes to your stack will result in all your stack environment variables
-  being sent to your stack servers, and your processes being restarted immediately.
+This work happens in the background, therefore this command will return immediately after the operation has started.
+Warning! Applying environment variable changes to your stack will result in all your stack environment variables
+being sent to your stack servers, and your processes being restarted immediately.
 
 Examples:
-
-    $ cx env-var-set -s mystack FIRST_VAR 123
-    $ cx env-var-set -s mystack SECOND_ONE 'this value has a space in it'
+$ cx env-var-set -s mystack FIRST_VAR 123
+$ cx env-var-set -s mystack SECOND_ONE 'this value has a space in it'
 `,
 }
 

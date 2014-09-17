@@ -18,10 +18,9 @@ var cmdServices = &Command{
 	Short:      "lists all the services of a stack (or server)",
 	Long: `List all the services and running containers of a stack or a server.
 
-  Examples:
-
-  $ cx services -s mystack
-  $ cx services -s mystack --server orca
+Examples:
+$ cx services -s mystack
+$ cx services -s mystack --server orca
 `,
 }
 

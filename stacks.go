@@ -20,17 +20,16 @@ Lists stacks. Shows the stack name, environment, and last deploy time.
 You can use multiple names at the same time.
 
 Examples:
+$ cx stacks
+mystack     production   Jan 2 12:34
+mystack     staging      Feb 2 12:34
+mystack-2   development  Jan 2 12:35
 
-    $ cx stacks
-    mystack     production   Jan 2 12:34
-    mystack     staging      Feb 2 12:34
-    mystack-2   development  Jan 2 12:35
+$ cx stacks mystack-2
+mystack-2   development  Jan 2 12:34
 
-    $ cx stacks mystack-2
-    mystack-2   development  Jan 2 12:34
-
-    $ cx stacks mystack -e staging
-    mystack     staging      Feb 2 12:34
+$ cx stacks mystack -e staging
+mystack     staging      Feb 2 12:34
 `,
 }
 

@@ -25,8 +25,8 @@ var cmdUpdate = &Command{
 	Category: "cx",
 	Long: `This command runs automatically. You should not need to run it manually
 
-  -v forces a specific version to be downloaded.
-  `,
+-v forces a specific version to be downloaded.
+`,
 }
 
 type CxDownload struct {

@@ -12,18 +12,17 @@ var cmdOpen = &Command{
 	Category:   "stack",
 	Short:      "opens the web browser to visit the app served by the stack",
 	Long: `This opens the client web browser to visit the app servers by the stack. This could be the web page
-  specifically served by one server or the load balancer.
+specifically served by one server or the load balancer.
 
-  If no server is specified, the command opens the page served by the stack load balancer or first web server.
-  Alternatively you can specify the name or IP of the server. Partial names are accepted and are case insensitive.
+If no server is specified, the command opens the page served by the stack load balancer or first web server.
+Alternatively you can specify the name or IP of the server. Partial names are accepted and are case insensitive.
 
-  Examples:
-
-    $ cx open
-    $ cx open lion
-    $ cx open -s mystack
-    $ cx open -s mystack lion
-  `,
+Examples:
+$ cx open
+$ cx open lion
+$ cx open -s mystack
+$ cx open -s mystack lion
+`,
 }
 
 func runOpen(cmd *Command, args []string) {

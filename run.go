@@ -17,23 +17,23 @@ var cmdRun = &Command{
 	Short:      "executes a command directly on the server",
 	Long: `This command will execute a command directly on the remote server.
 
-  For this purpose, this command will open the firewall for SSH from your IP address temporaritly (20 minutes), downloads the keys if you don't have them, starts a SSH session,
-  and executes the command specified.
+For this purpose, this command will open the firewall for SSH from your IP address temporaritly (20 minutes), downloads the keys if you don't have them, starts a SSH session,
+and executes the command specified.
 
-  You need to have the right access permissions to use this command.
-  You can use either the server name (ie lion) or the server IP (ie. 123.123.123.123) or the server role (ie. web)
-  with thie command.
+You need to have the right access permissions to use this command.
+You can use either the server name (ie lion) or the server IP (ie. 123.123.123.123) or the server role (ie. web)
+with thie command.
 
-  If a role is specified the command will connect to the first server with that role.
+If a role is specified the command will connect to the first server with that role.
 
-  Names are case insensitive and will work with the starting characters as well.
+Names are case insensitive and will work with the starting characters as well.
 
-  This command is only supported on Linux and OS X.
+This command is only supported on Linux and OS X.
 
-  Examples:
-	$ cx run -s mystack lion 'ls -la'
-	$ cx run -s mystack 52.65.34.98 'ls -la'
-	$ cx run -s mystack web 'ls -la'
+Examples:
+$ cx run -s mystack lion 'ls -la'
+$ cx run -s mystack 52.65.34.98 'ls -la'
+$ cx run -s mystack web 'ls -la'
   `,
 }
 

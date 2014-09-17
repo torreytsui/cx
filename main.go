@@ -41,10 +41,18 @@ func (c *Command) printUsage() {
 }
 
 func (c *Command) printUsageTo(w io.Writer) {
+	padding := "  "
 	if c.Runnable() {
 		fmt.Fprintf(w, "Usage: cx %s\n\n", c.FullUsage())
 	}
-	fmt.Fprintln(w, strings.Trim(c.Long, "\n"))
+
+	for _, line := range strings.Split(strings.Trim(c.Long, "\n"), "\n") {
+		fmt.Fprintf(w, "%s%s\n", padding, line)
+		if line == "Examples:" {
+			padding = padding + "  "
+		}
+	}
+	fmt.Fprintf(w, "\n")
 }
 
 func (c *Command) FullUsage() string {

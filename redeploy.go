@@ -11,10 +11,10 @@ var cmdRedeploy = &Command{
 	Category:   "stack",
 	Short:      "redeploys stack",
 	Long: `Enqueues redeployment of the stack.
-  If the stack is already building, another build will be enqueued and performed immediately
-  after the current one is finished.
+If the stack is already building, another build will be enqueued and performed immediately
+after the current one is finished.
 
-  -y answers yes to confirmation question if the stack is production.
+-y answers yes to confirmation question if the stack is production.
 `,
 }
 

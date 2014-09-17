@@ -15,17 +15,16 @@ var cmdServiceStart = &Command{
 	Usage:      "service-scale <service name> [--server <server name>|<server ip>|<server role>] <count>",
 	NeedsStack: true,
 	Category:   "stack",
-	Short:      "starts <count> containers from the given service",
-	Long: `starts <count> containers from the given service.
-	<count> can be an absolute value like "2" or a relative value like +2 or -3 etc.
-	If server is provided, will start <count> containers on that server.
-	If server is not provided, will start <count> containers on every server.
+	Short:      "starts containers from the given service",
+	Long: `Starts <count> containers from the given service.
+<count> can be an absolute value like "2" or a relative value like "+2" or "-3" etc.
+If server is provided, will start <count> containers on that server.
+If server is not provided, will start <count> containers on every server.
 
-  Examples:
-
-  $ cx service-scale -s mystack my_web_service 1
-  $ cx service-scale -s mystack a_backend_service --server backend +5
-	$ cx service-scale -s mystack a_backend_service -2
+Examples:
+$ cx service-scale -s mystack my_web_service 1
+$ cx service-scale -s mystack a_backend_service --server backend +5
+$ cx service-scale -s mystack a_backend_service -2
 `,
 }
 

@@ -16,19 +16,18 @@ var cmdSettings = &Command{
 	Category:   "stack",
 	Short:      "lists stack settings",
 	Long: `Lists all the settings applicable to the given stack.
-  It also shows the key, value and the readonly flag for each setting.
-  Settings can be a list of multiple settings as separate parameters.
-  To change each setting, use the set command.
+It also shows the key, value and the readonly flag for each setting.
+Settings can be a list of multiple settings as separate parameters.
+To change each setting, use the set command.
 
 Examples:
+$ cx settings -s mystack
+git.branch          master                                                     false
+git.repository      git://git@github.com:cloud66-samples/rails-psql-redis.git  false
+allowed.web.source  <nil>                                                      false
 
-    $ cx settings -s mystack
-    git.branch          master                                                     false
-    git.repository      git://git@github.com:cloud66-samples/rails-psql-redis.git  false
-    allowed.web.source  <nil>                                                      false
-
-    $ cx settings -s mystack git.branch
-    git.branch          master                                                     false
+$ cx settings -s mystack git.branch
+git.branch          master                                                     false
 `,
 }
 

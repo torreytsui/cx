@@ -15,11 +15,10 @@ var cmdServerSet = &Command{
 	Category:   "stack",
 	Short:      "sets the value of a setting on a server",
 	Long: `This sets and applies the value of a setting on a server. Applying some settings might require more
-  work and therefore this command will return immediately after the setting operation has started.
+work and therefore this command will return immediately after the setting operation has started.
 
 Examples:
-
-    $ cx server-set -s mystack lion server.name tiger
+$ cx server-set -s mystack lion server.name tiger
 `,
 }
 

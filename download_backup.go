@@ -14,17 +14,17 @@ var cmdDownloadBackup = &Command{
 	Category:   "stack",
 	Short:      "downloads a database backup",
 	Long: `This downloads a backup from the available backups of a stack. This is limited to a single database type.
-  The command might download multiple files in parallel and concatenate and untar them if needed. The resulting file
-  can be used to manually restore the database.
+The command might download multiple files in parallel and concatenate and untar them if needed. The resulting file
+can be used to manually restore the database.
 
-  -d allows you to set the directory used to download the backup. You need to have write permissions over that directory
-  if no directory is specified, ~/cx_backups is used. If the directory does not exist, it will be created.
+-d allows you to set the directory used to download the backup. You need to have write permissions over that directory
+if no directory is specified, ~/cx_backups is used. If the directory does not exist, it will be created.
 
-  The caller needs to have admin rights over the stack.
+The caller needs to have admin rights over the stack.
 
-  Example:
-  $ cx download-backup -s mystack 123
-  `,
+Examples:
+$ cx download-backup -s mystack 123
+`,
 }
 
 var flagDownloadDir string

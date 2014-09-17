@@ -17,29 +17,28 @@ var cmdDownload = &Command{
 	Short:      "copies a file from the remote server to your local computer",
 	Long: `This command will copy a file from the remote server to your local computer.
 
-  This command will download the files to the home directory by default.
-  To copy the file to a specific directory in your local computer,
-  specify the target directory location in the command line.
+This command will download the files to the home directory by default.
+To copy the file to a specific directory in your local computer,
+specify the target directory location in the command line.
 
-  This will open the firewall for SSH from your IP address temporaritly (20 minutes), downloads the keys if you don't have them
-  and starts a SSH session.
+This will open the firewall for SSH from your IP address temporaritly (20 minutes), downloads the keys if you don't have them
+and starts a SSH session.
 
-  You need to have the right access permissions to use this command.
-  You can use either the server name (ie lion) or the server IP (ie. 123.123.123.123) or the server role (ie. web)
-  with thie command.
+You need to have the right access permissions to use this command.
+You can use either the server name (ie lion) or the server IP (ie. 123.123.123.123) or the server role (ie. web)
+with thie command.
 
-  If a role is specified the command will connect to the first server with that role.
+If a role is specified the command will connect to the first server with that role.
 
-  Names are case insensitive and will work with the starting characters as well.
+Names are case insensitive and will work with the starting characters as well.
 
-  This command is only supported on Linux and OS X.
+This command is only supported on Linux and OS X.
 
-  Examples:
-
-    $ cx download -s mystack lion /path/to/source/file /path/to/target/directory
-    $ cx download -s mystack 52.65.34.98 /path/to/file
-    $ cx download -s mystack 52.65.34.98 /path/to/source/file /path/to/target/directory
-  `,
+Examples:
+$ cx download -s mystack lion /path/to/source/file /path/to/target/directory
+$ cx download -s mystack 52.65.34.98 /path/to/file
+$ cx download -s mystack 52.65.34.98 /path/to/source/file /path/to/target/directory
+`,
 }
 
 func runDownload(cmd *Command, args []string) {

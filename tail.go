@@ -16,19 +16,18 @@ var cmdTail = &Command{
 	Category:   "stack",
 	Short:      "shows and tails the logfile specified on the given server",
 	Long: `This will run a Linux tail command on the specified server and given logfile.
-	Logs are read from stack's log folder (current/log) and should be the full logfile name
-	including the extension.
+Logs are read from stack's log folder (current/log) and should be the full logfile name
+including the extension.
 
-	Server names and roles are case insensitive and will work with the starting characters as well.
+Server names and roles are case insensitive and will work with the starting characters as well.
 
-	This command is only supported on Linux and OS X.
+This command is only supported on Linux and OS X.
 
-	Examples:
-
-		$ cx tail -s mystack production.log
-		$ cx ssh -s mystack 52.65.34.98 nginx_error.log
-		$ cx ssh -s mystack web staging.log
-	`,
+Examples:
+$ cx tail -s mystack production.log
+$ cx ssh -s mystack 52.65.34.98 nginx_error.log
+$ cx ssh -s mystack web staging.log
+`,
 }
 
 func runTail(cmd *Command, args []string) {

@@ -15,13 +15,12 @@ var cmdSet = &Command{
 	Category:   "stack",
 	Short:      "sets the value of a setting on a stack",
 	Long: `This sets and applies the value of a setting on a stack. Applying some settings might require more
-  work and therefore this command will return immediately after the setting operation has started.
+work and therefore this command will return immediately after the setting operation has started.
 
 Examples:
-
-    $ cx set -s mystack git.branch dev
-    $ cx set -s mystack allowed.web.source 191.203.12.10
-    $ cx set -s mystack allowed.web.source anywhere
+$ cx set -s mystack git.branch dev
+$ cx set -s mystack allowed.web.source 191.203.12.10
+$ cx set -s mystack allowed.web.source anywhere
 `,
 }
 

@@ -16,9 +16,8 @@ var cmdContainerStop = &Command{
 	Short:      "Stops a particular container on the given stack",
 	Long: `Stops a particular container on the given stack by container Id.
 
-  Examples:
-
-  $ cx container-stop -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c
+Examples:
+$ cx container-stop -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c
 `,
 }
 

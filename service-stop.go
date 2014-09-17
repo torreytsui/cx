@@ -15,14 +15,13 @@ var cmdServiceStop = &Command{
 	Category:   "stack",
 	Short:      "stops all the containers from the given service",
 	Long: `Stops all the containers from the given service.
-	The list of available stack services can be obtained through the 'services' command.
-	If the server is provided it will only act on the specified server.
+The list of available stack services can be obtained through the 'services' command.
+If the server is provided it will only act on the specified server.
 
-  Examples:
-
-  $ cx service-stop -s mystack my_web_service
-  $ cx service-stop -s mystack a_backend_service
-	$ cx service-stop -s mystack --server my_server my_web_service
+Examples:
+$ cx service-stop -s mystack my_web_service
+$ cx service-stop -s mystack a_backend_service
+$ cx service-stop -s mystack --server my_server my_web_service
 `,
 }
 

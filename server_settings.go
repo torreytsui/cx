@@ -16,17 +16,16 @@ var cmdServerSettings = &Command{
 	Category:   "stack",
 	Short:      "lists server settings",
 	Long: `Lists all the settings applicable to the given server.
-  It also shows the key, value and the readonly flag for each setting.
-  Settings can be a list of multiple settings as separate parameters.
-  To change each server setting, use the server-set command.
+It also shows the key, value and the readonly flag for each setting.
+Settings can be a list of multiple settings as separate parameters.
+To change each server setting, use the server-set command.
 
 Examples:
+$ cx server-settings -s mystack lion
+server.name         lion                                                       false
 
-    $ cx server-settings -s mystack lion
-    server.name         lion                                                       false
-
-    $ cx server-settings -s mystack db server-name
-    server.name         tiger                                                      false
+$ cx server-settings -s mystack db server-name
+server.name         tiger                                                      false
 `,
 }
 

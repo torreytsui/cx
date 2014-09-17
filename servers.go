@@ -18,16 +18,15 @@ var cmdServers = &Command{
 	Category:   "stack",
 	Short:      "lists all the servers of a stack.",
 	Long: `List all the servers of a stack.
-  The information contains the name, IP address, server role and the date/time it was created.
-  Names can be a list of server names entered as separate parameters.
+The information contains the name, IP address, server role and the date/time it was created.
+Names can be a list of server names entered as separate parameters.
 
-  Examples:
-
-  $ cx servers -s mystack
-  orca         162.243.201.164  [rails web app]  Healthy   Mar 26 11:23
-  snowleopard  107.170.98.160   [mysql db]       Building  Mar 26 11:23
-  $ cx servers -s mystack orca
-  orca         162.243.201.164  [rails web app]  Healthy   Mar 26 11:23
+Examples:
+$ cx servers -s mystack
+orca         162.243.201.164  [rails web app]  Healthy   Mar 26 11:23
+snowleopard  107.170.98.160   [mysql db]       Building  Mar 26 11:23
+$ cx servers -s mystack orca
+orca         162.243.201.164  [rails web app]  Healthy   Mar 26 11:23
 `,
 }
 
