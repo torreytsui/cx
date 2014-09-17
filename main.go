@@ -102,6 +102,11 @@ var commands = []*Command{
 	cmdBackups,
 	cmdDownloadBackup,
 	cmdClearCaches,
+	cmdContainers,
+	cmdContainerStop,
+	cmdServices,
+	cmdServiceStop,
+	cmdServiceStart,
 
 	cmdVersion,
 	cmdUpdate,
@@ -117,6 +122,8 @@ var (
 	flagStack       *cloud66.Stack
 	flagStackName   string
 	flagEnvironment string
+	flagServer      string
+	flagServiceName string
 )
 
 func main() {
@@ -168,6 +175,10 @@ func main() {
 				cmd.Flag.StringVar(&flagStackName, "s", "", "stack name")
 				cmd.Flag.StringVar(&flagEnvironment, "e", "", "stack environment")
 			}
+			// optional server/servicename flag used in multiple places
+			cmd.Flag.StringVar(&flagServer, "server", "", "server filter")
+			cmd.Flag.StringVar(&flagServiceName, "service", "", "service name")
+
 			if err := cmd.Flag.Parse(args[1:]); err != nil {
 				os.Exit(2)
 			}
