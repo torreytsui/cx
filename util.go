@@ -223,21 +223,6 @@ func openURL(url string) error {
 	return runCommand(command, args, os.Environ())
 }
 
-func writeSshFile(filename string, content string) error {
-	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0600)
-	defer file.Close()
-
-	if err != nil {
-		return err
-	}
-
-	if _, err := file.WriteString(content); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func downloadFile(source string, output string) error {
 	out, err := os.Create(output)
 	defer out.Close()
@@ -295,6 +280,50 @@ func startProgram(command string, args []string) error {
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 	if err := cmd.Run(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func prepareLocalSshKey(server cloud66.Server) (string, error) {
+	var sshFile string
+	if server.PersonalKey {
+		oldFile := filepath.Join(homePath(), ".ssh", "cx_"+server.StackUid)
+		if b, _ := fileExists(sshFile); !b {
+			os.Remove(oldFile)
+		}
+		sshFile = filepath.Join(homePath(), ".ssh", "cx_"+server.StackUid+"_pkey")
+		// remove the old sshkey
+	} else {
+		sshFile = filepath.Join(homePath(), ".ssh", "cx_"+server.StackUid)
+	}
+
+	// do we have the key?
+	if b, _ := fileExists(sshFile); !b {
+		// get the content and write the file
+		fmt.Println("Fetching SSH key...")
+		sshKey, err := client.ServerKeyInformation(server.StackUid, server.Uid)
+		if err != nil {
+			return "", err
+		}
+		if err = writeSshFile(sshFile, sshKey); err != nil {
+			return "", err
+		}
+	} else {
+		if debugMode {
+			fmt.Println("Found an existing SSH key for this server")
+		}
+	}
+	return sshFile, nil
+}
+
+func writeSshFile(filename string, content string) error {
+	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0600)
+	defer file.Close()
+	if err != nil {
+		return err
+	}
+	if _, err := file.WriteString(content); err != nil {
 		return err
 	}
 	return nil

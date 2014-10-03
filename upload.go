@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"runtime"
 
 	"github.com/cloud66/cloud66"
@@ -95,8 +94,6 @@ func runUpload(cmd *Command, args []string) {
 }
 
 func sshToServerToUpload(server cloud66.Server, filePath string, targetDirectory ...string) error {
-	sshFile := filepath.Join(homePath(), ".ssh", "cx_"+server.StackUid)
-
 	// default target directory
 	var defaultDir string = "/tmp"
 	var targetDir string = defaultDir
@@ -106,24 +103,8 @@ func sshToServerToUpload(server cloud66.Server, filePath string, targetDirectory
 		targetDir = targetDirectory[0]
 	}
 
-	// do we have the key?
-	if b, _ := fileExists(sshFile); !b {
-		// get the content and write the file
-		fmt.Println("Fetching SSH key...")
-		sshKey, err := client.ServerSshPrivateKey(server.StackUid, server.Uid)
-
-		if err != nil {
-			return err
-		}
-
-		if err = writeSshFile(sshFile, sshKey); err != nil {
-			return err
-		}
-	} else {
-		if debugMode {
-			fmt.Println("Found an existing SSH key for this server")
-		}
-	}
+	sshFile, err := prepareLocalSshKey(server)
+	must(err)
 
 	// open the firewall
 	var timeToOpen = 2
