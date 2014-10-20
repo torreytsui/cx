@@ -4,7 +4,6 @@ else
   profile_file="$HOME/.bash_profile"
 fi
 
-
-if ! grep -q '.cx_completion.bash.inc' "${profile_file}" ; then
-  echo "source \"$HOME/.cx_completion.bash.inc\"" >> "${profile_file}"
+if ! grep -q 'completion.bash.inc' "${profile_file}" ; then
+  echo "source /usr/local/cloud66/completion.bash.inc" >> "${profile_file}"
 fi
