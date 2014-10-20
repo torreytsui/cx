@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 {
 		C66_CLIENT_URL="https://app.cloud66.com/toolbelt/linux"
 
@@ -9,7 +9,7 @@
 		sudo -k
 
 		# run inside sudo
-		sudo sh <<SCRIPT
+		sudo bash <<SCRIPT
 
 	# download and extract the client tarball
 	rm -rf /usr/local/cloud66
