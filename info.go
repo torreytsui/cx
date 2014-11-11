@@ -39,14 +39,18 @@ func accountInfo() error {
 		return err
 	}
 
-	if len(accountInfos) != 1 {
-		printFatal("User associated with this request returning multiple (or zero) references")
+	if len(accountInfos) < 1 {
+		printFatal("User associated with this request returning zero references")
 		os.Exit(2)
 	}
-	var accountInfo = accountInfos[0]
-	fmt.Printf("Account owner: %s\n", accountInfo.Owner)
-	fmt.Printf("Running %d stack(s)\n", accountInfo.StackCount)
-	fmt.Printf("Used clouds: %s\n", strings.Join(accountInfo.UsedClouds, ", "))
+
+	for _, accountInfo := range accountInfos {
+		fmt.Printf("\n")
+		fmt.Printf("Account owner: %s\n", accountInfo.Owner)
+		fmt.Printf("Running %d stack(s)\n", accountInfo.StackCount)
+		fmt.Printf("Used clouds: %s\n", strings.Join(accountInfo.UsedClouds, ", "))
+	}
+
 	return nil
 }
 
