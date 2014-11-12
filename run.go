@@ -82,7 +82,7 @@ func sshToServerForCommand(server cloud66.Server, userCommand string) error {
 
 	// open the firewall
 	var timeToOpen = 2
-	genericRes, err := client.LeaseSync(server.StackUid, nil, &timeToOpen, nil)
+	genericRes, err := client.LeaseSync(server.StackUid, nil, &timeToOpen, nil, &server.Uid)
 	must(err)
 	if genericRes.Status != true {
 		printFatal("Unable to open server lease")

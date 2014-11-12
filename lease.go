@@ -35,7 +35,7 @@ func init() {
 func runLease(cmd *Command, args []string) {
 	stack := mustStack()
 
-	genericRes, err := client.LeaseSync(stack.Uid, &flagIp, &flagTimeToOpen, &flagPort)
+	genericRes, err := client.LeaseSync(stack.Uid, &flagIp, &flagTimeToOpen, &flagPort, nil)
 	if err != nil {
 		printFatal(err.Error())
 	}
