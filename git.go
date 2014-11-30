@@ -20,12 +20,12 @@ func areSameRemotes(lhs string, rhs string) (bool, error) {
 		fmt.Printf("Comparing '%s' and '%s'\n", lhs, rhs)
 	}
 	// are they the same?
-	if lhs == rhs {
+	if strings.EqualFold(lhs, rhs) {
 		return true, nil
 	}
 
 	// if the different is only the .git at the end, then they are the same
-	if lhs+".git" == rhs || rhs+".git" == lhs {
+	if strings.EqualFold(lhs+".git", rhs) || strings.EqualFold(rhs+".git", lhs) {
 		return true, nil
 	}
 
@@ -50,7 +50,7 @@ func areSameRemotes(lhs string, rhs string) (bool, error) {
 	}
 
 	// http and https are the same
-	if (rhsParsed.Path == lhsParsed.Path) && (rhsParsed.Host == lhsParsed.Host) {
+	if (strings.EqualFold(rhsParsed.Path, lhsParsed.Path)) && (strings.EqualFold(rhsParsed.Host, lhsParsed.Host)) {
 		return true, nil
 	}
 

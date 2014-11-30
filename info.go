@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"runtime"
 	"strings"
 	"text/tabwriter"
-	"io"
 
 	"github.com/cloud66/cloud66"
 )
@@ -60,18 +60,18 @@ func accountInfo() error {
 		fmt.Printf("Running %d stack(s)\n", accountInfo.StackCount)
 		fmt.Printf("Used clouds: %s\n", strings.Join(accountInfo.UsedClouds, ", "))
 
-		if (accountInfo.CurrentAccount) {
+		if accountInfo.CurrentAccount {
 			currentAccountId = accountInfo.Id
 		}
 	}
 
-	if (flagUnmanaged) {
+	if flagUnmanaged {
 		w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
 		defer w.Flush()
 
 		fmt.Println("\nFetching the list of unmanaged servers...")
 		mainAccount, err := client.AccountInfo(currentAccountId, true)
-		if (err != nil) {
+		if err != nil {
 			return err
 		}
 
@@ -127,5 +127,3 @@ func listUnmanagedServer(w io.Writer, a cloud66.UnmanagedServer) {
 		a.Id,
 	)
 }
-
-
