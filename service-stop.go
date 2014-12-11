@@ -77,5 +77,5 @@ func startServiceStop(stackUid string, serviceName string, serverUid *string) (*
 }
 
 func endServiceStop(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
-	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute)
+	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute, true)
 }

@@ -60,5 +60,5 @@ func startContainerStop(stackUid string, containerUid string) (*int, error) {
 }
 
 func endContainerStop(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
-	return client.WaitStackAsyncAction(asyncId, stackUid, 3*time.Second, 20*time.Minute)
+	return client.WaitStackAsyncAction(asyncId, stackUid, 3*time.Second, 20*time.Minute, true)
 }

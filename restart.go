@@ -45,5 +45,5 @@ func startRestart(stackUid string) (*int, error) {
 }
 
 func endRestart(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
-	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute)
+	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute, true)
 }
