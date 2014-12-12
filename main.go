@@ -112,6 +112,7 @@ var commands = []*Command{
 	cmdClearCaches,
 	cmdContainers,
 	cmdContainerStop,
+	cmdContainerRestart,
 	cmdServices,
 	cmdServiceStop,
 	cmdServiceStart,
