@@ -23,8 +23,8 @@ In the case of any servers not being accessible during this time, those servers 
 (or to manually stop the DB service on those servers) as having multiple masters in a cluster could cause problems throughout the cluster.
 
 Examples:
-$ slave-promote -s 'my stack name' redis_slave_name
-$ slave-promote -s 'my stack name' --db-type=postgresql pg_slave1
+$ cx slave-promote -s 'my stack name' redis_slave_name
+$ cx slave-promote -s 'my stack name' --db-type=postgresql pg_slave1
 `,
 }
 
