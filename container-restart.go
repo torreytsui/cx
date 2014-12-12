@@ -22,7 +22,7 @@ $ cx container-restart -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4
 }
 
 func runContainerRestart(cmd *Command, args []string) {
-	if len(args) == 0 {
+	if len(args) != 1 {
 		cmd.printUsage()
 		os.Exit(2)
 	}
@@ -52,7 +52,7 @@ func runContainerRestart(cmd *Command, args []string) {
 }
 
 func startContainerRestart(stackUid string, containerUid string) (*int, error) {
-	asyncRes, err := client.RestartContainer(stackUid, containerUid)
+	asyncRes, err := client.InvokeStackContainerAction(stackUid, containerUid, "container_restart")
 	if err != nil {
 		return nil, err
 	}

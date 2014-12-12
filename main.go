@@ -116,6 +116,7 @@ var commands = []*Command{
 	cmdServices,
 	cmdServiceStop,
 	cmdServiceStart,
+	cmdServiceRestart,
 	cmdSlavePromote,
 	cmdSlaveResync,
 
