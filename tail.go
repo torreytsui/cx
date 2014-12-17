@@ -24,8 +24,8 @@ This command is only supported on Linux and OS X.
 
 Examples:
 $ cx tail -s mystack production.log
-$ cx ssh -s mystack 52.65.34.98 nginx_error.log
-$ cx ssh -s mystack web staging.log
+$ cx tail -s mystack 52.65.34.98 nginx_error.log
+$ cx tail -s mystack web staging.log
 `,
 }
 
