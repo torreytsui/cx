@@ -8,24 +8,24 @@ import (
 	"github.com/cloud66/cloud66"
 )
 
-var cmdServiceStop = &Command{
-	Run:        runServiceStop,
-	Usage:      "service-stop <service name> [--server <server name>|<server ip>|<server role>]",
+var cmdServiceRestart = &Command{
+	Run:        runServiceRestart,
+	Usage:      "service-restart <service name> [--server <server name>|<server ip>|<server role>]",
 	NeedsStack: true,
 	Category:   "stack",
-	Short:      "stops all the containers from the given service",
-	Long: `Stops all the containers from the given service.
+	Short:      "restarts all the containers from the given service",
+	Long: `Restarts all the containers from the given service.
 The list of available stack services can be obtained through the 'services' command.
 If the server is provided it will only act on the specified server.
 
 Examples:
-$ cx service-stop -s mystack my_web_service
-$ cx service-stop -s mystack a_backend_service
-$ cx service-stop -s mystack --server my_server my_web_service
+$ cx service-restart -s mystack my_web_service
+$ cx service-restart -s mystack a_backend_service
+$ cx service-restart -s mystack --server my_server my_web_service
 `,
 }
 
-func runServiceStop(cmd *Command, args []string) {
+func runServiceRestart(cmd *Command, args []string) {
 	if len(args) != 1 {
 		cmd.printUsage()
 		os.Exit(2)
@@ -50,17 +50,17 @@ func runServiceStop(cmd *Command, args []string) {
 			printFatal("Server '" + flagServer + "' not found")
 		}
 		if !server.HasRole("docker") {
-			printFatal("Server '" + flagServer + "' can not host containers")
+			printFatal("Server '" + flagServer + "' is not a docker server")
 		}
 		fmt.Printf("Server: %s\n", server.Name)
 		serverUid = &server.Uid
 	}
 
-	asyncId, err := startServiceStop(stack.Uid, serviceName, serverUid)
+	asyncId, err := startServiceRestart(stack.Uid, serviceName, serverUid)
 	if err != nil {
 		printFatal(err.Error())
 	}
-	genericRes, err := endServiceStop(*asyncId, stack.Uid)
+	genericRes, err := endServiceRestart(*asyncId, stack.Uid)
 	if err != nil {
 		printFatal(err.Error())
 	}
@@ -68,14 +68,14 @@ func runServiceStop(cmd *Command, args []string) {
 	return
 }
 
-func startServiceStop(stackUid string, serviceName string, serverUid *string) (*int, error) {
-	asyncRes, err := client.StopService(stackUid, serviceName, serverUid)
+func startServiceRestart(stackUid string, serviceName string, serverUid *string) (*int, error) {
+	asyncRes, err := client.InvokeStackServiceAction(stackUid, serviceName, serverUid, "service_restart")
 	if err != nil {
 		return nil, err
 	}
 	return &asyncRes.Id, err
 }
 
-func endServiceStop(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
+func endServiceRestart(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
 	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute, true)
 }

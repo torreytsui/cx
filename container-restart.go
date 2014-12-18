@@ -8,21 +8,21 @@ import (
 	"github.com/cloud66/cloud66"
 )
 
-var cmdContainerStop = &Command{
-	Run:        runContainerStop,
-	Usage:      "container-stop <container id>",
+var cmdContainerRestart = &Command{
+	Run:        runContainerRestart,
+	Usage:      "container-restart <container id>",
 	NeedsStack: true,
 	Category:   "stack",
-	Short:      "Stops a particular container on the given stack",
-	Long: `Stops a particular container on the given stack by container Id.
+	Short:      "Restarts a particular container on the given stack",
+	Long: `Restarts a particular container on the given stack by container Id.
 
 Examples:
-$ cx container-stop -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c
+$ cx container-restart -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c
 `,
 }
 
-func runContainerStop(cmd *Command, args []string) {
-	if len(args) == 0 {
+func runContainerRestart(cmd *Command, args []string) {
+	if len(args) != 1 {
 		cmd.printUsage()
 		os.Exit(2)
 	}
@@ -39,7 +39,7 @@ func runContainerStop(cmd *Command, args []string) {
 		printFatal("Container with Id '" + containerUid + "' not found")
 	}
 
-	asyncId, err := startContainerStop(stack.Uid, containerUid)
+	asyncId, err := startContainerRestart(stack.Uid, containerUid)
 	if err != nil {
 		printFatal(err.Error())
 	}
@@ -51,14 +51,14 @@ func runContainerStop(cmd *Command, args []string) {
 	return
 }
 
-func startContainerStop(stackUid string, containerUid string) (*int, error) {
-	asyncRes, err := client.StopContainer(stackUid, containerUid)
+func startContainerRestart(stackUid string, containerUid string) (*int, error) {
+	asyncRes, err := client.InvokeStackContainerAction(stackUid, containerUid, "container_restart")
 	if err != nil {
 		return nil, err
 	}
 	return &asyncRes.Id, err
 }
 
-func endContainerStop(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
+func endContainerRestart(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
 	return client.WaitStackAsyncAction(asyncId, stackUid, 3*time.Second, 20*time.Minute, true)
 }

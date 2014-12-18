@@ -69,5 +69,5 @@ func startSet(stackUid string, key string, value string) (*int, error) {
 }
 
 func endSet(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
-	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute)
+	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute, true)
 }

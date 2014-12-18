@@ -14,7 +14,7 @@ var cmdClearCaches = &Command{
 	Category:   "stack",
 	Short:      "clears all existing stack code caches",
 	Long: `Clears all existing code caches.
-	
+
 For improved performance, volatile code caches exist for your stack.
 It is possible for a those volatile caches to become invalid if you switch branches, change git repository URL, or rebase or force a commit.
 Since switching branch or changing git repository URL is done via the Cloud 66 interface, your volatile caches will automatically be purged.
@@ -48,5 +48,5 @@ func startClearCaches(stackUid string) (*int, error) {
 }
 
 func endClearCaches(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
-	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute)
+	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute, false)
 }

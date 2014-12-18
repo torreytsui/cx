@@ -112,9 +112,13 @@ var commands = []*Command{
 	cmdClearCaches,
 	cmdContainers,
 	cmdContainerStop,
+	cmdContainerRestart,
 	cmdServices,
 	cmdServiceStop,
 	cmdServiceStart,
+	cmdServiceRestart,
+	cmdSlavePromote,
+	cmdSlaveResync,
 
 	cmdVersion,
 	cmdUpdate,
@@ -132,6 +136,7 @@ var (
 	flagEnvironment string
 	flagServer      string
 	flagServiceName string
+	flagDbType      string
 )
 
 func main() {
@@ -186,6 +191,7 @@ func main() {
 			// optional server/servicename flag used in multiple places
 			cmd.Flag.StringVar(&flagServer, "server", "", "server filter")
 			cmd.Flag.StringVar(&flagServiceName, "service", "", "service name")
+			cmd.Flag.StringVar(&flagDbType, "db-type", "", "database type")
 
 			if err := cmd.Flag.Parse(args[1:]); err != nil {
 				os.Exit(2)
