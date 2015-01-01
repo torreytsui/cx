@@ -110,7 +110,7 @@ func toolbeltInfo() error {
 		fmt.Println("Running in Debug mode")
 	}
 	fmt.Printf("OS: %s, Architecture: %s\n", runtime.GOOS, runtime.GOARCH)
-	fmt.Println("For more information visit http://cloud-66-help.c66.me/introduction-to-cloud-66/introduction-to-cloud-66")
+	fmt.Println("For more information visit http://help.cloud66.com/introduction-to-cloud-66/introduction-to-cloud-66")
 
 	return nil
 }
