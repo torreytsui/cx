@@ -1,0 +1,11 @@
+{
+	"folders":
+	[
+		{
+			"path": "/Users/khash/work/go/src/github.com/cloud66/cx",
+            "folder_exclude_patterns": [".idea", "cxdist/build", "cxdist/tmp"],
+            "file_exclude_patterns" : ["*.sublime-workspace", ".gitignore", "*.sublime-project", ".rakeTasks", ".ruby-gemset", ".ruby-version", "cx"]
+
+		}
+	]
+}
