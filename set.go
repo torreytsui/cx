@@ -21,6 +21,8 @@ Examples:
 $ cx set -s mystack git.branch dev
 $ cx set -s mystack allowed.web.source 191.203.12.10
 $ cx set -s mystack allowed.web.source anywhere
+$ cx set -s mystack maintenance.mode  1|true|on|enable
+$ cx set -s mystack maintenance.mode  0|false|off|disable
 `,
 }
 
