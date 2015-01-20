@@ -12,7 +12,7 @@ import (
 
 var cmdServices = &Command{
 	Run:        runServices,
-	Usage:      "services [--server <server name>|<server ip>|<server role>]",
+	Usage:      "services [--server <server name>|<server ip>|<server role>] [--service <service_name>]",
 	NeedsStack: true,
 	Category:   "stack",
 	Short:      "lists all the services of a stack (or server)",
@@ -21,6 +21,8 @@ var cmdServices = &Command{
 Examples:
 $ cx services -s mystack
 $ cx services -s mystack --server orca
+$ cx services -s mystack --server orca --service web
+$ cx services -s mystack --service web
 `,
 }
 

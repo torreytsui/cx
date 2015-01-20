@@ -10,7 +10,7 @@ import (
 
 var cmdServiceStop = &Command{
 	Run:        runServiceStop,
-	Usage:      "service-stop <service name> [--server <server name>|<server ip>|<server role>]",
+	Usage:      "service-stop [--server <server name>|<server ip>|<server role>] <service name>",
 	NeedsStack: true,
 	Category:   "stack",
 	Short:      "stops all the containers from the given service",
