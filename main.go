@@ -100,6 +100,7 @@ var commands = []*Command{
 	cmdEnvVars,
 	cmdEnvVarsSet,
 	cmdLease,
+	cmdListen,
 	cmdRestart,
 	cmdRun,
 	cmdServers,
