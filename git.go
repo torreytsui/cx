@@ -76,6 +76,10 @@ func remoteGitUrl() string {
 // search for the given stack using the git URL and branch
 func stackFromGitRemote(gitUrl string, gitBranch string) (*cloud66.Stack, error) {
 	stacks, err := client.StackList()
+	if gitUrl == "" {
+		return nil, err
+	}
+
 	for _, stack := range stacks {
 		r, err := areSameRemotes(stack.Git, gitUrl)
 		if err != nil {
