@@ -64,7 +64,7 @@ func runServiceScale(cmd *Command, args []string) {
 	if strings.ContainsAny(count, "+ & -") {
 
 		// fetch service information for existing counts
-		service, err := client.GetService(stack.Uid, serviceName, nil)
+		service, err := client.GetService(stack.Uid, serviceName, nil, nil)
 		must(err)
 
 		serverCountCurrent := service.ServerContainerCountMap()
