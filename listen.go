@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"math/rand"
 	"os"
 	"os/signal"
@@ -11,6 +13,7 @@ import (
 
 	"github.com/bitly/go-nsq"
 	"github.com/bitly/nsq/util"
+	"github.com/mgutz/ansi"
 )
 
 var cmdListen = &Command{
@@ -26,18 +29,6 @@ $ cx listen
 $ cx listen -s mystack
 `,
 }
-
-const (
-	CLR_0 = "\x1b[30;1m"
-	CLR_R = "\x1b[31;1m"
-	CLR_G = "\x1b[32;1m"
-	CLR_Y = "\x1b[33;1m"
-	CLR_B = "\x1b[34;1m"
-	CLR_M = "\x1b[35;1m"
-	CLR_C = "\x1b[36;1m"
-	CLR_W = "\x1b[37;1m"
-	CLR_N = "\x1b[0m"
-)
 
 type logMessage struct {
 	Severity   int       `json:"severity"`
@@ -92,9 +83,14 @@ func runListen(cmd *Command, args []string) {
 		printFatal(err.Error())
 	}
 
+	if !debugMode {
+		nullLogger := log.New(ioutil.Discard, "", log.LstdFlags)
+		consumer.SetLogger(nullLogger, nsq.LogLevelDebug)
+	}
+
 	consumer.AddHandler(&tailHandler{totalMessages: totalMessages})
 
-	lookupdHTTPAddrs.Set("localhost:4161")
+	lookupdHTTPAddrs.Set(nsqLookup)
 
 	err = consumer.ConnectToNSQLookupds(lookupdHTTPAddrs)
 	if err != nil {
@@ -112,6 +108,10 @@ func runListen(cmd *Command, args []string) {
 }
 
 func (th *tailHandler) HandleMessage(m *nsq.Message) error {
+	redColor := ansi.ColorFunc("red+h")
+	capColor := ansi.ColorFunc("yellow")
+	infoColor := ansi.ColorFunc("white")
+
 	th.messagesShown++
 
 	var message logMessage
@@ -120,12 +120,34 @@ func (th *tailHandler) HandleMessage(m *nsq.Message) error {
 		fmt.Println("error:", err)
 	}
 
-	if message.Severity == 4 {
-		fmt.Printf("%s%s\n", CLR_R, message.Message)
-		fmt.Print(CLR_W)
-	} else {
-		fmt.Printf("%s%s\n", CLR_W, message.Message)
+	var level string
+	var colorFunc func(string) string
+
+	switch message.Severity {
+	case 0:
+		level = "TRACE"
+		colorFunc = infoColor
+	case 1:
+		level = "DEBUG"
+		colorFunc = infoColor
+	case 2:
+		level = "INFO"
+		colorFunc = infoColor
+	case 3:
+		level = "WARN"
+		colorFunc = capColor
+	case 4:
+		level = "ERROR"
+		colorFunc = redColor
+	case 5:
+		level = "IMPORTANT"
+		colorFunc = redColor
+	case 6:
+		level = "FATAL"
+		colorFunc = redColor
 	}
+
+	fmt.Println(colorFunc(fmt.Sprintf("%s [%s] - %s", message.Time, level, message.Message)))
 
 	if th.totalMessages > 0 && th.messagesShown >= th.totalMessages {
 		os.Exit(0)

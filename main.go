@@ -34,6 +34,7 @@ var (
 	VERSION    string = "dev"
 	BUILD_DATE string = ""
 	tokenFile  string = "cx.json"
+	nsqLookup  string = "nsq.cldblx.com:4161"
 )
 
 func (c *Command) printUsage() {
@@ -149,6 +150,10 @@ func main() {
 		honeybadger.Environment = os.Getenv("CXENVIRONMENT")
 	} else {
 		honeybadger.Environment = "production"
+	}
+
+	if os.Getenv("NSQ_LOOKUP") != "" {
+		nsqLookup = os.Getenv("NSQ_LOOKUP")
 	}
 
 	log.SetFlags(0)
