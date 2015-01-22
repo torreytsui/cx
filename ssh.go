@@ -93,6 +93,7 @@ func sshToServer(server cloud66.Server) error {
 		"-o", "CheckHostIP=no",
 		"-o", "StrictHostKeyChecking=no",
 		"-o", "LogLevel=QUIET",
+		"-o", "IdentitiesOnly=yes",
 		"-A",
 		"-p", "22",
 	})

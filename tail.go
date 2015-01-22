@@ -89,6 +89,7 @@ func tailLog(stack cloud66.Stack, server cloud66.Server, logName string) error {
 		"-o", "CheckHostIP=no",
 		"-o", "StrictHostKeyChecking=no",
 		"-o", "LogLevel=QUIET",
+		"-o", "IdentitiesOnly=yes",
 		"-A",
 		"-p", "22",
 		fmt.Sprintf("tail -f '%s/web_head/current/log/%s'", stack.DeployDir, logName),

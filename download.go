@@ -122,6 +122,7 @@ func sshToServerToDownload(server cloud66.Server, filePath string, targetDirecto
 		"-o", "CheckHostIP=no",
 		"-o", "StrictHostKeyChecking=no",
 		"-o", "LogLevel=QUIET",
+		"-o", "IdentitiesOnly=yes",
 		"-P", "22",
 		server.UserName + "@" + server.Address + ":" + filePath,
 		targetDir,

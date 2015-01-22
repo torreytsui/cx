@@ -124,6 +124,7 @@ func sshToServerToUpload(server cloud66.Server, filePath string, targetDirectory
 		"-o", "CheckHostIP=no",
 		"-o", "StrictHostKeyChecking=no",
 		"-o", "LogLevel=QUIET",
+		"-o", "IdentitiesOnly=yes",
 		"-P", "22",
 		filePath,
 		server.UserName + "@" + server.Address + ":" + targetDir,
