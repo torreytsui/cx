@@ -11,7 +11,7 @@ import (
 
 var cmdSettings = &Command{
 	Run:        runSettings,
-	Usage:      "settings [settings]",
+	Usage:      "settings [setting,...]",
 	NeedsStack: true,
 	Category:   "stack",
 	Short:      "lists stack settings",
