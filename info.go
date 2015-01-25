@@ -9,34 +9,36 @@ import (
 	"text/tabwriter"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/codegangsta/cli"
 )
 
 var flagUnmanaged bool
 
 var cmdInfo = &Command{
-	Run:      runInfo,
-	Usage:    "info [-s <stack>] [-e <environment>] [-unmanaged]",
-	Category: "cx",
-	Short:    "shows information about your account, toolbelt and the current directory or the specified stack",
+	Name:       "info",
+	Run:        runInfo,
+	NeedsStack: true,
+	Build:      buildBasicCommand,
+	Flags: []cli.Flag{
+		cli.BoolFlag{
+			Name: "unmanaged",
+		},
+	},
+	Short: "shows information about your account, toolbelt and the current directory or the specified stack",
 	Long: `info lists the account information, toolbelt information and if applicable information about the
   your current directory.
   Use unmanaged parameter to list the servers under your cloud account that are NOT in any of your stacks.`,
 }
 
-func init() {
-	cmdInfo.Flag.StringVar(&flagStackName, "s", "", "stack name")
-	cmdInfo.Flag.StringVar(&flagEnvironment, "e", "", "stack environment")
-	cmdInfo.Flag.BoolVar(&flagUnmanaged, "unmanaged", false, "list unmanaged servers")
-}
-
-func runInfo(cmd *Command, args []string) {
+func runInfo(c *cli.Context) {
 	if err := toolbeltInfo(); err != nil {
 		printFatal(err.Error())
 	}
 	if err := accountInfo(); err != nil {
 		printFatal(err.Error())
 	}
-	if err := stackInfo(); err != nil {
+	if err := stackInfo(c); err != nil {
 		printFatal(err.Error())
 	}
 }
@@ -81,8 +83,8 @@ func accountInfo() error {
 	return nil
 }
 
-func stackInfo() error {
-	stack, err := stack()
+func stackInfo(c *cli.Context) error {
+	stack, err := stack(c)
 	if err != nil {
 		return err
 	}

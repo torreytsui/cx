@@ -13,14 +13,15 @@ import (
 
 	"github.com/bitly/go-nsq"
 	"github.com/bitly/nsq/util"
+	"github.com/codegangsta/cli"
 	"github.com/mgutz/ansi"
 )
 
 var cmdListen = &Command{
 	Run:        runListen,
-	Usage:      "listen",
+	Build:      buildBasicCommand,
+	Name:       "listen",
 	NeedsStack: true,
-	Category:   "stack",
 	Short:      "tails all deployment logs",
 	Long: `This acts as a log tail for deployment of a stack so you don't have to follow the deployment on the web.
 
@@ -51,13 +52,8 @@ const (
 	totalMessages = 0
 )
 
-func runListen(cmd *Command, args []string) {
-	stack := mustStack()
-
-	if len(args) > 0 {
-		cmd.printUsage()
-		os.Exit(2)
-	}
+func runListen(c *cli.Context) {
+	stack := mustStack(c)
 
 	maxInFlight := 200
 

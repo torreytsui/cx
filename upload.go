@@ -6,13 +6,16 @@ import (
 	"runtime"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/codegangsta/cli"
 )
 
 var cmdUpload = &Command{
 	Run:        runUpload,
-	Usage:      "upload -s <stack> <server name>|<server ip>|<server role> /path/to/source/file (optional: /path/to/target/directory)",
+	Build:      buildBasicCommand,
+	Name:       "upload",
+	Flags:      []cli.Flag{},
 	NeedsStack: true,
-	Category:   "stack",
 	Short:      "copies a file from your local computer to the remote server",
 	Long: `This command will copy a file from your local computer to the remote server.
 
@@ -41,29 +44,30 @@ $ cx upload -s mystack web /path/to/source/file /path/to/target/directory
 `,
 }
 
-func runUpload(cmd *Command, args []string) {
+func runUpload(c *cli.Context) {
 	if runtime.GOOS == "windows" {
 		printFatal("Not supported on Windows")
 		os.Exit(2)
 	}
 
-	stack := mustStack()
+	stack := mustStack(c)
 
 	// args start after stack name
 	// and check if user specified target directory
 	var targetDirectory string = ""
 
-	if len(args) < 2 {
-		cmd.printUsage()
+	if len(c.Args()) < 2 {
+		// TODO: show command help
+		//cmd.printUsage()
 		os.Exit(2)
-	} else if len(args) == 3 {
-		targetDirectory = args[2]
+	} else if len(c.Args()) == 3 {
+		targetDirectory = c.Args()[2]
 	}
 
 	// get the server
-	serverName := args[0]
+	serverName := c.Args()[0]
 	// get the file path
-	filePath := args[1]
+	filePath := c.Args()[1]
 
 	servers, err := client.Servers(stack.Uid)
 	if err != nil {

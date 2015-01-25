@@ -6,13 +6,15 @@ import (
 	"runtime"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/codegangsta/cli"
 )
 
 var cmdSsh = &Command{
+	Name:       "ssh",
 	Run:        runSsh,
-	Usage:      "ssh <server name>|<server ip>|<server role>",
+	Build:      buildBasicCommand,
 	NeedsStack: true,
-	Category:   "stack",
 	Short:      "starts a ssh shell into the server",
 	Long: `This will open the firewall for SSH from your IP address temporaritly (20 minutes), downloads the keys if you don't have them
 and starts a SSH session.
@@ -34,21 +36,21 @@ $ cx ssh -s mystack web
 `,
 }
 
-func runSsh(cmd *Command, args []string) {
+func runSsh(c *cli.Context) {
 	if runtime.GOOS == "windows" {
 		printFatal("Not supported on Windows")
 		os.Exit(2)
 	}
 
-	stack := mustStack()
+	stack := mustStack(c)
 
-	if len(args) != 1 {
-		cmd.printUsage()
+	if len(c.Args()) != 1 {
+		//cmd.printUsage()
 		os.Exit(2)
 	}
 
 	// get the server
-	serverName := args[0]
+	serverName := c.Args()[0]
 
 	servers, err := client.Servers(stack.Uid)
 	if err != nil {

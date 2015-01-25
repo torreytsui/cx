@@ -8,70 +8,66 @@ import (
 	"text/tabwriter"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/codegangsta/cli"
 )
 
 var cmdBackups = &Command{
-	Run:        runBackups,
-	Usage:      "backups [-l] [<db type>]",
 	NeedsStack: true,
-	Category:   "stack",
+	Build:      buildBasicCommand,
+	Run:        runBackups,
+	Name:       "backups",
 	Short:      "lists all the managed backups of a stack",
 	Long: `This will list all the managed backups of a stack grouped by their database type and/or backup schedule
-The list will include backup id, db type, db name, backup status, last activity, restore and verification statuses.
-The -l option will return the latest successful backups.
+   The list will include backup id, db type, db name, backup status, last activity, restore and verification statuses.
+   The -l option will return the latest successful backups.
 
 Examples:
-$ cx backups
-23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
-23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
-34067  mysql  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
-34066  redis  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
-12802  mysql  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
-12801  redis  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
+   $ cx backups
+   23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
+   23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
+   34067  mysql  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
+   34066  redis  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
+   12802  mysql  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
+   12801  redis  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
 
-$ cx backups mysql
-23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
-34067  mysql  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
-12802  mysql  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
+   $ cx backups --dbtype mysql
+   23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
+   34067  mysql  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
+   12802  mysql  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
 
-$ cx backups -l
-23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
-23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
+   $ cx backups -latest
+   23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
+   23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
 
-$ cx backups -l redis
-23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
+   $ cx backups -l --dbtype redis
+   23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
 `,
+	Flags: []cli.Flag{
+		cli.BoolFlag{
+			Name:  "latest,l",
+			Usage: "latest successful backup",
+		},
+		cli.StringFlag{
+			Name:  "dbtype",
+			Usage: "Database type",
+		},
+	},
 }
 
-var (
-	flagLatest bool
-)
-
-func init() {
-	cmdBackups.Flag.BoolVar(&flagLatest, "l", false, "latest successful backup")
-}
-
-func runBackups(cmd *Command, args []string) {
-	if len(args) > 1 {
-		cmd.printUsage()
-		os.Exit(2)
-	}
-
-	var dbType = ""
-	if len(args) == 1 {
-		dbType = args[0]
-	}
+func runBackups(c *cli.Context) {
+	var dbType = c.String("dbtype")
 
 	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
 	defer w.Flush()
 
-	stack := mustStack()
+	stack := mustStack(c)
 
 	backups, err := client.ManagedBackups(stack.Uid)
 	must(err)
 
 	var dbTypeGroup = map[string][]cloud66.ManagedBackup{}
-	if flagLatest {
+	if c.Bool("latest") {
 		for _, i := range backups {
 			if dbTypeGroup[i.DbType] == nil {
 				// it's a new one
