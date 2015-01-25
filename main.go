@@ -35,8 +35,8 @@ var (
 )
 
 var commands = []*Command{
-	/*	cmdStacks,
-		cmdRedeploy,*/
+	cmdStacks,
+	//	cmdRedeploy,
 	cmdOpen,
 	cmdSettings,
 	/*cmdServerSettings,
@@ -139,6 +139,33 @@ func main() {
 }
 
 func setGlobals(app *cli.App) {
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:  "runenv",
+			Usage: "sets the environment this toolbelt is running agains",
+			//ShowHelp: false,
+			Value:  "production",
+			EnvVar: "CXENVIRONMENT",
+		},
+		cli.StringFlag{
+			Name:  "nsqlookup",
+			Usage: "sets the NSQ lookup address this toolbelt is running against",
+			//HideHelp: false,
+			EnvVar: "NSQ_LOOKUP",
+		},
+		cli.StringFlag{
+			Name:  "cxstack",
+			Usage: "CXSTACK",
+			//ShowHelp: false,
+			EnvVar: "CXSTACK",
+		},
+		cli.BoolFlag{
+			Name:   "debug",
+			Usage:  "run in debug more",
+			EnvVar: "CXDEBUG",
+		},
+	}
+
 	if os.Getenv("CXENVIRONMENT") != "" {
 		tokenFile = "cx_" + os.Getenv("CXENVIRONMENT") + ".json"
 		fmt.Printf("Running against %s environment\n", os.Getenv("CXENVIRONMENT"))
@@ -308,7 +335,7 @@ func stack(c *cli.Context) (*cloud66.Stack, error) {
 		return flagStack, err
 	}
 
-	if stack := os.Getenv("CXSTACK"); stack != "" {
+	if stack := c.String("cxstack"); stack != "" {
 		// the environment variable should be exact match
 		flagStack, err = client.StackInfo(stack)
 		return flagStack, err
