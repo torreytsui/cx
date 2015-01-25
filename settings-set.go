@@ -1,5 +1,3 @@
-// +build ignore
-
 package main
 
 import (
@@ -8,36 +6,20 @@ import (
 	"time"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/codegangsta/cli"
 )
 
-var cmdSet = &Command{
-	Run:        runSet,
-	Usage:      "set <setting> <value>",
-	NeedsStack: true,
-	Category:   "stack",
-	Short:      "sets the value of a setting on a stack",
-	Long: `This sets and applies the value of a setting on a stack. Applying some settings might require more
-work and therefore this command will return immediately after the setting operation has started.
-
-Examples:
-$ cx set -s mystack git.branch dev
-$ cx set -s mystack allowed.web.source 191.203.12.10
-$ cx set -s mystack allowed.web.source anywhere
-$ cx set -s mystack maintenance.mode  1|true|on|enable
-$ cx set -s mystack maintenance.mode  0|false|off|disable
-`,
-}
-
-func runSet(cmd *Command, args []string) {
-	if len(args) != 2 {
-		cmd.printUsage()
+func runSet(c *cli.Context) {
+	if len(c.Args()) != 2 {
+		//cmd.printUsage()
 		os.Exit(2)
 	}
 
-	key := args[0]
-	value := args[1]
+	key := c.Args()[0]
+	value := c.Args()[1]
 
-	stack := mustStack()
+	stack := mustStack(c)
 	settings, err := client.StackSettings(stack.Uid)
 	must(err)
 

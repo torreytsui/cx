@@ -38,9 +38,8 @@ var commands = []*Command{
 	/*	cmdStacks,
 		cmdRedeploy,*/
 	cmdOpen,
-	/*cmdSettings,
-	cmdSet,
-	cmdServerSettings,
+	cmdSettings,
+	/*cmdServerSettings,
 	cmdServerSet,
 	cmdEasyDeploy,
 	cmdEnvVars,
@@ -103,15 +102,32 @@ func main() {
 		cliCommand.Action = cmd.Run
 		cliCommand.Flags = cmd.Flags
 
-		if cmd.NeedsStack {
-			cliCommand.Flags = append(cliCommand.Flags, cli.StringFlag{
-				Name:  "stack,s",
-				Usage: "Full or partial stack name. This can be omited if the current directory is a stack directory",
-			}, cli.StringFlag{
-				Name:  "environment,e",
-				Usage: "Full or partial environment name.",
-			})
+		if len(cliCommand.Subcommands) == 0 {
+			if cmd.NeedsStack {
+				cliCommand.Flags = append(cliCommand.Flags, cli.StringFlag{
+					Name:  "stack,s",
+					Usage: "Full or partial stack name. This can be omited if the current directory is a stack directory",
+				}, cli.StringFlag{
+					Name:  "environment,e",
+					Usage: "Full or partial environment name.",
+				})
+			}
+		} else {
+			for idx, sub := range cliCommand.Subcommands {
+				if cmd.NeedsStack {
+					sub.Flags = append(sub.Flags, cli.StringFlag{
+						Name:  "stack,s",
+						Usage: "Full or partial stack name. This can be omited if the current directory is a stack directory",
+					}, cli.StringFlag{
+						Name:  "environment,e",
+						Usage: "Full or partial environment name.",
+					})
+				}
+
+				cliCommand.Subcommands[idx].Flags = sub.Flags
+			}
 		}
+
 		cmds = append(cmds, cliCommand)
 	}
 
