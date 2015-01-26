@@ -42,7 +42,6 @@ var commands = []*Command{
 	cmdServerSet,
 	cmdEasyDeploy,*/
 	cmdEnvVars,
-	//cmdEnvVarsSet,
 	cmdLease,
 	cmdListen,
 	/*
@@ -53,7 +52,7 @@ var commands = []*Command{
 	cmdUpload,
 	cmdDownload,
 	cmdBackups,
-	/*	cmdDownloadBackup,
+	/*
 		cmdClearCaches,
 		cmdContainers,
 		cmdContainerStop,

@@ -14,11 +14,21 @@ import (
 
 var cmdBackups = &Command{
 	NeedsStack: true,
-	Build:      buildBasicCommand,
-	Run:        runBackups,
+	Build:      buildBackups,
 	Name:       "backups",
-	Short:      "lists all the managed backups of a stack",
-	Long: `This will list all the managed backups of a stack grouped by their database type and/or backup schedule
+}
+
+func buildBackups() cli.Command {
+	base := buildBasicCommand()
+	base.Subcommands = []cli.Command{
+		cli.Command{
+			Name:   "list",
+			Usage:  "lists all the managed backups of a stack",
+			Action: runBackups,
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name: "latest,l",
+					Usage: `This will list all the managed backups of a stack grouped by their database type and/or backup schedule
    The list will include backup id, db type, db name, backup status, last activity, restore and verification statuses.
    The -l option will return the latest successful backups.
 
@@ -43,16 +53,38 @@ Examples:
    $ cx backups -l --dbtype redis
    23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
 `,
-	Flags: []cli.Flag{
-		cli.BoolFlag{
-			Name:  "latest,l",
-			Usage: "latest successful backup",
+				},
+				cli.StringFlag{
+					Name:  "dbtype",
+					Usage: "Database type",
+				},
+			},
 		},
-		cli.StringFlag{
-			Name:  "dbtype",
-			Usage: "Database type",
+		cli.Command{
+			Name:   "download",
+			Action: runDownloadBackup,
+			Usage:  "download-backup [-d <download directory>] <backup Id>",
+			Description: `This downloads a backup from the available backups of a stack. This is limited to a single database type.
+The command might download multiple files in parallel and concatenate and untar them if needed. The resulting file
+can be used to manually restore the database.
+
+-d allows you to set the directory used to download the backup. You need to have write permissions over that directory
+if no directory is specified, ~/cx_backups is used. If the directory does not exist, it will be created.
+
+The caller needs to have admin rights over the stack.
+
+Examples:
+$ cx download-backup -s mystack 123
+`,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "directory,d",
+				},
+			},
 		},
-	},
+	}
+
+	return base
 }
 
 func runBackups(c *cli.Context) {
