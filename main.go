@@ -36,19 +36,18 @@ var (
 
 var commands = []*Command{
 	cmdStacks,
-	//	cmdRedeploy,
 	cmdOpen,
 	cmdSettings,
 	/*cmdServerSettings,
 	cmdServerSet,
-	cmdEasyDeploy,
+	cmdEasyDeploy,*/
 	cmdEnvVars,
-	cmdEnvVarsSet,*/
+	//cmdEnvVarsSet,
 	cmdLease,
 	cmdListen,
-	/*cmdRestart,
-	cmdRun,
-	cmdServers,*/
+	/*
+		cmdRun,
+		cmdServers,*/
 	cmdSsh,
 	cmdTail,
 	cmdUpload,
@@ -308,6 +307,10 @@ func filterByEnvironment(item interface{}) bool {
 func stack(c *cli.Context) (*cloud66.Stack, error) {
 	if flagStack != nil {
 		return flagStack, nil
+	}
+
+	if c.String("environment") != "" {
+		flagEnvironment = c.String("environment")
 	}
 
 	var err error

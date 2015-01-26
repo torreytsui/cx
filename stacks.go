@@ -19,17 +19,17 @@ var cmdStacks = &Command{
 
 func buildStacks() cli.Command {
 	base := buildBasicCommand()
-	base.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:  "environment,e",
-			Usage: "Full or partial environment name.",
-		},
-	}
-
 	base.Subcommands = []cli.Command{
 		cli.Command{
 			Name:  "list",
 			Usage: "lists all stacks",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "environment,e",
+					Usage: "Full or partial environment name.",
+				},
+			},
+			Action: runStacks,
 			Description: `Lists stacks. Shows the stack name, environment, and last deploy time.
 You can use multiple names at the same time.
 
@@ -45,10 +45,48 @@ mystack-2   development  Jan 2 12:34
 $ cx stacks list mystack -e staging
 mystack     staging      Feb 2 12:34
 `,
-			Action: runStacks,
+		},
+		cli.Command{
+			Name:  "redeploy",
+			Usage: "redeploys a stack",
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "y",
+					Usage: "answer yes to confirmations",
+				},
+				cli.StringFlag{
+					Name:  "git-ref",
+					Usage: "git reference",
+				},
+				cli.StringFlag{
+					Name:  "environment,e",
+					Usage: "Full or partial environment name.",
+				},
+				cli.StringFlag{
+					Name:  "stack,s",
+					Usage: "Full or partial stack name. This can be omited if the current directory is a stack directory",
+				},
+			},
+			Action: runRedeploy,
+			Description: `Enqueues redeployment of the stack.
+If the stack is already building, another build will be enqueued and performed immediately
+after the current one is finished.
+
+-y answers yes to confirmation question if the stack is production.
+--git-ref will redeploy the specific git reference (branch, tag, hash)
+`,
+		},
+		cli.Command{
+			Name:   "restart",
+			Action: runRestart,
+			Flags:  basicFlags(),
+			Usage:  "restarts all components of a stack",
+			Description: `This will send a restart method to all stack components. This means different things for different components.
+For a web server, it means a restart of nginx. For an application server, this might be a restart of the workers like Unicorn.
+For more information on restart command, please refer to help.cloud66.com
+`,
 		},
 	}
-
 	return base
 }
 
@@ -118,6 +156,19 @@ func listStack(w io.Writer, a cloud66.Stack) {
 		a.Status(),
 		prettyTime{t},
 	)
+}
+
+func basicFlags() []cli.Flag {
+	return []cli.Flag{
+		cli.StringFlag{
+			Name:  "environment,e",
+			Usage: "Full or partial environment name.",
+		},
+		cli.StringFlag{
+			Name:  "stack,s",
+			Usage: "Full or partial stack name. This can be omited if the current directory is a stack directory",
+		},
+	}
 }
 
 type stacksByName []cloud66.Stack

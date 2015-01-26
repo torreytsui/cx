@@ -1,32 +1,15 @@
-// +build ignore
-
 package main
 
 import (
-	"os"
 	"time"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/codegangsta/cli"
 )
 
-var cmdRestart = &Command{
-	Run:        runRestart,
-	Usage:      "restart",
-	NeedsStack: true,
-	Category:   "stack",
-	Short:      "restarts the stack.",
-	Long: `This will send a restart method to all stack components. This means different things for different components.
-For a web server, it means a restart of nginx. For an application server, this might be a restart of the workers like Unicorn.
-For more information on restart command, please refer to help.cloud66.com
-`,
-}
-
-func runRestart(cmd *Command, args []string) {
-	if len(args) != 0 {
-		cmd.printUsage()
-		os.Exit(2)
-	}
-	stack := mustStack()
+func runRestart(c *cli.Context) {
+	stack := mustStack(c)
 	asyncId, err := startRestart(stack.Uid)
 	if err != nil {
 		printFatal(err.Error())
