@@ -13,7 +13,7 @@ import (
 
 func runEnvVarsSet(c *cli.Context) {
 	if len(c.Args()) != 1 {
-		//cmd.printUsage()
+		cli.ShowSubcommandHelp(c)
 		os.Exit(2)
 	}
 
@@ -21,7 +21,7 @@ func runEnvVarsSet(c *cli.Context) {
 	kvs := strings.Split(kv, "=")
 
 	if len(kvs) != 2 {
-		//cmd.printUsage()
+		cli.ShowSubcommandHelp(c)
 		os.Exit(2)
 	}
 

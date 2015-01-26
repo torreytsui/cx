@@ -54,8 +54,8 @@ Warning! Applying environment variable changes to your stack will result in all 
 being sent to your stack servers, and your processes being restarted immediately.
 
 Examples:
-$ cx env-var-set -s mystack FIRST_VAR=123
-$ cx env-var-set -s mystack SECOND_ONE='this value has a space in it'
+$ cx env-var set -s mystack FIRST_VAR=123
+$ cx env-var set -s mystack SECOND_ONE='this value has a space in it'
 `,
 		},
 	}
