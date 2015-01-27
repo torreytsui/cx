@@ -51,15 +51,9 @@ var commands = []*Command{
 	cmdContainers,
 	cmdServices,
 	cmdDatabases,
-	/*
-		cmdVersion,
-		cmdUpdate,
-		cmdHelp,*/
+	cmdHelpEnviron,
+	//cmdUpdate,
 	cmdInfo,
-
-	/*helpCommands,
-	helpEnviron,
-	helpMore,*/
 }
 
 var (
@@ -70,6 +64,8 @@ var (
 func main() {
 	honeybadger.ApiKey = "09d82034"
 	defer recoverPanic()
+
+	cli.VersionPrinter = runVersion
 
 	app := cli.NewApp()
 	app.Name = "cx"
