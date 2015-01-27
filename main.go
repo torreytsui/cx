@@ -52,7 +52,7 @@ var commands = []*Command{
 	cmdServices,
 	cmdDatabases,
 	cmdHelpEnviron,
-	//cmdUpdate,
+	cmdUpdate,
 	cmdInfo,
 }
 
