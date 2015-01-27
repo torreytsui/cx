@@ -23,10 +23,10 @@
   fi
 
   if [[ -z "$(which wget)" ]]; then
-  curl -so /usr/local/cloud66/completion.bash.inc https://raw.githubusercontent.com/cloud66/cx/master/extra/completion.bash.inc
+  curl -so /usr/local/cloud66/bash_autocomplete https://raw.githubusercontent.com/cloud66/cx/develop/extra/bash_autocomplete
   curl -so /usr/local/cloud66/add-completion.sh https://raw.githubusercontent.com/cloud66/cx/master/extra/add-completion.sh
   else
-  wget -q https://raw.githubusercontent.com/cloud66/cx/master/extra/completion.bash.inc -P /usr/local/cloud66 > /dev/null
+  wget -q https://raw.githubusercontent.com/cloud66/cx/develop/extra/bash_autocomplete -P /usr/local/cloud66 > /dev/null
   wget -q https://raw.githubusercontent.com/cloud66/cx/master/extra/add-completion.sh -P /usr/local/cloud66 > /dev/null
   fi
 
