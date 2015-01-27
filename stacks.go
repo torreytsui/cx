@@ -86,7 +86,29 @@ For a web server, it means a restart of nginx. For an application server, this m
 For more information on restart command, please refer to help.cloud66.com
 `,
 		},
+		cli.Command{
+			Name:   "clear-caches",
+			Action: runClearCaches,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "environment,e",
+					Usage: "Full or partial environment name.",
+				},
+				cli.StringFlag{
+					Name:  "stack,s",
+					Usage: "Full or partial stack name. This can be omited if the current directory is a stack directory",
+				},
+			},
+			Usage: "clears all existing stack code caches",
+			Description: `Clears all existing code caches.
+
+For improved performance, volatile code caches exist for your stack.
+It is possible for a those volatile caches to become invalid if you switch branches, change git repository URL, or rebase or force a commit.
+Since switching branch or changing git repository URL is done via the Cloud 66 interface, your volatile caches will automatically be purged.
+However, rebasing or forcing a commit doesn't have any association with Cloud 66, so this command can be used to purge the exising volatile caches.
+`},
 	}
+
 	return base
 }
 

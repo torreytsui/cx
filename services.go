@@ -1,5 +1,3 @@
-// +build ignore
-
 package main
 
 import (
@@ -10,31 +8,105 @@ import (
 	"text/tabwriter"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/codegangsta/cli"
 )
 
 var cmdServices = &Command{
-	Run:        runServices,
-	Usage:      "services [--server <server name>|<server ip>|<server role>] [--service <service_name>]",
+	Name:       "services",
+	Build:      buildServices,
 	NeedsStack: true,
-	Category:   "stack",
-	Short:      "lists all the services of a stack (or server)",
-	Long: `List all the services and running containers of a stack or a server.
-
-Examples:
-$ cx services -s mystack
-$ cx services -s mystack --server orca
-$ cx services -s mystack --server orca --service web
-$ cx services -s mystack --service web
-`,
 }
 
-func runServices(cmd *Command, args []string) {
-	if len(args) > 0 {
-		cmd.printUsage()
-		os.Exit(2)
+func buildServices() cli.Command {
+	base := buildBasicCommand()
+	base.Subcommands = []cli.Command{
+		cli.Command{
+			Name:   "list",
+			Usage:  "lists all the services of a stack (or server)",
+			Action: runServices,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "server",
+				},
+				cli.StringFlag{
+					Name: "service",
+				},
+			},
+			Description: `List all the services and running containers of a stack or a server.
+
+Examples:
+$ cx services list -s mystack
+$ cx services list -s mystack --server orca
+$ cx services list -s mystack --server orca --service web
+$ cx services list -s mystack --service web
+`,
+		},
+		cli.Command{
+			Name:   "stop",
+			Action: runServiceStop,
+			Usage:  "stops all the containers from the given service",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "server",
+				},
+			},
+			Description: `Stops all the containers from the given service.
+The list of available stack services can be obtained through the 'services' command.
+If the server is provided it will only act on the specified server.
+
+Examples:
+$ cx service stop -s mystack my_web_service
+$ cx service stop -s mystack a_backend_service
+$ cx service stop -s mystack --server my_server my_web_service
+`},
+		cli.Command{
+			Name:   "scale",
+			Action: runServiceScale,
+			Usage:  "starts containers from the given service",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "server",
+				},
+			},
+			Description: `Starts <count> containers from the given service.
+<count> can be an absolute value like "2" or a relative value like "+2" or "-3" etc.
+If server is provided, will start <count> containers on that server.
+If server is not provided, will start <count> containers on every server.
+
+Examples:
+$ cx service scale -s mystack my_web_service 1
+$ cx service scale -s mystack a_backend_service --server backend +5
+$ cx service sclae -s mystack a_backend_service -2
+`},
+		cli.Command{
+			Name:   "restart",
+			Action: runServiceRestart,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "server",
+				},
+			},
+			Usage: "restarts all the containers from the given service",
+			Description: `Restarts all the containers from the given service.
+The list of available stack services can be obtained through the 'services' command.
+If the server is provided it will only act on the specified server.
+
+Examples:
+$ cx service restart -s mystack my_web_service
+$ cx service restart -s mystack a_backend_service
+$ cx service restart -s mystack --server my_server my_web_service
+`,
+		},
 	}
 
-	stack := mustStack()
+	return base
+}
+
+func runServices(c *cli.Context) {
+	flagServer := c.String("server")
+	flagServiceName := c.String("service")
+	stack := mustStack(c)
 	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
 	defer w.Flush()
 
@@ -78,10 +150,10 @@ func runServices(cmd *Command, args []string) {
 			services[0] = *service
 		}
 	}
-	printServicesList(w, services)
+	printServicesList(w, services, flagServer)
 }
 
-func printServicesList(w io.Writer, services []cloud66.Service) {
+func printServicesList(w io.Writer, services []cloud66.Service, flagServer string) {
 	listRec(w,
 		"SERVICE NAME",
 		"SERVER",
@@ -90,11 +162,11 @@ func printServicesList(w io.Writer, services []cloud66.Service) {
 
 	sort.Sort(ServiceByNameServer(services))
 	for _, a := range services {
-		listService(w, a)
+		listService(w, a, flagServer)
 	}
 }
 
-func listService(w io.Writer, a cloud66.Service) {
+func listService(w io.Writer, a cloud66.Service, flagServer string) {
 	if len(a.Containers) != 0 {
 		for serverName, count := range a.ServerContainerCountMap() {
 			listRec(w,

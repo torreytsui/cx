@@ -44,23 +44,19 @@ var commands = []*Command{
 	cmdEnvVars,
 	cmdLease,
 	cmdListen,
-	/*
-		cmdRun,
-		cmdServers,*/
+	//		cmdRun,
+	cmdServers,
 	cmdSsh,
 	cmdTail,
 	cmdUpload,
 	cmdDownload,
 	cmdBackups,
 	/*
-		cmdClearCaches,
 		cmdContainers,
 		cmdContainerStop,
-		cmdContainerRestart,
-		cmdServices,
-		cmdServiceStop,
-		cmdServiceStart,
-		cmdServiceRestart,
+		cmdContainerRestart,*/
+	cmdServices,
+	/*
 		cmdSlavePromote,
 		cmdSlaveResync,
 

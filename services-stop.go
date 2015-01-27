@@ -1,5 +1,3 @@
-// +build ignore
-
 package main
 
 import (
@@ -8,33 +6,20 @@ import (
 	"time"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/codegangsta/cli"
 )
 
-var cmdServiceStop = &Command{
-	Run:        runServiceStop,
-	Usage:      "service-stop [--server <server name>|<server ip>|<server role>] <service name>",
-	NeedsStack: true,
-	Category:   "stack",
-	Short:      "stops all the containers from the given service",
-	Long: `Stops all the containers from the given service.
-The list of available stack services can be obtained through the 'services' command.
-If the server is provided it will only act on the specified server.
-
-Examples:
-$ cx service-stop -s mystack my_web_service
-$ cx service-stop -s mystack a_backend_service
-$ cx service-stop -s mystack --server my_server my_web_service
-`,
-}
-
-func runServiceStop(cmd *Command, args []string) {
-	if len(args) != 1 {
-		cmd.printUsage()
+func runServiceStop(c *cli.Context) {
+	if len(c.Args()) != 1 {
+		cli.ShowSubcommandHelp(c)
 		os.Exit(2)
 	}
 
-	stack := mustStack()
-	serviceName := args[0]
+	stack := mustStack(c)
+	serviceName := c.Args()[0]
+
+	flagServer := c.String("server")
 
 	var serverUid *string
 	if flagServer == "" {

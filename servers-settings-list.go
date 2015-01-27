@@ -1,5 +1,3 @@
-// +build ignore
-
 package main
 
 import (
@@ -9,39 +7,19 @@ import (
 	"text/tabwriter"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/codegangsta/cli"
 )
 
-var cmdServerSettings = &Command{
-	Run:        runServerSettings,
-	Usage:      "server-settings <server name>|<server ip>|<server role> [settings]",
-	NeedsStack: true,
-	Category:   "stack",
-	Short:      "lists server settings",
-	Long: `Lists all the settings applicable to the given server.
-It also shows the key, value and the readonly flag for each setting.
-Settings can be a list of multiple settings as separate parameters.
-To change each server setting, use the server-set command.
-
-Examples:
-$ cx server-settings -s mystack lion
-server.name         lion                                                       false
-
-$ cx server-settings -s mystack db server-name
-server.name         tiger                                                      false
-`,
-}
-
-func runServerSettings(cmd *Command, args []string) {
-
-	stack := mustStack()
-
-	if len(args) < 1 {
-		cmd.printUsage()
-		os.Exit(2)
-	}
+func runServerSettings(c *cli.Context) {
+	stack := mustStack(c)
 
 	// get the server
-	serverName := args[0]
+	serverName := c.String("server")
+	if len(serverName) == 0 {
+		cli.ShowSubcommandHelp(c)
+		os.Exit(2)
+	}
 
 	servers, err := client.Servers(stack.Uid)
 	if err != nil {
@@ -59,11 +37,10 @@ func runServerSettings(cmd *Command, args []string) {
 
 	fmt.Printf("Server: %s\n", server.Name)
 
-	getServerSettings(*stack, *server, args)
+	getServerSettings(*stack, *server, c.Args())
 }
 
 func getServerSettings(stack cloud66.Stack, server cloud66.Server, settingNames []string) {
-
 	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
 	defer w.Flush()
 	var settings []cloud66.StackSetting
@@ -71,9 +48,6 @@ func getServerSettings(stack cloud66.Stack, server cloud66.Server, settingNames 
 
 	settings, err = client.ServerSettings(stack.Uid, server.Uid)
 	must(err)
-
-	// filter out the server name
-	settingNames = settingNames[1:len(settingNames)]
 
 	sort.Strings(settingNames)
 	if len(settingNames) == 0 {

@@ -1,5 +1,3 @@
-// +build ignore
-
 package main
 
 import (
@@ -8,33 +6,20 @@ import (
 	"time"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/codegangsta/cli"
 )
 
-var cmdServiceRestart = &Command{
-	Run:        runServiceRestart,
-	Usage:      "service-restart <service name> [--server <server name>|<server ip>|<server role>]",
-	NeedsStack: true,
-	Category:   "stack",
-	Short:      "restarts all the containers from the given service",
-	Long: `Restarts all the containers from the given service.
-The list of available stack services can be obtained through the 'services' command.
-If the server is provided it will only act on the specified server.
-
-Examples:
-$ cx service-restart -s mystack my_web_service
-$ cx service-restart -s mystack a_backend_service
-$ cx service-restart -s mystack --server my_server my_web_service
-`,
-}
-
-func runServiceRestart(cmd *Command, args []string) {
-	if len(args) != 1 {
-		cmd.printUsage()
+func runServiceRestart(c *cli.Context) {
+	if len(c.Args()) != 1 {
+		cli.ShowSubcommandHelp(c)
 		os.Exit(2)
 	}
 
-	stack := mustStack()
-	serviceName := args[0]
+	stack := mustStack(c)
+	serviceName := c.Args()[0]
+
+	flagServer := c.String("server")
 
 	var serverUid *string
 	if flagServer == "" {
