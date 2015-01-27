@@ -16,6 +16,7 @@ var cmdBackups = &Command{
 	NeedsStack: true,
 	Build:      buildBackups,
 	Name:       "backups",
+	Short:      "commands to work with backups",
 }
 
 func buildBackups() cli.Command {

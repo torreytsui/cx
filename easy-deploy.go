@@ -15,6 +15,7 @@ import (
 var cmdEasyDeploy = &Command{
 	Name:       "easydeploys",
 	Build:      buildEasyDeply,
+	Short:      "commands to work with EasyDeploy",
 	NeedsStack: false,
 }
 

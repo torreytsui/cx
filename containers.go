@@ -17,6 +17,7 @@ import (
 var cmdContainers = &Command{
 	Name:       "containers",
 	Build:      buildContainers,
+	Short:      "commands to work with containers",
 	NeedsStack: true,
 }
 

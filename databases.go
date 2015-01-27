@@ -7,6 +7,7 @@ import (
 var cmdDatabases = &Command{
 	Name:       "databases",
 	Build:      buildDatabases,
+	Short:      "commands to work with databases",
 	NeedsStack: true,
 }
 

@@ -74,6 +74,7 @@ func main() {
 	app.Email = "support@cloud66.com"
 	app.Action = doMain
 	app.Version = VERSION
+	app.CommandNotFound = suggest
 
 	cmds := []cli.Command{}
 	for _, cmd := range commands {
@@ -86,6 +87,7 @@ func main() {
 		cliCommand.Description = cmd.Long
 		cliCommand.Action = cmd.Run
 		cliCommand.Flags = cmd.Flags
+		cliCommand.Before = beforeCommand
 
 		if len(cliCommand.Subcommands) == 0 {
 			if cmd.NeedsStack {
@@ -123,49 +125,47 @@ func main() {
 	app.Run(os.Args)
 }
 
+func beforeCommand(c *cli.Context) error {
+	// set the env vars from global options
+	if c.GlobalString("runenv") != "" {
+		tokenFile = "cx_" + c.GlobalString("runenv") + ".json"
+		fmt.Printf("Running against %s environment\n", c.GlobalString("runenv"))
+		honeybadger.Environment = c.GlobalString("runenv")
+	} else {
+		honeybadger.Environment = "production"
+	}
+
+	if c.GlobalString("nsqlookup") != "" {
+		nsqLookup = c.GlobalString("nsqlookup")
+	}
+
+	debugMode = c.GlobalBool("debug")
+
+	if (c.Command.Name != "version") && (c.Command.Name != "help") {
+		initClients(c)
+	}
+
+	return nil
+}
+
 func setGlobals(app *cli.App) {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:  "runenv",
-			Usage: "sets the environment this toolbelt is running agains",
-			//ShowHelp: false,
+			Name:   "runenv",
+			Usage:  "sets the environment this toolbelt is running agains",
 			Value:  "production",
 			EnvVar: "CXENVIRONMENT",
 		},
 		cli.StringFlag{
-			Name:  "nsqlookup",
-			Usage: "sets the NSQ lookup address this toolbelt is running against",
-			//HideHelp: false,
+			Name:   "nsqlookup",
+			Usage:  "sets the NSQ lookup address this toolbelt is running against",
 			EnvVar: "NSQ_LOOKUP",
-		},
-		cli.StringFlag{
-			Name:  "cxstack",
-			Usage: "CXSTACK",
-			//ShowHelp: false,
-			EnvVar: "CXSTACK",
 		},
 		cli.BoolFlag{
 			Name:   "debug",
 			Usage:  "run in debug more",
 			EnvVar: "CXDEBUG",
 		},
-	}
-
-	if os.Getenv("CXENVIRONMENT") != "" {
-		tokenFile = "cx_" + os.Getenv("CXENVIRONMENT") + ".json"
-		fmt.Printf("Running against %s environment\n", os.Getenv("CXENVIRONMENT"))
-		honeybadger.Environment = os.Getenv("CXENVIRONMENT")
-	} else {
-		honeybadger.Environment = "production"
-	}
-
-	if os.Getenv("NSQ_LOOKUP") != "" {
-		nsqLookup = os.Getenv("NSQ_LOOKUP")
-	}
-
-	// TODO: this is temp until we add an init command
-	if len(os.Args) != 2 || os.Args[1] != "--version" {
-		initClients()
 	}
 }
 
@@ -174,79 +174,10 @@ func buildBasicCommand() cli.Command {
 }
 
 func doMain(c *cli.Context) {
-	/*
-				if args[0] == cmdUpdate.Name() {
-					cmdUpdate.Run(cmdUpdate, args[1:])
-					return
-				} else if VERSION != "dev" {
-					defer backgroundRun()
-				}
-				if !term.IsANSI(os.Stdout) {
-					ansi.DisableColors(true)
-				}
-
-				// don't need registration if we are only checking the version
-				if args[0] != "version" {
-					initClients()
-				}
-			for _, cmd := range commands {
-
-				if cmd.Name() == args[0] && cmd.Run != nil {
-					defer recoverPanic()
-
-					cmd.Flag.Usage = func() {
-						cmd.printUsage()
-					}
-					if cmd.NeedsStack {
-						cmd.Flag.StringVar(&flagStackName, "s", "", "stack name")
-						cmd.Flag.StringVar(&flagEnvironment, "e", "", "stack environment")
-					}
-					// optional server/servicename flag used in multiple places
-					cmd.Flag.StringVar(&flagServer, "server", "", "server filter")
-					cmd.Flag.StringVar(&flagServiceName, "service", "", "service name")
-					cmd.Flag.StringVar(&flagDbType, "db-type", "", "database type")
-
-					if err := cmd.Flag.Parse(args[1:]); err != nil {
-						os.Exit(2)
-					}
-					if cmd.NeedsStack {
-						// by default print server output to stdout
-						var toSdout bool = true
-
-						// when command is 'run', do not print server output to stdout
-						if args[0] == "run" {
-							toSdout = false
-						}
-
-						s, err := stack(toSdout)
-						switch {
-						case err == nil && s == nil:
-							msg := "no stack specified"
-							if err != nil {
-								msg = err.Error()
-							}
-							printError(msg)
-							cmd.printUsage()
-							os.Exit(2)
-						case err != nil:
-							printFatal(err.Error())
-						}
-					}
-					cmd.Run(cmd, cmd.Flag.Args())
-					return
-				}
-			}
-
-		// invalid command
-		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", args[0])
-		if g := suggest(args[0]); len(g) > 0 {
-			fmt.Fprintf(os.Stderr, "Possible alternatives: %v\n", strings.Join(g, " "))
-		}
-		fmt.Fprintf(os.Stderr, "Run 'cx help' for usage.\n")
-		os.Exit(2)*/
+	cli.ShowAppHelp(c)
 }
 
-func initClients() {
+func initClients(c *cli.Context) {
 	// is there a token file?
 	_, err := os.Stat(filepath.Join(cxHome(), tokenFile))
 	if err != nil {
@@ -255,7 +186,7 @@ func initClients() {
 		os.Exit(1)
 	} else {
 		client = cloud66.GetClient(cxHome(), tokenFile, VERSION)
-		debugMode = os.Getenv("CXDEBUG") != ""
+		debugMode = c.GlobalBool("debug")
 		client.Debug = debugMode
 	}
 }

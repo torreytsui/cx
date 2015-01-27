@@ -16,6 +16,7 @@ import (
 var cmdServers = &Command{
 	Name:       "servers",
 	Build:      buildServers,
+	Short:      "commands to work with servers",
 	NeedsStack: true,
 }
 

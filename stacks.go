@@ -15,6 +15,7 @@ import (
 var cmdStacks = &Command{
 	Name:  "stacks",
 	Build: buildStacks,
+	Short: "commands to work with stacks",
 }
 
 func buildStacks() cli.Command {

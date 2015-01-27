@@ -15,6 +15,7 @@ var cmdEnvVars = &Command{
 	Name:       "env-vars",
 	Build:      buildEnvVars,
 	Run:        runEnvVars,
+	Short:      "commands to work with environment variables",
 	NeedsStack: true,
 }
 

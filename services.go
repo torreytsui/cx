@@ -15,6 +15,7 @@ import (
 var cmdServices = &Command{
 	Name:       "services",
 	Build:      buildServices,
+	Short:      "commands to work with services",
 	NeedsStack: true,
 }
 
