@@ -17,20 +17,6 @@ import (
 	"github.com/mgutz/ansi"
 )
 
-var cmdListen = &Command{
-	Run:        runListen,
-	Build:      buildBasicCommand,
-	Name:       "listen",
-	NeedsStack: true,
-	Short:      "tails all deployment logs",
-	Long: `This acts as a log tail for deployment of a stack so you don't have to follow the deployment on the web.
-
-Examples:
-$ cx listen
-$ cx listen -s mystack
-`,
-}
-
 type logMessage struct {
 	Severity   int       `json:"severity"`
 	Message    string    `json:"message"`

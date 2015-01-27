@@ -41,7 +41,6 @@ var commands = []*Command{
 	//cmdEasyDeploy,
 	cmdEnvVars,
 	cmdLease,
-	cmdListen,
 	cmdRun,
 	cmdServers,
 	cmdSsh,
@@ -49,10 +48,7 @@ var commands = []*Command{
 	cmdUpload,
 	cmdDownload,
 	cmdBackups,
-	/*
-		cmdContainers,
-		cmdContainerStop,
-		cmdContainerRestart,*/
+	cmdContainers,
 	cmdServices,
 	/*
 		cmdSlavePromote,
