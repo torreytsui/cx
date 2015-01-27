@@ -38,7 +38,7 @@ var commands = []*Command{
 	cmdStacks,
 	cmdOpen,
 	cmdSettings,
-	//cmdEasyDeploy,
+	cmdEasyDeploy,
 	cmdEnvVars,
 	cmdLease,
 	cmdRun,
@@ -50,10 +50,8 @@ var commands = []*Command{
 	cmdBackups,
 	cmdContainers,
 	cmdServices,
+	cmdDatabases,
 	/*
-		cmdSlavePromote,
-		cmdSlaveResync,
-
 		cmdVersion,
 		cmdUpdate,
 		cmdHelp,*/

@@ -1,5 +1,3 @@
-// +build ignore
-
 package main
 
 import (
@@ -10,27 +8,43 @@ import (
 	"text/tabwriter"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/codegangsta/cli"
 )
 
 var cmdEasyDeploy = &Command{
-	Run:        runEasyDeploy,
-	Usage:      "easydeploys [app_name,...]",
+	Name:       "easydeploys",
+	Build:      buildEasyDeply,
 	NeedsStack: false,
-	Category:   "easydeploy",
-	Short:      "list or shows information about available remote EasyDeploy apps available",
-	Long: `This lists all the available EasyDeploy apps or detailed information about a specific one.
+}
+
+func buildEasyDeply() cli.Command {
+	base := buildBasicCommand()
+
+	base.Subcommands = []cli.Command{
+		cli.Command{
+			Name:   "list",
+			Action: runEasyDeploy,
+			Usage:  "list or shows information about available remote EasyDeploy apps available",
+			Description: `This lists all the available EasyDeploy apps or detailed information about a specific one.
 
 Examples:
-$ cx easydeploys
+$ cx easydeploys list
 wordpress
 gitlab
 
-$ cx easydeploys wordpress
+$ cx easydeploys list wordpress
 wordpress  WordPress  4.1.0  2015-01-19
 `,
+		},
+	}
+
+	return base
 }
 
-func runEasyDeploy(cmd *Command, appNames []string) {
+func runEasyDeploy(c *cli.Context) {
+	appNames := c.Args()
+
 	if len(appNames) != 0 {
 		w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
 		defer w.Flush()
