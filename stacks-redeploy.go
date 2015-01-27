@@ -6,6 +6,14 @@ import (
 	"github.com/codegangsta/cli"
 )
 
+var cmdRedeploy = &Command{
+	Name:       "redeploy",
+	Run:        runRedeploy,
+	Build:      buildBasicCommand,
+	NeedsStack: true,
+	Short:      "this is a shortcut for stacks redeploy command",
+}
+
 func runRedeploy(c *cli.Context) {
 	stack := mustStack(c)
 
