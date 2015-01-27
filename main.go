@@ -38,9 +38,7 @@ var commands = []*Command{
 	cmdStacks,
 	cmdOpen,
 	cmdSettings,
-	/*cmdServerSettings,
-	cmdServerSet,
-	cmdEasyDeploy,*/
+	//cmdEasyDeploy,
 	cmdEnvVars,
 	cmdLease,
 	cmdListen,
@@ -80,9 +78,12 @@ func main() {
 	defer recoverPanic()
 
 	app := cli.NewApp()
-	app.Name = "Cloud 66 Toolbelt (cx)"
-	app.Usage = "This is usage"
+	app.Name = "cx"
+	app.Usage = "Cloud 66 Command line toolbelt"
+	app.Author = "Cloud 66"
+	app.Email = "support@cloud66.com"
 	app.Action = doMain
+	app.Version = VERSION
 
 	cmds := []cli.Command{}
 	for _, cmd := range commands {
