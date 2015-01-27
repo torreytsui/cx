@@ -45,7 +45,7 @@ func runSsh(c *cli.Context) {
 	stack := mustStack(c)
 
 	if len(c.Args()) != 1 {
-		//cmd.printUsage()
+		cli.ShowCommandHelp(c, "ssh")
 		os.Exit(2)
 	}
 

@@ -42,7 +42,7 @@ var commands = []*Command{
 	cmdEnvVars,
 	cmdLease,
 	cmdListen,
-	//		cmdRun,
+	cmdRun,
 	cmdServers,
 	cmdSsh,
 	cmdTail,

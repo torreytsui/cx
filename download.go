@@ -11,8 +11,14 @@ import (
 )
 
 var cmdDownload = &Command{
-	Name:       "download",
-	Run:        runDownload,
+	Name: "download",
+	Run:  runDownload,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "server",
+			Usage: "name of the server to download from",
+		},
+	},
 	Build:      buildBasicCommand,
 	NeedsStack: true,
 	Short:      "copies a file from the remote server to your local computer",
@@ -36,9 +42,9 @@ Names are case insensitive and will work with the starting characters as well.
 This command is only supported on Linux and OS X.
 
 Examples:
-$ cx download -s mystack lion /path/to/source/file /path/to/target/directory
-$ cx download -s mystack 52.65.34.98 /path/to/file
-$ cx download -s mystack 52.65.34.98 /path/to/source/file /path/to/target/directory
+$ cx download -s mystack --server lion /path/to/source/file /path/to/target/directory
+$ cx download -s mystack --server 52.65.34.98 /path/to/file
+$ cx download -s mystack --server 52.65.34.98 /path/to/source/file /path/to/target/directory
 `,
 }
 
@@ -54,17 +60,17 @@ func runDownload(c *cli.Context) {
 	// and check if user specified target directory
 	var targetDirectory string = ""
 
-	if len(c.Args()) < 2 {
-		//cmd.printUsage()
+	if len(c.Args()) < 1 {
+		cli.ShowCommandHelp(c, "download")
 		os.Exit(2)
-	} else if len(c.Args()) == 3 {
-		targetDirectory = c.Args()[2]
+	} else if len(c.Args()) == 2 {
+		targetDirectory = c.Args()[1]
 	}
 
 	// get the server
-	serverName := c.Args()[0]
+	serverName := c.String("server")
 	// get the file path
-	filePath := c.Args()[1]
+	filePath := c.Args()[0]
 
 	servers, err := client.Servers(stack.Uid)
 	if err != nil {

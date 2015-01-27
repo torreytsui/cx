@@ -11,10 +11,15 @@ import (
 )
 
 var cmdUpload = &Command{
-	Run:        runUpload,
-	Build:      buildBasicCommand,
-	Name:       "upload",
-	Flags:      []cli.Flag{},
+	Run:   runUpload,
+	Build: buildBasicCommand,
+	Name:  "upload",
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "server",
+			Usage: "server to upload to",
+		},
+	},
 	NeedsStack: true,
 	Short:      "copies a file from your local computer to the remote server",
 	Long: `This command will copy a file from your local computer to the remote server.
@@ -37,10 +42,10 @@ Names are case insensitive and will work with the starting characters as well.
 This command is only supported on Linux and OS X.
 
 Examples:
-$ cx upload -s mystack lion /path/to/source/file
-$ cx upload -s mystack lion /path/to/source/file /path/to/target/directory
-$ cx upload -s mystack 52.65.34.98 /path/to/source/file
-$ cx upload -s mystack web /path/to/source/file /path/to/target/directory
+$ cx upload -s mystack --server lion /path/to/source/file
+$ cx upload -s mystack --server lion /path/to/source/file /path/to/target/directory
+$ cx upload -s mystack --server 52.65.34.98 /path/to/source/file
+$ cx upload -s mystack --server web /path/to/source/file /path/to/target/directory
 `,
 }
 
@@ -56,18 +61,17 @@ func runUpload(c *cli.Context) {
 	// and check if user specified target directory
 	var targetDirectory string = ""
 
-	if len(c.Args()) < 2 {
-		// TODO: show command help
-		//cmd.printUsage()
+	if len(c.Args()) < 1 {
+		cli.ShowCommandHelp(c, "upload")
 		os.Exit(2)
-	} else if len(c.Args()) == 3 {
-		targetDirectory = c.Args()[2]
+	} else if len(c.Args()) == 2 {
+		targetDirectory = c.Args()[1]
 	}
 
 	// get the server
-	serverName := c.Args()[0]
+	serverName := c.String("server")
 	// get the file path
-	filePath := c.Args()[1]
+	filePath := c.Args()[0]
 
 	servers, err := client.Servers(stack.Uid)
 	if err != nil {
