@@ -3,13 +3,15 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/codegangsta/cli"
 )
 
 var cmdOpen = &Command{
 	Run:        runOpen,
-	Usage:      "open [<server name>|<server ip>|<server role>]",
+	Build:      buildBasicCommand,
+	Name:       "open",
 	NeedsStack: true,
-	Category:   "stack",
 	Short:      "opens the web browser to visit the app served by the stack",
 	Long: `This opens the client web browser to visit the app servers by the stack. This could be the web page
 specifically served by one server or the load balancer.
@@ -25,20 +27,20 @@ $ cx open -s mystack lion
 `,
 }
 
-func runOpen(cmd *Command, args []string) {
-	stack := mustStack()
+func runOpen(c *cli.Context) {
+	stack := mustStack(c)
 
-	if len(args) > 1 {
-		cmd.printUsage()
+	if len(c.Args()) > 1 {
+		//cmd.printUsage()
 		os.Exit(2)
 	}
 
 	var toOpen string
 	// are we connecting to a server?
-	if len(args) == 1 {
+	if len(c.Args()) == 1 {
 
 		// get the server
-		serverName := args[0]
+		serverName := c.Args()[0]
 
 		servers, err := client.Servers(stack.Uid)
 		if err != nil {

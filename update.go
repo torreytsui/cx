@@ -16,13 +16,21 @@ import (
 	"runtime"
 
 	"bitbucket.org/kardianos/osext"
+	"github.com/codegangsta/cli"
 	"github.com/inconshreveable/go-update"
 )
 
 var cmdUpdate = &Command{
-	Run:      runUpdate,
-	Usage:    "update [-v <version>]",
-	Category: "cx",
+	Name:  "update",
+	Run:   runUpdate,
+	Build: buildBasicCommand,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "version,v",
+			Usage: "update to a specific version",
+		},
+	},
+	Short: "update [-v <version>]",
 	Long: `This command runs automatically. You should not need to run it manually
 
 -v forces a specific version to be downloaded.
@@ -70,14 +78,8 @@ func init() {
 	}
 }
 
-func runUpdate(cmd *Command, args []string) {
-	if len(args) > 0 {
-		if args[0] == "-v" {
-			flagForcedVersion = args[1]
-		} else {
-			cmd.printUsage()
-		}
-	}
+func runUpdate(c *cli.Context) {
+	flagForcedVersion := c.String("version")
 
 	if debugMode {
 		if flagForcedVersion == "" {

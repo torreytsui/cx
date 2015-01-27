@@ -10,31 +10,67 @@ import (
 	"text/tabwriter"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/codegangsta/cli"
 )
 
 var cmdContainers = &Command{
-	Run:        runContainers,
-	Usage:      "containers [--server <server name>|<server ip>|<server role>]",
+	Name:       "containers",
+	Build:      buildContainers,
 	NeedsStack: true,
-	Category:   "stack",
-	Short:      "lists all the running containers of a stack (or server)",
-	Long: `List all the running containers of a stack or a server.
+}
+
+func buildContainers() cli.Command {
+	base := buildBasicCommand()
+
+	base.Subcommands = []cli.Command{
+		cli.Command{
+			Name:   "list",
+			Action: runContainers,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "server",
+					Usage: "server to target",
+				},
+			},
+			Usage: "lists all the running containers of a stack (or server)",
+			Description: `List all the running containers of a stack or a server.
 
 Examples:
 $ cx containers -s mystack
 $ cx containers -s mystack --server orca
 `,
+		},
+		cli.Command{
+			Name:   "stop",
+			Action: runContainerStop,
+			Usage:  "Stops a particular container on the given stack",
+			Description: `Stops a particular container on the given stack by container Id.
+
+Examples:
+$ cx containers stop -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c
+`,
+		},
+		cli.Command{
+			Name:   "restart",
+			Action: runContainerRestart,
+			Usage:  "Restarts a particular container on the given stack",
+			Description: `Restarts a particular container on the given stack by container Id.
+Examples:
+$ cx containers restart -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c
+`,
+		},
+	}
+	return base
 }
 
-func runContainers(cmd *Command, args []string) {
-	if len(args) > 0 {
-		cmd.printUsage()
-		os.Exit(2)
-	}
-
-	stack := mustStack()
+func runContainers(c *cli.Context) {
+	stack := mustStack(c)
 	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
 	defer w.Flush()
+
+	flagServer := c.String("server")
+	flagServiceName := c.String("service")
 
 	var serverUid *string
 	if flagServer == "" {

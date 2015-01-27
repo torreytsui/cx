@@ -8,35 +8,21 @@ import (
 	"time"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/codegangsta/cli"
 )
 
-var cmdServiceStart = &Command{
-	Run:        runServiceScale,
-	Usage:      "service-scale <service name> [--server <server name>|<server ip>|<server role>] <count>",
-	NeedsStack: true,
-	Category:   "stack",
-	Short:      "starts containers from the given service",
-	Long: `Starts <count> containers from the given service.
-<count> can be an absolute value like "2" or a relative value like "+2" or "-3" etc.
-If server is provided, will start <count> containers on that server.
-If server is not provided, will start <count> containers on every server.
-
-Examples:
-$ cx service-scale -s mystack my_web_service 1
-$ cx service-scale -s mystack a_backend_service --server backend +5
-$ cx service-scale -s mystack a_backend_service -2
-`,
-}
-
-func runServiceScale(cmd *Command, args []string) {
-	if len(args) != 2 {
-		cmd.printUsage()
+func runServiceScale(c *cli.Context) {
+	if len(c.Args()) != 2 {
+		cli.ShowSubcommandHelp(c)
 		os.Exit(2)
 	}
 
-	stack := mustStack()
-	serviceName := args[0]
-	count := args[1]
+	stack := mustStack(c)
+	serviceName := c.Args()[0]
+	count := c.Args()[1]
+
+	flagServer := c.String("server")
 
 	// fetch servers info
 	servers, err := client.Servers(stack.Uid)

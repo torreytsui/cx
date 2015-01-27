@@ -7,15 +7,24 @@ import (
 	"text/tabwriter"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/codegangsta/cli"
 )
 
 var cmdSettings = &Command{
-	Run:        runSettings,
-	Usage:      "settings [setting,...]",
+	Name:       "settings",
+	Build:      buildSettings,
 	NeedsStack: true,
-	Category:   "stack",
-	Short:      "lists stack settings",
-	Long: `Lists all the settings applicable to the given stack.
+	Short:      "list and set stack settings",
+}
+
+func buildSettings() cli.Command {
+	base := buildBasicCommand()
+	base.Subcommands = []cli.Command{
+		cli.Command{
+			Name:  "list",
+			Usage: "lists all settings",
+			Description: `Lists all the settings applicable to the given stack.
 It also shows the key, value and the readonly flag for each setting.
 Settings can be a list of multiple settings as separate parameters.
 To change each setting, use the set command.
@@ -29,17 +38,38 @@ allowed.web.source  <nil>                                                      f
 $ cx settings -s mystack git.branch
 git.branch          master                                                     false
 `,
+			Action: runSettings,
+		},
+		cli.Command{
+			Name:  "set",
+			Usage: "sets the value of a setting on a stack",
+			Description: `This sets and applies the value of a setting on a stack. Applying some settings might require more
+work and therefore this command will return immediately after the setting operation has started.
+
+Examples:
+$ cx set -s mystack git.branch dev
+$ cx set -s mystack allowed.web.source 191.203.12.10
+$ cx set -s mystack allowed.web.source anywhere
+$ cx set -s mystack maintenance.mode  1|true|on|enable
+$ cx set -s mystack maintenance.mode  0|false|off|disable
+`,
+			Action: runSet,
+		},
+	}
+
+	return base
 }
 
-func runSettings(cmd *Command, settingNames []string) {
+func runSettings(c *cli.Context) {
 	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
 	defer w.Flush()
 	var settings []cloud66.StackSetting
 	var err error
-	stack := mustStack()
+	stack := mustStack(c)
 	settings, err = client.StackSettings(stack.Uid)
 	must(err)
 
+	settingNames := c.Args()
 	sort.Strings(settingNames)
 	if len(settingNames) == 0 {
 		printSettingList(w, settings)

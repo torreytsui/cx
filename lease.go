@@ -1,10 +1,31 @@
 package main
 
+import (
+	"github.com/codegangsta/cli"
+)
+
 var cmdLease = &Command{
-	Run:        runLease,
-	Usage:      "lease [-f <from IP>] [-t <time to open>] [-p <port>]",
+	Run:   runLease,
+	Name:  "lease",
+	Build: buildBasicCommand,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "from,f",
+			Usage: "IP address for the source of traffic. Uses your current IP if not provided",
+			Value: "AUTO",
+		},
+		cli.IntFlag{
+			Name:  "tto,t",
+			Usage: "Time to keep the lease open",
+			Value: 20,
+		},
+		cli.IntFlag{
+			Name:  "port,p",
+			Usage: "Port to open",
+			Value: 22,
+		},
+	},
 	NeedsStack: true,
-	Category:   "stack",
 	Short:      "leases firewall access to the given server on the stack",
 	Long: `This will poke a hole in the firewall of the given server for a limited time.
 'Time to open' is in minutes (ie. 60 for 1 hour)
@@ -20,22 +41,13 @@ $ cx lease -s mystack -p 3306 -f 52.65.34.98
 `,
 }
 
-var (
-	flagTimeToOpen int
-	flagPort       int
-	flagIp         string
-)
+func runLease(c *cli.Context) {
+	stack := mustStack(c)
 
-func init() {
-	cmdLease.Flag.IntVar(&flagTimeToOpen, "t", 20, "time to open")
-	cmdLease.Flag.IntVar(&flagPort, "p", 22, "port")
-	cmdLease.Flag.StringVar(&flagIp, "f", "AUTO", "from IP")
-}
-
-func runLease(cmd *Command, args []string) {
-	stack := mustStack()
-
-	genericRes, err := client.LeaseSync(stack.Uid, &flagIp, &flagTimeToOpen, &flagPort, nil)
+	from := c.String("from")
+	tto := c.Int("tto")
+	port := c.Int("port")
+	genericRes, err := client.LeaseSync(stack.Uid, &from, &tto, &port, nil)
 	if err != nil {
 		printFatal(err.Error())
 	}
