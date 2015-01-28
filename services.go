@@ -67,7 +67,7 @@ func runServices(cmd *Command, args []string) {
 		services, err = client.GetServices(stack.Uid, serverUid)
 		must(err)
 	} else {
-		service, err := client.GetService(stack.Uid, flagServiceName, serverUid)
+		service, err := client.GetService(stack.Uid, flagServiceName, serverUid, nil)
 		must(err)
 		if service == nil {
 			printFatal("Service '" + flagServiceName + "' not found on specified stack")
