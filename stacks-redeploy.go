@@ -12,7 +12,7 @@ var cmdRedeploy = &Command{
 	Run:        runRedeploy,
 	Build:      buildBasicCommand,
 	NeedsStack: true,
-	Short:      "command shortcut: \"cx stacks help redeploy\"",
+	Short:      "An alias for 'stacks redeploy' command",
 }
 
 func runRedeploy(c *cli.Context) {
