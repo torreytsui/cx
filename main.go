@@ -76,6 +76,7 @@ func main() {
 	app.Action = doMain
 	app.Version = VERSION
 	app.CommandNotFound = suggest
+	app.Before = beforeCommand
 
 	cmds := []cli.Command{}
 	for _, cmd := range commands {
@@ -88,7 +89,6 @@ func main() {
 		cliCommand.Description = cmd.Long
 		cliCommand.Action = cmd.Run
 		cliCommand.Flags = cmd.Flags
-		cliCommand.Before = beforeCommand
 
 		if len(cliCommand.Subcommands) == 0 {
 			if cmd.NeedsStack {
@@ -122,6 +122,12 @@ func main() {
 	}
 
 	app.Commands = cmds
+
+	app.Commands = append(app.Commands, cli.Command{
+		Name:   "test",
+		Flags:  cmdLease.Flags,
+		Action: runLease,
+	})
 
 	setGlobals(app)
 

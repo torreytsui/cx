@@ -30,7 +30,7 @@ var cmdUpdate = &Command{
 			Usage: "update to a specific version",
 		},
 	},
-	Short: "update [-v <version>]",
+	Short: "update the Toolbelt",
 	Long: `This command runs automatically. You should not need to run it manually
 
 -v forces a specific version to be downloaded.
