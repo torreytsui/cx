@@ -8,11 +8,26 @@ import (
 
 // this is an alias for stacks redeploy command
 var cmdRedeploy = &Command{
-	Name:       "redeploy",
-	Run:        runRedeploy,
-	Build:      buildBasicCommand,
+	Name:  "redeploy",
+	Run:   runRedeploy,
+	Build: buildBasicCommand,
+	Flags: []cli.Flag{
+		cli.BoolFlag{
+			Name:  "y",
+			Usage: "answer yes to confirmations",
+		},
+		cli.StringFlag{
+			Name:  "git-ref",
+			Usage: "git reference",
+		},
+		cli.StringFlag{
+			Name:  "services",
+			Usage: "comma separated list of services to include in the deploy",
+		},
+	},
+
 	NeedsStack: true,
-	Short:      "this is a shortcut for the \"stacks redeploy\" command",	
+	Short:      "An alias for 'stacks redeploy' command",
 }
 
 func runRedeploy(c *cli.Context) {
