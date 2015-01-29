@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/codegangsta/cli"
+	"github.com/cloud66/cli"
 )
 
 var cmdLease = &Command{

@@ -11,7 +11,7 @@ import (
 
 	"github.com/cloud66/cloud66"
 
-	"github.com/codegangsta/cli"
+	"github.com/cloud66/cli"
 )
 
 var cmdContainers = &Command{

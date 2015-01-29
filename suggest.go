@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/codegangsta/cli"
+	"github.com/cloud66/cli"
 )
 
 type Suggestion struct {

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/codegangsta/cli"
+	"github.com/cloud66/cli"
 )
 
 func runDownloadBackup(c *cli.Context) {

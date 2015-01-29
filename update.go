@@ -16,7 +16,7 @@ import (
 	"runtime"
 
 	"bitbucket.org/kardianos/osext"
-	"github.com/codegangsta/cli"
+	"github.com/cloud66/cli"
 	"github.com/inconshreveable/go-update"
 )
 

@@ -9,7 +9,7 @@ import (
 
 	"github.com/cloud66/cloud66"
 
-	"github.com/codegangsta/cli"
+	"github.com/cloud66/cli"
 	"github.com/jcoene/honeybadger"
 	"github.com/mgutz/ansi"
 )
@@ -68,14 +68,6 @@ func main() {
 	cli.VersionPrinter = runVersion
 
 	app := cli.NewApp()
-	app.Name = "cx"
-	app.Usage = "Cloud 66 Command line toolbelt"
-	app.Author = "Cloud 66"
-	app.Email = "support@cloud66.com"
-	app.Action = doMain
-	app.Version = VERSION
-	app.CommandNotFound = suggest
-	app.Before = beforeCommand
 
 	cmds := []cli.Command{}
 	for _, cmd := range commands {
@@ -121,12 +113,14 @@ func main() {
 	}
 
 	app.Commands = cmds
-
-	app.Commands = append(app.Commands, cli.Command{
-		Name:   "test",
-		Flags:  cmdLease.Flags,
-		Action: runLease,
-	})
+	app.Name = "cx"
+	app.Usage = "Cloud 66 Command line toolbelt"
+	app.Author = "Cloud 66"
+	app.Email = "support@cloud66.com"
+	app.Version = VERSION
+	app.CommandNotFound = suggest
+	app.Before = beforeCommand
+	app.Action = doMain
 
 	setGlobals(app)
 

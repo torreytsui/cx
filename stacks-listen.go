@@ -13,7 +13,7 @@ import (
 
 	"github.com/bitly/go-nsq"
 	"github.com/bitly/nsq/util"
-	"github.com/codegangsta/cli"
+	"github.com/cloud66/cli"
 	"github.com/mgutz/ansi"
 )
 
