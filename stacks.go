@@ -60,6 +60,10 @@ mystack     staging      Feb 2 12:34
 					Usage: "git reference",
 				},
 				cli.StringFlag{
+					Name:  "services",
+					Usage: "comma separated list of services to include in the deploy",
+				},
+				cli.StringFlag{
 					Name:  "environment,e",
 					Usage: "Full or partial environment name.",
 				},
@@ -74,7 +78,8 @@ If the stack is already building, another build will be enqueued and performed i
 after the current one is finished.
 
 -y answers yes to confirmation question if the stack is production.
---git-ref will redeploy the specific git reference (branch, tag, hash)
+--git-ref will redeploy the specific branch, tag or hash git reference (non-docker stacks)
+--services will deploy the specified services from your stack only (docker stacks)
 `,
 		},
 		cli.Command{
