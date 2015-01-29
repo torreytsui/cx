@@ -8,11 +8,10 @@ import (
 	"strings"
 
 	"github.com/cloud66/cloud66"
-	//	"github.com/cloud66/cx/term"
 
 	"github.com/codegangsta/cli"
 	"github.com/jcoene/honeybadger"
-	//	"github.com/mgutz/ansi"
+	"github.com/mgutz/ansi"
 )
 
 type Command struct {
@@ -138,7 +137,7 @@ func beforeCommand(c *cli.Context) error {
 	// set the env vars from global options
 	if c.GlobalString("runenv") != "" {
 		tokenFile = "cx_" + c.GlobalString("runenv") + ".json"
-		fmt.Printf("Running against %s environment\n", c.GlobalString("runenv"))
+		fmt.Printf(ansi.Color(fmt.Sprintf("Running against %s environment\n", c.GlobalString("runenv")), "grey"))
 		honeybadger.Environment = c.GlobalString("runenv")
 	} else {
 		honeybadger.Environment = "production"

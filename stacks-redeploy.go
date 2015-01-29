@@ -6,6 +6,7 @@ import (
 	"github.com/codegangsta/cli"
 )
 
+// this is an alias for stacks redeploy command
 var cmdRedeploy = &Command{
 	Name:       "redeploy",
 	Run:        runRedeploy,

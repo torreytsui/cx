@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/codegangsta/cli"
 )
 
@@ -47,6 +49,8 @@ func runLease(c *cli.Context) {
 	from := c.String("from")
 	tto := c.Int("tto")
 	port := c.Int("port")
+
+	fmt.Printf("Attempting to lease from %s to port %d for %d minutes...\n", from, port, tto)
 	genericRes, err := client.LeaseSync(stack.Uid, &from, &tto, &port, nil)
 	if err != nil {
 		printFatal(err.Error())
