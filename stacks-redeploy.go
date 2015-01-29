@@ -11,7 +11,7 @@ var cmdRedeploy = &Command{
 	Run:        runRedeploy,
 	Build:      buildBasicCommand,
 	NeedsStack: true,
-	Short:      "this is a shortcut for stacks redeploy command",
+	Short:      "command shortcut: \"cx stacks help redeploy\"",
 }
 
 func runRedeploy(c *cli.Context) {
@@ -21,7 +21,7 @@ func runRedeploy(c *cli.Context) {
 	if stack.Environment == "production" && !c.Bool("y") {
 		mustConfirm("This is a production stack. Proceed with deployment? [yes/N]", "yes")
 	}
-	result, err := client.RedeployStack(stack.Uid, c.String("git-ref"))
+	result, err := client.RedeployStack(stack.Uid, c.String("git-ref"), c.String("services"))
 	if err != nil {
 		printFatal(err.Error())
 	} else {
