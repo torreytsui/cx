@@ -26,7 +26,7 @@ var cmdUpdate = &Command{
 	Build: buildBasicCommand,
 	Flags: []cli.Flag{
 		cli.StringFlag{
-			Name:  "version,v",
+			Name:  "force,f",
 			Usage: "update to a specific version",
 		},
 	},
@@ -63,8 +63,6 @@ const (
 )
 
 func init() {
-	debugMode = os.Getenv("CXDEBUG") != ""
-
 	if os.Getenv("CX_PLATFORM") == "" {
 		currentPlatform = runtime.GOOS
 	} else {
@@ -79,9 +77,11 @@ func init() {
 }
 
 func runUpdate(c *cli.Context) {
-	flagForcedVersion := c.String("version")
+	debugMode = c.GlobalBool("debug")
+	flagForcedVersion := c.String("force")
 
 	if debugMode {
+		fmt.Printf("Current version is %s\n", VERSION)
 		if flagForcedVersion == "" {
 			fmt.Println("No forced version")
 		} else {
@@ -156,7 +156,11 @@ func needUpdate() (bool, error) {
 }
 
 func getVersionManifest(version string) (*CxDownload, error) {
-	resp, err := http.Get(DOWNLOAD_URL + "cx_" + version + ".json")
+	toGet := DOWNLOAD_URL + "cx_" + version + ".json"
+	if debugMode {
+		fmt.Printf("Getting %s\n", toGet)
+	}
+	resp, err := http.Get(toGet)
 	if err != nil {
 		return nil, err
 	} else if resp.StatusCode != 200 {

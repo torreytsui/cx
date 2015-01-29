@@ -143,8 +143,19 @@ func beforeCommand(c *cli.Context) error {
 
 	debugMode = c.GlobalBool("debug")
 
-	if (c.Command.Name != "version") && (c.Command.Name != "help") {
+	var command string
+	if len(c.Args()) >= 1 {
+		command = c.Args().First()
+	}
+
+	if (command != "version") && (command != "help") && (command != "update") {
 		initClients(c)
+	}
+
+	if command == "update" {
+		cmdUpdate.Run(c)
+	} else if VERSION != "dev" {
+		defer backgroundRun()
 	}
 
 	return nil
