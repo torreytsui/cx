@@ -30,7 +30,7 @@ var (
 	VERSION    string = "dev"
 	BUILD_DATE string = ""
 	tokenFile  string = "cx.json"
-	nsqLookup  string = "nsq.cldblx.com:4161"
+	nsqLookup  string = "nsq.cloud66.com:4161"
 )
 
 var commands = []*Command{
