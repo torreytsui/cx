@@ -30,12 +30,12 @@ Settings can be a list of multiple settings as separate parameters.
 To change each setting, use the set command.
 
 Examples:
-$ cx settings -s mystack
+$ cx settings list -s mystack
 git.branch          master                                                     false
 git.repository      git://git@github.com:cloud66-samples/rails-psql-redis.git  false
 allowed.web.source  <nil>                                                      false
 
-$ cx settings -s mystack git.branch
+$ cx settings list -s mystack git.branch
 git.branch          master                                                     false
 `,
 			Action: runSettings,
@@ -47,11 +47,11 @@ git.branch          master                                                     f
 work and therefore this command will return immediately after the setting operation has started.
 
 Examples:
-$ cx set -s mystack git.branch dev
-$ cx set -s mystack allowed.web.source 191.203.12.10
-$ cx set -s mystack allowed.web.source anywhere
-$ cx set -s mystack maintenance.mode  1|true|on|enable
-$ cx set -s mystack maintenance.mode  0|false|off|disable
+$ cx settings set -s mystack git.branch dev
+$ cx settings set -s mystack allowed.web.source 191.203.12.10
+$ cx settings set -s mystack allowed.web.source anywhere
+$ cx settings set -s mystack maintenance.mode  1|true|on|enable
+$ cx settings set -s mystack maintenance.mode  0|false|off|disable
 `,
 			Action: runSet,
 		},

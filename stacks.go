@@ -130,8 +130,8 @@ However, rebasing or forcing a commit doesn't have any association with Cloud 66
 			Description: `This acts as a log tail for deployment of a stack so you don't have to follow the deployment on the web.
 
 Examples:
-$ cx listen
-$ cx listen -s mystack
+$ cx stacks listen
+$ cx stacks listen -s mystack
 `},
 	}
 

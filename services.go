@@ -57,9 +57,9 @@ The list of available stack services can be obtained through the 'services' comm
 If the server is provided it will only act on the specified server.
 
 Examples:
-$ cx service stop -s mystack my_web_service
-$ cx service stop -s mystack a_backend_service
-$ cx service stop -s mystack --server my_server my_web_service
+$ cx services stop -s mystack my_web_service
+$ cx services stop -s mystack a_backend_service
+$ cx services stop -s mystack --server my_server my_web_service
 `},
 		cli.Command{
 			Name:   "scale",
@@ -76,9 +76,9 @@ If server is provided, will start <count> containers on that server.
 If server is not provided, will start <count> containers on every server.
 
 Examples:
-$ cx service scale -s mystack my_web_service 1
-$ cx service scale -s mystack a_backend_service --server backend +5
-$ cx service sclae -s mystack a_backend_service -2
+$ cx services scale -s mystack my_web_service 1
+$ cx services scale -s mystack a_backend_service --server backend +5
+$ cx services sclae -s mystack a_backend_service -2
 `},
 		cli.Command{
 			Name:   "restart",
@@ -94,9 +94,9 @@ The list of available stack services can be obtained through the 'services' comm
 If the server is provided it will only act on the specified server.
 
 Examples:
-$ cx service restart -s mystack my_web_service
-$ cx service restart -s mystack a_backend_service
-$ cx service restart -s mystack --server my_server my_web_service
+$ cx services restart -s mystack my_web_service
+$ cx services restart -s mystack a_backend_service
+$ cx services restart -s mystack --server my_server my_web_service
 `,
 		},
 	}

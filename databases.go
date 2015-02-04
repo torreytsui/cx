@@ -53,8 +53,8 @@ From time-to-time your slave db server might go out of sync with its master. Thi
 This can happen depending on many factors (such as DB size, frequency of change, networking between servers etc)
 
 Examples:
-$ cx slave-resync -s 'my stack name' postgresql_slave_name
-$ cx slave-resync -s 'my stack name' --db-type=postgresql pg_slave1
+$ cx databases resync-slave -s 'my stack name' postgresql_slave_name
+$ cx databases resync-slave -s 'my stack name' --db-type=postgresql pg_slave1
 `,
 		},
 	}

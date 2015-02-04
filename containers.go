@@ -38,8 +38,8 @@ func buildContainers() cli.Command {
 			Description: `List all the running containers of a stack or a server.
 
 Examples:
-$ cx containers -s mystack
-$ cx containers -s mystack --server orca
+$ cx containers list -s mystack
+$ cx containers list -s mystack --server orca
 `,
 		},
 		cli.Command{

@@ -31,16 +31,16 @@ The environment_variables options can be a list of multiple environment_variable
 To change environement variable values, use the env-vars-set command.
 
 Examples:
-$ cx env-vars -s mystack
+$ cx env-vars list -s mystack
 RAILS_ENV 			production
 STACK_BASE      	/abc/def
 STACK_PATH      	/abc/def/current
 etc..
 
-$ cx env-vars -s mystack RAILS_ENV
+$ cx env-vars list -s mystack RAILS_ENV
 RAILS_ENV 			production
 
-$ cx env-vars -s mystack RAILS_ENV STACK_BASE
+$ cx env-vars list -s mystack RAILS_ENV STACK_BASE
 RAILS_ENV 			production
 STACK_BASE      	/abc/def
 `,
@@ -55,8 +55,8 @@ Warning! Applying environment variable changes to your stack will result in all 
 being sent to your stack servers, and your processes being restarted immediately.
 
 Examples:
-$ cx env-var set -s mystack FIRST_VAR=123
-$ cx env-var set -s mystack SECOND_ONE='this value has a space in it'
+$ cx env-vars set -s mystack FIRST_VAR=123
+$ cx env-vars set -s mystack SECOND_ONE='this value has a space in it'
 `,
 		},
 	}

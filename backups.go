@@ -34,7 +34,7 @@ func buildBackups() cli.Command {
    The -l option will return the latest successful backups.
 
 Examples:
-   $ cx backups
+   $ cx backups list
    23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
    23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
    34067  mysql  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
@@ -42,16 +42,16 @@ Examples:
    12802  mysql  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
    12801  redis  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
 
-   $ cx backups --dbtype mysql
+   $ cx backups list --dbtype mysql
    23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
    34067  mysql  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
    12802  mysql  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
 
-   $ cx backups -latest
+   $ cx backups list -latest
    23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
    23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
 
-   $ cx backups -l --dbtype redis
+   $ cx backups list -l --dbtype redis
    23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
 `,
 				},
@@ -64,7 +64,7 @@ Examples:
 		cli.Command{
 			Name:   "download",
 			Action: runDownloadBackup,
-			Usage:  "download-backup [-d <download directory>] <backup Id>",
+			Usage:  "backups download [-d <download directory>] <backup Id>",
 			Description: `This downloads a backup from the available backups of a stack. This is limited to a single database type.
 The command might download multiple files in parallel and concatenate and untar them if needed. The resulting file
 can be used to manually restore the database.
@@ -75,7 +75,7 @@ if no directory is specified, ~/cx_backups is used. If the directory does not ex
 The caller needs to have admin rights over the stack.
 
 Examples:
-$ cx download-backup -s mystack 123
+$ cx backups download -s mystack 123
 `,
 			Flags: []cli.Flag{
 				cli.StringFlag{
