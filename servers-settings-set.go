@@ -3,36 +3,37 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/cloud66/cli"
 )
 
-var cmdServerSet = &Command{
-	Run:        runServerSet,
-	Usage:      "server-set <server name>|<server ip>|<server role> <setting> <value>",
-	NeedsStack: true,
-	Category:   "stack",
-	Short:      "sets the value of a setting on a server",
-	Long: `This sets and applies the value of a setting on a server. Applying some settings might require more
-work and therefore this command will return immediately after the setting operation has started.
+func runServerSet(c *cli.Context) {
+	fmt.Println(c.Args())
+	stack := mustStack(c)
 
-Examples:
-$ cx server-set -s mystack lion server.name tiger
-`,
-}
-
-func runServerSet(cmd *Command, args []string) {
-
-	stack := mustStack()
-
-	if len(args) != 3 {
-		cmd.printUsage()
+	if len(c.Args()) != 1 {
+		cli.ShowSubcommandHelp(c)
 		os.Exit(2)
 	}
 
 	// get the server
-	serverName := args[0]
+	args := c.Args()
+
+	serverName := c.String("server")
+
+	// filter out the server name
+	kvs := args[0]
+	kva := strings.Split(kvs, "=")
+	if len(kva) != 2 {
+		cli.ShowSubcommandHelp(c)
+		os.Exit(2)
+	}
+	key := kva[0]
+	value := kva[1]
 
 	servers, err := client.Servers(stack.Uid)
 	if err != nil {
@@ -50,17 +51,10 @@ func runServerSet(cmd *Command, args []string) {
 
 	fmt.Printf("Server: %s\n", server.Name)
 
-	executeServerSet(*stack, *server, args)
+	executeServerSet(*stack, *server, c, key, value)
 }
 
-func executeServerSet(stack cloud66.Stack, server cloud66.Server, args []string) {
-
-	// filter out the server name
-	args = args[1:len(args)]
-
-	key := args[0]
-	value := args[1]
-
+func executeServerSet(stack cloud66.Stack, server cloud66.Server, c *cli.Context, key string, value string) {
 	settings, err := client.ServerSettings(stack.Uid, server.Uid)
 	must(err)
 

@@ -6,32 +6,21 @@ import (
 	"time"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/cloud66/cli"
 )
 
-var cmdContainerRestart = &Command{
-	Run:        runContainerRestart,
-	Usage:      "container-restart <container id>",
-	NeedsStack: true,
-	Category:   "stack",
-	Short:      "Restarts a particular container on the given stack",
-	Long: `Restarts a particular container on the given stack by container Id.
-
-Examples:
-$ cx container-restart -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c
-`,
-}
-
-func runContainerRestart(cmd *Command, args []string) {
-	if len(args) != 1 {
-		cmd.printUsage()
+func runContainerRestart(c *cli.Context) {
+	if len(c.Args()) != 1 {
+		cli.ShowSubcommandHelp(c)
 		os.Exit(2)
 	}
 
-	stack := mustStack()
+	stack := mustStack(c)
 	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
 	defer w.Flush()
 
-	containerUid := args[0]
+	containerUid := c.Args()[0]
 	container, err := client.GetContainer(stack.Uid, containerUid)
 	must(err)
 

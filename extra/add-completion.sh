@@ -4,6 +4,6 @@ else
   profile_file="$HOME/.bash_profile"
 fi
 
-if ! grep -q 'completion.bash.inc' "${profile_file}" ; then
-  echo "source /usr/local/cloud66/completion.bash.inc" >> "${profile_file}"
+if ! grep -q 'bash_autocomplete' "${profile_file}" ; then
+  echo "PROG=cx source /usr/local/cloud66/bash_autocomplete" >> "${profile_file}"
 fi

@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"sort"
-	"strconv"
+
+	"github.com/cloud66/cli"
 )
 
 type Suggestion struct {
@@ -17,15 +19,12 @@ func (a Suggestions) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a Suggestions) Less(i, j int) bool { return a[i].d < a[j].d }
 
 // suggest returns command names that are similar to s.
-func suggest(s string) (a []string) {
+func suggest(context *cli.Context, s string) {
+	a := []string{}
 	var g Suggestions
-	for _, c := range commands {
-		if d := editDistance(s, c.Name()); d < 4 {
-			if c.Runnable() {
-				g = append(g, Suggestion{c.Name(), d})
-			} else {
-				g = append(g, Suggestion{strconv.Quote("help " + c.Name()), d})
-			}
+	for _, c := range context.App.Commands {
+		if d := editDistance(s, c.Name); d < 4 {
+			g = append(g, Suggestion{c.Name, d})
 		}
 	}
 	sort.Sort(g)
@@ -35,7 +34,11 @@ func suggest(s string) (a []string) {
 			break
 		}
 	}
-	return a
+
+	fmt.Printf("Can't find command %s. Did you mean any of these?\n", s)
+	for _, c := range a {
+		fmt.Println(c)
+	}
 }
 
 func editDistance(a, b string) int {

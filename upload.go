@@ -6,13 +6,21 @@ import (
 	"runtime"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/cloud66/cli"
 )
 
 var cmdUpload = &Command{
-	Run:        runUpload,
-	Usage:      "upload -s <stack> <server name>|<server ip>|<server role> /path/to/source/file (optional: /path/to/target/directory)",
+	Run:   runUpload,
+	Build: buildBasicCommand,
+	Name:  "upload",
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "server",
+			Usage: "server to upload to",
+		},
+	},
 	NeedsStack: true,
-	Category:   "stack",
 	Short:      "copies a file from your local computer to the remote server",
 	Long: `This command will copy a file from your local computer to the remote server.
 
@@ -34,36 +42,36 @@ Names are case insensitive and will work with the starting characters as well.
 This command is only supported on Linux and OS X.
 
 Examples:
-$ cx upload -s mystack lion /path/to/source/file
-$ cx upload -s mystack lion /path/to/source/file /path/to/target/directory
-$ cx upload -s mystack 52.65.34.98 /path/to/source/file
-$ cx upload -s mystack web /path/to/source/file /path/to/target/directory
+$ cx upload -s mystack --server lion /path/to/source/file
+$ cx upload -s mystack --server lion /path/to/source/file /path/to/target/directory
+$ cx upload -s mystack --server 52.65.34.98 /path/to/source/file
+$ cx upload -s mystack --server web /path/to/source/file /path/to/target/directory
 `,
 }
 
-func runUpload(cmd *Command, args []string) {
+func runUpload(c *cli.Context) {
 	if runtime.GOOS == "windows" {
 		printFatal("Not supported on Windows")
 		os.Exit(2)
 	}
 
-	stack := mustStack()
+	stack := mustStack(c)
 
 	// args start after stack name
 	// and check if user specified target directory
 	var targetDirectory string = ""
 
-	if len(args) < 2 {
-		cmd.printUsage()
+	if len(c.Args()) < 1 {
+		cli.ShowCommandHelp(c, "upload")
 		os.Exit(2)
-	} else if len(args) == 3 {
-		targetDirectory = args[2]
+	} else if len(c.Args()) == 2 {
+		targetDirectory = c.Args()[1]
 	}
 
 	// get the server
-	serverName := args[0]
+	serverName := c.String("server")
 	// get the file path
-	filePath := args[1]
+	filePath := c.Args()[0]
 
 	servers, err := client.Servers(stack.Uid)
 	if err != nil {

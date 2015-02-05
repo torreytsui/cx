@@ -7,43 +7,73 @@ import (
 	"text/tabwriter"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/cloud66/cli"
 )
 
 var cmdEnvVars = &Command{
+	Name:       "env-vars",
+	Build:      buildEnvVars,
 	Run:        runEnvVars,
-	Usage:      "env-vars [environment_variables]",
+	Short:      "commands to work with environment variables",
 	NeedsStack: true,
-	Category:   "stack",
-	Short:      "lists environement variables",
-	Long: `Lists all the environement variables of the given stack.
+}
+
+func buildEnvVars() cli.Command {
+	base := buildBasicCommand()
+	base.Subcommands = []cli.Command{
+		cli.Command{
+			Name:   "list",
+			Usage:  "lists environement variables",
+			Action: runEnvVars,
+			Description: `Lists all the environement variables of the given stack.
 The environment_variables options can be a list of multiple environment_variables as separate parameters.
 To change environement variable values, use the env-vars-set command.
 
 Examples:
-$ cx env-vars -s mystack
+$ cx env-vars list -s mystack
 RAILS_ENV 			production
 STACK_BASE      	/abc/def
 STACK_PATH      	/abc/def/current
 etc..
 
-$ cx env-vars -s mystack RAILS_ENV
+$ cx env-vars list -s mystack RAILS_ENV
 RAILS_ENV 			production
 
-$ cx env-vars -s mystack RAILS_ENV STACK_BASE
+$ cx env-vars list -s mystack RAILS_ENV STACK_BASE
 RAILS_ENV 			production
 STACK_BASE      	/abc/def
 `,
+		},
+		cli.Command{
+			Name:   "set",
+			Usage:  "sets the value of an environment variable on a stack",
+			Action: runEnvVarsSet,
+			Description: `This sets and applies the value of an environment variable on a stack.
+This work happens in the background, therefore this command will return immediately after the operation has started.
+Warning! Applying environment variable changes to your stack will result in all your stack environment variables
+being sent to your stack servers, and your processes being restarted immediately.
+
+Examples:
+$ cx env-vars set -s mystack FIRST_VAR=123
+$ cx env-vars set -s mystack SECOND_ONE='this value has a space in it'
+`,
+		},
+	}
+
+	return base
 }
 
-func runEnvVars(cmd *Command, envVarKeys []string) {
+func runEnvVars(c *cli.Context) {
 	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
 	defer w.Flush()
 	var envVars []cloud66.StackEnvVar
 	var err error
-	stack := mustStack()
+	stack := mustStack(c)
 	envVars, err = client.StackEnvVars(stack.Uid)
 	must(err)
 
+	envVarKeys := c.Args()
 	sort.Strings(envVarKeys)
 	if len(envVarKeys) == 0 {
 		printEnvVarsList(w, envVars)

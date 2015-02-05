@@ -16,13 +16,21 @@ import (
 	"runtime"
 
 	"bitbucket.org/kardianos/osext"
+	"github.com/cloud66/cli"
 	"github.com/inconshreveable/go-update"
 )
 
 var cmdUpdate = &Command{
-	Run:      runUpdate,
-	Usage:    "update [-v <version>]",
-	Category: "cx",
+	Name:  "update",
+	Run:   runUpdate,
+	Build: buildBasicCommand,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "force,f",
+			Usage: "update to a specific version",
+		},
+	},
+	Short: "update the Toolbelt",
 	Long: `This command runs automatically. You should not need to run it manually
 
 -v forces a specific version to be downloaded.
@@ -55,8 +63,6 @@ const (
 )
 
 func init() {
-	debugMode = os.Getenv("CXDEBUG") != ""
-
 	if os.Getenv("CX_PLATFORM") == "" {
 		currentPlatform = runtime.GOOS
 	} else {
@@ -70,16 +76,12 @@ func init() {
 	}
 }
 
-func runUpdate(cmd *Command, args []string) {
-	if len(args) > 0 {
-		if args[0] == "-v" {
-			flagForcedVersion = args[1]
-		} else {
-			cmd.printUsage()
-		}
-	}
+func runUpdate(c *cli.Context) {
+	debugMode = c.GlobalBool("debug")
+	flagForcedVersion := c.String("force")
 
 	if debugMode {
+		fmt.Printf("Current version is %s\n", VERSION)
 		if flagForcedVersion == "" {
 			fmt.Println("No forced version")
 		} else {
@@ -154,7 +156,11 @@ func needUpdate() (bool, error) {
 }
 
 func getVersionManifest(version string) (*CxDownload, error) {
-	resp, err := http.Get(DOWNLOAD_URL + "cx_" + version + ".json")
+	toGet := DOWNLOAD_URL + "cx_" + version + ".json"
+	if debugMode {
+		fmt.Printf("Getting %s\n", toGet)
+	}
+	resp, err := http.Get(toGet)
 	if err != nil {
 		return nil, err
 	} else if resp.StatusCode != 200 {

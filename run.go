@@ -5,13 +5,25 @@ import (
 	"runtime"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/cloud66/cli"
 )
 
 var cmdRun = &Command{
+	Name:  "run",
+	Build: buildBasicCommand,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "server",
+			Usage: "server to run the command",
+		},
+		cli.StringFlag{
+			Name:  "service",
+			Usage: "name of the server to run the command in (docker stacks only)",
+		},
+	},
 	Run:        runRun,
-	Usage:      "run [--service <service>] <server name>|<server ip>|<server role> '<command>'",
 	NeedsStack: true,
-	Category:   "stack",
 	Short:      "executes a command directly on the server",
 	Long: `This command will execute a command directly on the remote server.
 
@@ -31,39 +43,33 @@ Names are case insensitive and will work with the starting characters as well.
 This command is only supported on Linux and OS X (for Windows you can run this in a virtual machine if necessary)
 
 Examples:
-$ cx run -s mystack lion 'ls -la'
-$ cx run -s mystack 52.65.34.98 'ls -la'
-$ cx run -s mystack web 'ls -la'
-$ cx run -s mystack web --service web 'bundle exec rails c'
+$ cx run -s mystack --server lion 'ls -la'
+$ cx run -s mystack --server 52.65.34.98 'ls -la'
+$ cx run -s mystack --server web 'ls -la'
+$ cx run -s mystack --server web --service api 'bundle exec rails c'
 `,
 }
 
-func runRun(cmd *Command, args []string) {
+func runRun(c *cli.Context) {
 	if runtime.GOOS == "windows" {
 		printFatal("Not supported on Windows")
 		os.Exit(2)
 	}
 
-	stack := mustStack()
-	if flagServiceName != "" && stack.Framework != "docker" {
+	stack := mustStack(c)
+	if c.String("service") != "" && stack.Framework != "docker" {
 		printFatal("The service option only applies to docker stacks")
 		os.Exit(2)
 	}
 
-	var (
-		serverName  string
-		userCommand string
-	)
-	if len(args) == 1 {
-		serverName = args[0]
-		userCommand = ""
-	} else if len(args) == 2 {
-		serverName = args[0]
-		userCommand = args[1]
-	} else {
-		cmd.printUsage()
+	serverName := c.String("server")
+
+	if len(c.Args()) != 1 {
+		cli.ShowCommandHelp(c, "run")
 		os.Exit(2)
 	}
+
+	userCommand := c.Args()[0]
 
 	servers, err := client.Servers(stack.Uid)
 	if err != nil {
@@ -79,15 +85,15 @@ func runRun(cmd *Command, args []string) {
 		printFatal("Server '" + serverName + "' not found")
 	}
 
-	if flagServiceName != "" {
+	if c.String("service") != "" {
 		// fetch service information for existing server/command
-		service, err := client.GetService(stack.Uid, flagServiceName, &server.Uid, &userCommand)
+		service, err := client.GetService(stack.Uid, c.String("service"), &server.Uid, &userCommand)
 		must(err)
 
 		userCommand = service.WrapCommand
 	}
 
-	err = sshToServerForCommand(*server, userCommand, flagServiceName)
+	err = sshToServerForCommand(*server, userCommand, c.String("service"))
 	if err != nil {
 		printFatal(err.Error())
 	}

@@ -6,13 +6,21 @@ import (
 	"runtime"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/cloud66/cli"
 )
 
 var cmdDownload = &Command{
-	Run:        runDownload,
-	Usage:      "download -s <stack> <server name>|<server ip>|<server role> /path/to/source/file (optional: /path/to/target/directory)",
+	Name: "download",
+	Run:  runDownload,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "server",
+			Usage: "name of the server to download from",
+		},
+	},
+	Build:      buildBasicCommand,
 	NeedsStack: true,
-	Category:   "stack",
 	Short:      "copies a file from the remote server to your local computer",
 	Long: `This command will copy a file from the remote server to your local computer.
 
@@ -34,35 +42,35 @@ Names are case insensitive and will work with the starting characters as well.
 This command is only supported on Linux and OS X.
 
 Examples:
-$ cx download -s mystack lion /path/to/source/file /path/to/target/directory
-$ cx download -s mystack 52.65.34.98 /path/to/file
-$ cx download -s mystack 52.65.34.98 /path/to/source/file /path/to/target/directory
+$ cx download -s mystack --server lion /path/to/source/file /path/to/target/directory
+$ cx download -s mystack --server 52.65.34.98 /path/to/file
+$ cx download -s mystack --server 52.65.34.98 /path/to/source/file /path/to/target/directory
 `,
 }
 
-func runDownload(cmd *Command, args []string) {
+func runDownload(c *cli.Context) {
 	if runtime.GOOS == "windows" {
 		printFatal("Not supported on Windows")
 		os.Exit(2)
 	}
 
-	stack := mustStack()
+	stack := mustStack(c)
 
 	// args start after stack name
 	// and check if user specified target directory
 	var targetDirectory string = ""
 
-	if len(args) < 2 {
-		cmd.printUsage()
+	if len(c.Args()) < 1 {
+		cli.ShowCommandHelp(c, "download")
 		os.Exit(2)
-	} else if len(args) == 3 {
-		targetDirectory = args[2]
+	} else if len(c.Args()) == 2 {
+		targetDirectory = c.Args()[1]
 	}
 
 	// get the server
-	serverName := args[0]
+	serverName := c.String("server")
 	// get the file path
-	filePath := args[1]
+	filePath := c.Args()[0]
 
 	servers, err := client.Servers(stack.Uid)
 	if err != nil {

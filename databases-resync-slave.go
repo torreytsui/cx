@@ -6,35 +6,21 @@ import (
 	"time"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/cloud66/cli"
 )
 
-var cmdSlaveResync = &Command{
-	Run:        runSlaveResync,
-	Usage:      "slave-resync [--db-type <db-type>] <server name>|<server ip>",
-	NeedsStack: true,
-	Category:   "stack",
-	Short:      "re-syncs the specified slave database server with its master database server",
-	Long: `Re-syncs the specified slave database server with its master database server.
+func runSlaveResync(c *cli.Context) {
+	stack := mustStack(c)
 
-From time-to-time your slave db server might go out of sync with its master. This action attempts to re-sync your specified slave server.
-This can happen depending on many factors (such as DB size, frequency of change, networking between servers etc)
-
-Examples:
-$ cx slave-resync -s 'my stack name' postgresql_slave_name
-$ cx slave-resync -s 'my stack name' --db-type=postgresql pg_slave1
-`,
-}
-
-func runSlaveResync(cmd *Command, args []string) {
-	stack := mustStack()
-
-	if len(args) < 1 {
-		cmd.printUsage()
+	if len(c.Args()) < 1 {
+		cli.ShowSubcommandHelp(c)
 		os.Exit(2)
 	}
 
 	// get the server
-	serverName := args[0]
+	serverName := c.Args()[0]
+	flagDbType := c.String("dbtype")
 
 	servers, err := client.Servers(stack.Uid)
 	if err != nil {

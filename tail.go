@@ -6,13 +6,15 @@ import (
 	"runtime"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/cloud66/cli"
 )
 
 var cmdTail = &Command{
+	Name:       "tail",
+	Build:      buildBasicCommand,
 	Run:        runTail,
-	Usage:      "tail <server name>|<server ip>|<server role> <log filename>",
 	NeedsStack: true,
-	Category:   "stack",
 	Short:      "shows and tails the logfile specified on the given server",
 	Long: `This will run a Linux tail command on the specified server and given logfile.
 Logs are read from stack's log folder (current/log) and should be the full logfile name
@@ -29,22 +31,22 @@ $ cx tail -s mystack web staging.log
 `,
 }
 
-func runTail(cmd *Command, args []string) {
+func runTail(c *cli.Context) {
 	if runtime.GOOS == "windows" {
 		printFatal("Not supported on Windows")
 		os.Exit(2)
 	}
 
-	stack := mustStack()
+	stack := mustStack(c)
 
-	if len(args) != 2 {
-		cmd.printUsage()
+	if len(c.Args()) != 2 {
+		//cmd.printUsage()
 		os.Exit(2)
 	}
 
 	// get the server
-	serverName := args[0]
-	logName := args[1]
+	serverName := c.Args()[0]
+	logName := c.Args()[1]
 
 	servers, err := client.Servers(stack.Uid)
 	if err != nil {

@@ -8,70 +8,99 @@ import (
 	"text/tabwriter"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/cloud66/cli"
 )
 
 var cmdBackups = &Command{
-	Run:        runBackups,
-	Usage:      "backups [-l] [<db type>]",
 	NeedsStack: true,
-	Category:   "stack",
-	Short:      "lists all the managed backups of a stack",
-	Long: `This will list all the managed backups of a stack grouped by their database type and/or backup schedule
-The list will include backup id, db type, db name, backup status, last activity, restore and verification statuses.
-The -l option will return the latest successful backups.
+	Build:      buildBackups,
+	Name:       "backups",
+	Short:      "commands to work with backups",
+}
+
+func buildBackups() cli.Command {
+	base := buildBasicCommand()
+	base.Subcommands = []cli.Command{
+		cli.Command{
+			Name:   "list",
+			Usage:  "lists all the managed backups of a stack",
+			Action: runBackups,
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name: "latest,l",
+					Usage: `This will list all the managed backups of a stack grouped by their database type and/or backup schedule
+   The list will include backup id, db type, db name, backup status, last activity, restore and verification statuses.
+   The -l option will return the latest successful backups.
 
 Examples:
-$ cx backups
-23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
-23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
-34067  mysql  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
-34066  redis  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
-12802  mysql  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
-12801  redis  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
+   $ cx backups list
+   23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
+   23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
+   34067  mysql  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
+   34066  redis  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
+   12802  mysql  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
+   12801  redis  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
 
-$ cx backups mysql
-23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
-34067  mysql  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
-12802  mysql  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
+   $ cx backups list --dbtype mysql
+   23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
+   34067  mysql  mystack_production  Ok  Mar 27 13:00  Not Restored  Not Verified
+   12802  mysql  mystack_production  Ok  Mar 27 12:00  Not Restored  Not Verified
 
-$ cx backups -l
-23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
-23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
+   $ cx backups list -latest
+   23212  mysql  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
+   23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
 
-$ cx backups -l redis
-23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
+   $ cx backups list -l --dbtype redis
+   23211  redis  mystack_production  Ok  Mar 27 14:00  Not Restored  Not Verified
 `,
-}
+				},
+				cli.StringFlag{
+					Name:  "dbtype",
+					Usage: "Database type",
+				},
+			},
+		},
+		cli.Command{
+			Name:   "download",
+			Action: runDownloadBackup,
+			Usage:  "backups download [-d <download directory>] <backup Id>",
+			Description: `This downloads a backup from the available backups of a stack. This is limited to a single database type.
+The command might download multiple files in parallel and concatenate and untar them if needed. The resulting file
+can be used to manually restore the database.
 
-var (
-	flagLatest bool
-)
+-d allows you to set the directory used to download the backup. You need to have write permissions over that directory
+if no directory is specified, ~/cx_backups is used. If the directory does not exist, it will be created.
 
-func init() {
-	cmdBackups.Flag.BoolVar(&flagLatest, "l", false, "latest successful backup")
-}
+The caller needs to have admin rights over the stack.
 
-func runBackups(cmd *Command, args []string) {
-	if len(args) > 1 {
-		cmd.printUsage()
-		os.Exit(2)
+Examples:
+$ cx backups download -s mystack 123
+`,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "directory,d",
+				},
+			},
+		},
 	}
 
-	var dbType = ""
-	if len(args) == 1 {
-		dbType = args[0]
-	}
+	return base
+}
+
+func runBackups(c *cli.Context) {
+	var dbType = c.String("dbtype")
 
 	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
 	defer w.Flush()
 
-	stack := mustStack()
+	stack := mustStack(c)
 
 	backups, err := client.ManagedBackups(stack.Uid)
 	must(err)
 
 	var dbTypeGroup = map[string][]cloud66.ManagedBackup{}
-	if flagLatest {
+	if c.Bool("latest") {
 		for _, i := range backups {
 			if dbTypeGroup[i.DbType] == nil {
 				// it's a new one

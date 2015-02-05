@@ -7,35 +7,28 @@ import (
 	"time"
 
 	"github.com/cloud66/cloud66"
+
+	"github.com/cloud66/cli"
 )
 
-var cmdEnvVarsSet = &Command{
-	Run:        runEnvVarsSet,
-	Usage:      "env-vars-set <setting> <value>",
-	NeedsStack: true,
-	Category:   "stack",
-	Short:      "sets the value of an environment variable on a stack",
-	Long: `This sets and applies the value of an environment variable on a stack.
-This work happens in the background, therefore this command will return immediately after the operation has started.
-Warning! Applying environment variable changes to your stack will result in all your stack environment variables
-being sent to your stack servers, and your processes being restarted immediately.
-
-Examples:
-$ cx env-var-set -s mystack FIRST_VAR 123
-$ cx env-var-set -s mystack SECOND_ONE 'this value has a space in it'
-`,
-}
-
-func runEnvVarsSet(cmd *Command, args []string) {
-	if len(args) != 2 {
-		cmd.printUsage()
+func runEnvVarsSet(c *cli.Context) {
+	if len(c.Args()) != 1 {
+		cli.ShowSubcommandHelp(c)
 		os.Exit(2)
 	}
 
-	key := strings.ToUpper(args[0])
-	value := args[1]
+	kv := strings.ToUpper(c.Args()[0])
+	kvs := strings.Split(kv, "=")
 
-	stack := mustStack()
+	if len(kvs) != 2 {
+		cli.ShowSubcommandHelp(c)
+		os.Exit(2)
+	}
+
+	key := kvs[0]
+	value := kvs[1]
+
+	stack := mustStack(c)
 
 	envVars, err := client.StackEnvVars(stack.Uid)
 	must(err)
