@@ -93,13 +93,13 @@ func runRun(c *cli.Context) {
 		userCommand = service.WrapCommand
 	}
 
-	err = sshToServerForCommand(*server, userCommand, c.String("service"))
+	err = SshToServerForCommand(*server, userCommand, c.String("service"))
 	if err != nil {
 		printFatal(err.Error())
 	}
 }
 
-func sshToServerForCommand(server cloud66.Server, userCommand string, serviceName string) error {
+func SshToServerForCommand(server cloud66.Server, userCommand string, serviceName string) error {
 	sshFile, err := prepareLocalSshKey(server)
 	must(err)
 
