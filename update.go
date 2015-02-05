@@ -78,7 +78,7 @@ func init() {
 
 func runUpdate(c *cli.Context) {
 	debugMode = c.GlobalBool("debug")
-	flagForcedVersion := c.String("force")
+	flagForcedVersion = c.String("force")
 
 	if debugMode {
 		fmt.Printf("Current version is %s\n", VERSION)

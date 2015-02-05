@@ -75,6 +75,7 @@ func main() {
 		if cmd.Name == "" {
 			printFatal("No Name is specified for %s", cmd)
 		}
+
 		cliCommand.Name = cmd.Name
 		cliCommand.Usage = cmd.Short
 		cliCommand.Description = cmd.Long
@@ -129,7 +130,7 @@ func main() {
 
 func beforeCommand(c *cli.Context) error {
 	// set the env vars from global options
-	if c.GlobalString("runenv") != "" {
+	if c.GlobalString("runenv") != "production" {
 		tokenFile = "cx_" + c.GlobalString("runenv") + ".json"
 		fmt.Printf(ansi.Color(fmt.Sprintf("Running against %s environment\n", c.GlobalString("runenv")), "grey"))
 		honeybadger.Environment = c.GlobalString("runenv")
@@ -152,9 +153,7 @@ func beforeCommand(c *cli.Context) error {
 		initClients(c)
 	}
 
-	if command == "update" {
-		cmdUpdate.Run(c)
-	} else if VERSION != "dev" {
+	if (command != "update") && (VERSION != "dev") {
 		defer backgroundRun()
 	}
 
