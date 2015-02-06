@@ -6,11 +6,11 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/mgutz/ansi"
 	"text/tabwriter"
 
-	"github.com/cloud66/cloud66"
-
 	"github.com/cloud66/cli"
+	"github.com/cloud66/cloud66"
 )
 
 var cmdServers = &Command{
@@ -147,12 +147,19 @@ func printServerList(w io.Writer, servers []cloud66.Server) {
 
 func listServer(w io.Writer, a cloud66.Server) {
 	t := a.CreatedAt
+
+	var reboot string
+	if a.Notifications["reboot_required"].Value != nil && a.Notifications["reboot_required"].Value.(bool) {
+		reboot = ansi.Color("[reboot required]", "red+h")
+	}
+
 	listRec(w,
 		strings.ToLower(a.Name),
 		a.Address,
 		a.Roles,
 		a.Health(),
 		prettyTime{t},
+		reboot,
 	)
 }
 
