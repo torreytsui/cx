@@ -61,6 +61,15 @@ Examples:
 $ cx containers restart -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c
 `,
 		},
+		cli.Command{
+			Name:   "attach",
+			Action: runContainerAttach,
+			Usage:  "Attach to a container on the given stack",
+			Description: `Attach to a container on the given stack by container Id.
+Examples:
+$ cx containers attach -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c
+`,
+		},
 	}
 	return base
 }
