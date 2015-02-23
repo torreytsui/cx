@@ -157,6 +157,19 @@ func (s prettyTime) String() string {
 	return s.Local().Format("Jan _2  2006")
 }
 
+func HealthText(c cloud66.Container) string {
+	switch c.HealthState {
+	case cloud66.CNT_HEALTH_UNVERIFIED:
+		return "Unverified"
+	case cloud66.CNT_HEALTH_UP:
+		return fmt.Sprintf("Up (reported by %s)", c.HealthSource)
+	case cloud66.CNT_HEALTH_DOWN:
+		return fmt.Sprintf("Down (reported by %s)", c.HealthSource)
+	default:
+		return "Unknown health state"
+	}
+}
+
 type prettyDuration struct {
 	time.Duration
 }

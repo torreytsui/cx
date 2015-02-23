@@ -112,8 +112,11 @@ func printContainerList(w io.Writer, containers []cloud66.Container) {
 		"SERVICE",
 		"SERVER",
 		"CONTAINER ID",
+		"CONTAINER_NET_IP",
+		"DOCKER_IP",
 		"IMAGE",
 		"STARTED AT",
+		"HEALTH",
 	)
 
 	sort.Sort(containersByService(containers))
@@ -127,14 +130,15 @@ func printContainerList(w io.Writer, containers []cloud66.Container) {
 func listContainer(w io.Writer, a cloud66.Container) {
 	t := a.StartedAt
 
-	// fmt.Println(t.Format("20060102150405"))
-
 	listRec(w,
 		strings.ToLower(a.ServiceName),
 		a.ServerName,
 		a.Uid,
+		a.PrivateIP,
+		a.DockerIP,
 		a.Image,
 		prettyTime{t},
+		HealthText(a),
 	)
 }
 
