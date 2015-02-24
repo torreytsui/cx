@@ -133,7 +133,7 @@ func listContainer(w io.Writer, a cloud66.Container) {
 	listRec(w,
 		strings.ToLower(a.ServiceName),
 		a.ServerName,
-		a.Uid,
+		abbrev(a.Uid, 16),
 		a.PrivateIP,
 		a.DockerIP,
 		a.Image,
