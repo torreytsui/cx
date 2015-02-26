@@ -25,12 +25,12 @@ type Command struct {
 }
 
 var (
-	client     cloud66.Client
-	debugMode  bool   = false
-	VERSION    string = "dev"
-	BUILD_DATE string = ""
-	tokenFile  string = "cx.json"
-	nsqLookup  string = "nsq.cloud66.com:4161"
+	client       cloud66.Client
+	debugMode    bool   = false
+	VERSION      string = "dev"
+	BUILD_DATE   string = ""
+	tokenFile    string = "cx.json"
+	fayeEndpoint string = "https://sockets.cloud66.com:443/push"
 )
 
 var commands = []*Command{
@@ -138,8 +138,8 @@ func beforeCommand(c *cli.Context) error {
 		honeybadger.Environment = "production"
 	}
 
-	if c.GlobalString("nsqlookup") != "" {
-		nsqLookup = c.GlobalString("nsqlookup")
+	if c.GlobalString("fayeEndpoint") != "" {
+		fayeEndpoint = c.GlobalString("fayeEndpoint")
 	}
 
 	debugMode = c.GlobalBool("debug")
@@ -169,9 +169,9 @@ func setGlobals(app *cli.App) {
 			EnvVar: "CXENVIRONMENT",
 		},
 		cli.StringFlag{
-			Name:   "nsqlookup",
-			Usage:  "sets the NSQ lookup address this toolbelt is running against",
-			EnvVar: "NSQ_LOOKUP",
+			Name:   "fayeEndpoint",
+			Usage:  "sets the Faye endpoint this toolbelt is running against",
+			EnvVar: "CX_FAYE_ENDPOINT",
 		},
 		cli.BoolFlag{
 			Name:   "debug",

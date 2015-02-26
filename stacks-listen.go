@@ -3,17 +3,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
-	"math/rand"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
-	"github.com/bitly/go-nsq"
-	"github.com/bitly/nsq/util"
 	"github.com/cloud66/cli"
+	"github.com/cloud66/wray"
 	"github.com/mgutz/ansi"
 )
 
@@ -30,82 +27,62 @@ type tailHandler struct {
 	messagesShown int
 }
 
-var (
-	lookupdHTTPAddrs = util.StringArray{}
-)
-
-const (
-	totalMessages = 0
-)
-
 func runListen(c *cli.Context) {
 	stack := mustStack(c)
 
-	maxInFlight := 200
-
-	// build a ephemeral channel
-	rand.Seed(time.Now().UnixNano())
-	channel := fmt.Sprintf("listen%06d#ephemeral", rand.Int()%999999)
-	topic := stack.Uid
-
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-
-	// Don't ask for more messages than we want
-	if totalMessages > 0 && totalMessages < maxInFlight {
-		maxInFlight = totalMessages
+	if debugMode {
+		fmt.Printf("Connecting to Faye on %s\n", fayeEndpoint)
 	}
 
-	cfg := nsq.NewConfig()
-	cfg.UserAgent = fmt.Sprintf("cx/%s go-nsq/%s", VERSION, nsq.VERSION)
-	cfg.MaxInFlight = maxInFlight
+	//	sigChan := make(chan os.Signal, 1)
+	//  signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
-	consumer, err := nsq.NewConsumer(topic, channel, cfg)
-	if err != nil {
-		printFatal(err.Error())
+	channel := "/realtime/" + stack.Uid + "/*"
+
+	wray.RegisterTransports([]wray.Transport{&wray.HttpTransport{}})
+
+	fc := wray.NewFayeClient(fayeEndpoint)
+	sub := fc.Subscribe(channel, true, handleMessage)
+	if debugMode {
+		fmt.Printf("Subscribed to %s\n", sub)
 	}
+	go fc.Listen()
 
-	if !debugMode {
-		nullLogger := log.New(ioutil.Discard, "", log.LstdFlags)
-		consumer.SetLogger(nullLogger, nsq.LogLevelDebug)
-	}
-
-	consumer.AddHandler(&tailHandler{totalMessages: totalMessages})
-
-	lookupdHTTPAddrs.Set(nsqLookup)
-
-	err = consumer.ConnectToNSQLookupds(lookupdHTTPAddrs)
-	if err != nil {
-		printFatal(err.Error())
-	}
+	// handle interrupts
+	hupChan := make(chan os.Signal, 1)
+	termChan := make(chan os.Signal, 1)
+	signal.Notify(hupChan, syscall.SIGHUP)
+	signal.Notify(termChan, syscall.SIGINT, syscall.SIGTERM)
 
 	for {
 		select {
-		case <-consumer.StopChan:
+		case <-termChan:
 			return
-		case <-sigChan:
-			consumer.Stop()
+		case <-hupChan:
+			return
 		}
 	}
 }
 
-func (th *tailHandler) HandleMessage(m *nsq.Message) error {
+func handleMessage(msg wray.Message) {
 	redColor := ansi.ColorFunc("red+h")
 	capColor := ansi.ColorFunc("yellow")
 	infoColor := ansi.ColorFunc("white")
 
-	th.messagesShown++
-
-	var message logMessage
-	err := json.Unmarshal(m.Body, &message)
+	s, err := strconv.Unquote(msg.Data)
 	if err != nil {
-		fmt.Println("error:", err)
+		fmt.Println("Error: ", err)
+	}
+	var m logMessage
+	err = json.Unmarshal([]byte(s), &m)
+	if err != nil {
+		fmt.Println("Error:", err)
 	}
 
 	var level string
 	var colorFunc func(string) string
 
-	switch message.Severity {
+	switch m.Severity {
 	case 0:
 		level = "TRACE"
 		colorFunc = infoColor
@@ -129,10 +106,6 @@ func (th *tailHandler) HandleMessage(m *nsq.Message) error {
 		colorFunc = redColor
 	}
 
-	fmt.Println(colorFunc(fmt.Sprintf("%s [%s] - %s", message.Time, level, message.Message)))
+	fmt.Println(colorFunc(fmt.Sprintf("%s [%s] - %s", m.Time, level, m.Message)))
 
-	if th.totalMessages > 0 && th.messagesShown >= th.totalMessages {
-		os.Exit(0)
-	}
-	return nil
 }
