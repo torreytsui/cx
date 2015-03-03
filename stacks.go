@@ -48,6 +48,34 @@ mystack     staging      Feb 2 12:34
 `,
 		},
 		cli.Command{
+			Name:  "create",
+			Usage: "creates new docker stack",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "name,n",
+					Usage: "New docker stack name.",
+				},
+				cli.StringFlag{
+					Name:  "environment,e",
+					Usage: "New docker stack environment.",
+				},
+				cli.StringFlag{
+					Name:  "service_yaml,s",
+					Usage: "File containing your service definition.",
+				},
+				cli.StringFlag{
+					Name:  "manifest_yaml,m",
+					Usage: "File containing your manifest definition (optional)",
+				},
+			},
+			Action: runCreateStack,
+			Description: `Creates a new docker stack.
+
+Examples:
+$ cx stacks create --name my_docker_stack --environment production --service_yaml service.yml --manifest_yaml manifest.yml
+`,
+		},
+		cli.Command{
 			Name:  "redeploy",
 			Usage: "redeploys a stack",
 			Flags: []cli.Flag{
