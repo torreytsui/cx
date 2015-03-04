@@ -69,7 +69,7 @@ mystack     staging      Feb 2 12:34
 				},
 				cli.StringFlag{
 					Name:  "stack,s",
-					Usage: "Full or partial stack name. This can be omited if the current directory is a stack directory",
+					Usage: "Full or partial stack name. This can be omitted if the current directory is a stack directory",
 				},
 			},
 			Action: runRedeploy,
@@ -102,7 +102,7 @@ For more information on restart command, please refer to help.cloud66.com
 				},
 				cli.StringFlag{
 					Name:  "stack,s",
-					Usage: "Full or partial stack name. This can be omited if the current directory is a stack directory",
+					Usage: "Full or partial stack name. This can be omitted if the current directory is a stack directory",
 				},
 			},
 			Usage: "clears all existing stack code caches",
@@ -124,7 +124,7 @@ However, rebasing or forcing a commit doesn't have any association with Cloud 66
 				},
 				cli.StringFlag{
 					Name:  "stack,s",
-					Usage: "Full or partial stack name. This can be omited if the current directory is a stack directory",
+					Usage: "Full or partial stack name. This can be omitted if the current directory is a stack directory",
 				},
 			},
 			Description: `This acts as a log tail for deployment of a stack so you don't have to follow the deployment on the web.
@@ -214,7 +214,7 @@ func basicFlags() []cli.Flag {
 		},
 		cli.StringFlag{
 			Name:  "stack,s",
-			Usage: "Full or partial stack name. This can be omited if the current directory is a stack directory",
+			Usage: "Full or partial stack name. This can be omitted if the current directory is a stack directory",
 		},
 	}
 }

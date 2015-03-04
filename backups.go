@@ -83,6 +83,40 @@ $ cx backups download -s mystack 123
 				},
 			},
 		},
+		cli.Command{
+			Name:   "new - create a new backup task for your stack.",
+			Action: runNewBackup,
+			Usage:  "backups new [--dbtypes=<dbtypes>] [--frequency=<frequency>] [--keep=<keep>]  [--gzip=<gzip>] [--exclude-tables=<exclude-tables>]  [--run-on-replica=<run-on-replica>]  ",
+			Description: `Create a new backup task for your stack.
+Examples:
+$ cx backups new -s mystack	--dbtypes=postgresql --frequency="0 */1 * * *" --gzip=true exclude-tables=my_log_table --run-on-replica=false`,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "dbtypes",
+					Usage: "Comma separated list of Database types which need backup tasks i.e mysql,postgresql, ...",
+				},
+				cli.StringFlag{
+					Name:  "frequency",
+					Usage: "Frequency of backup task in cron schedule format. Put cron string in double quotes i.e \"0 */2 * * *\"  ",
+				},
+				cli.IntFlag{
+					Name:  "keep",
+					Usage: "Number of previous backups to keep",
+				},
+				cli.BoolFlag{
+					Name:  "gzip",
+					Usage: "Compress your backups with gzip",
+				},
+				cli.StringFlag{
+					Name:  "exclude-tables",
+					Usage: "Tables that must be excluded from the backup",
+				},
+				cli.BoolFlag{
+					Name:  "run-on-replica",
+					Usage: "Run backup task on replica server if available",
+				},
+			},
+		},
 	}
 
 	return base
