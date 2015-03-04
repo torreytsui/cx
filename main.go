@@ -87,7 +87,7 @@ func main() {
 				cliCommand.Flags = append(cliCommand.Flags,
 					cli.StringFlag{
 						Name:  "stack,s",
-						Usage: "Full or partial stack name. This can be omited if the current directory is a stack directory",
+						Usage: "Full or partial stack name. This can be omitted if the current directory is a stack directory",
 					}, cli.StringFlag{
 						Name:  "environment,e",
 						Usage: "Full or partial environment name.",
@@ -99,7 +99,7 @@ func main() {
 					sub.Flags = append(sub.Flags,
 						cli.StringFlag{
 							Name:  "stack,s",
-							Usage: "Full or partial stack name. This can be omited if the current directory is a stack directory",
+							Usage: "Full or partial stack name. This can be omitted if the current directory is a stack directory",
 						}, cli.StringFlag{
 							Name:  "environment,e",
 							Usage: "Full or partial environment name.",
