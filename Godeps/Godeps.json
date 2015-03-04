@@ -1,0 +1,63 @@
+{
+	"ImportPath": "github.com/cloud66/cx",
+	"GoVersion": "go1.4.1",
+	"Deps": [
+		{
+			"ImportPath": "bitbucket.org/kardianos/osext",
+			"Comment": "null-9",
+			"Rev": "364fb577de68fb646c4cb39cc0e09c887ee16376"
+		},
+		{
+			"ImportPath": "code.google.com/p/go-uuid/uuid",
+			"Comment": "null-10",
+			"Rev": "5fac954758f5aa282478dc07fbb8709fe9575184"
+		},
+		{
+			"ImportPath": "code.google.com/p/goauth2/oauth",
+			"Comment": "weekly-43",
+			"Rev": "d4571a95014ff1fdd0055dc0f6b7e977a42b1e5a"
+		},
+		{
+			"ImportPath": "github.com/cloud66/cli",
+			"Comment": "1.2.0-65-g99fe3ed",
+			"Rev": "99fe3ed9502b7ed1fb1e2b39de0e4ca618123c12"
+		},
+		{
+			"ImportPath": "github.com/cloud66/cloud66",
+			"Comment": "0.1.15-7-gaf27675",
+			"Rev": "af2767589ac8d9fd881f51adb60bd819e3d82a7d"
+		},
+		{
+			"ImportPath": "github.com/cloud66/fayego/fayeclient",
+			"Rev": "95df6d2fd2d062752e423aee118ab15361cc6339"
+		},
+		{
+			"ImportPath": "github.com/cloud66/fayego/fayeserver",
+			"Rev": "95df6d2fd2d062752e423aee118ab15361cc6339"
+		},
+		{
+			"ImportPath": "github.com/cloud66/wray",
+			"Rev": "7dda1a149080e097f44c22c1d73f7e6edf6f869a"
+		},
+		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Rev": "365b7a442dd6798d7982f6ece83aee286cc53c62"
+		},
+		{
+			"ImportPath": "github.com/inconshreveable/go-update",
+			"Rev": "276093003334bfddde2b1759b864b7c59f38b55e"
+		},
+		{
+			"ImportPath": "github.com/jcoene/honeybadger",
+			"Rev": "f2235d5e1d34164e4e3b6892a41a3647564ad71a"
+		},
+		{
+			"ImportPath": "github.com/kr/binarydist",
+			"Rev": "9955b0ab8708602d411341e55fffd7e0700f86bd"
+		},
+		{
+			"ImportPath": "github.com/mgutz/ansi",
+			"Rev": "376eb392d7d7e2ae025da0037c73cf8c20a428d8"
+		}
+	]
+}
