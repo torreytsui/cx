@@ -8,9 +8,10 @@ import (
 
 	"text/tabwriter"
 
-	"github.com/cloud66/cloud66"
+	"github.com/mgutz/ansi"
 
 	"github.com/cloud66/cli"
+	"github.com/cloud66/cloud66"
 )
 
 var cmdServers = &Command{
@@ -49,7 +50,7 @@ orca         162.243.201.164  [rails web app]  Healthy   Mar 26 11:23
 					Flags: []cli.Flag{
 						cli.StringFlag{
 							Name:  "stack,s",
-							Usage: "Full or partial stack name. This can be omited if the current directory is a stack directory",
+							Usage: "Full or partial stack name. This can be omitted if the current directory is a stack directory",
 						},
 						cli.StringFlag{
 							Name:  "environment,e",
@@ -80,7 +81,7 @@ server.name         tiger                                                      f
 					Flags: []cli.Flag{
 						cli.StringFlag{
 							Name:  "stack,s",
-							Usage: "Full or partial stack name. This can be omited if the current directory is a stack directory",
+							Usage: "Full or partial stack name. This can be omitted if the current directory is a stack directory",
 						},
 						cli.StringFlag{
 							Name:  "environment,e",
@@ -147,12 +148,19 @@ func printServerList(w io.Writer, servers []cloud66.Server) {
 
 func listServer(w io.Writer, a cloud66.Server) {
 	t := a.CreatedAt
+
+	var reboot string
+	if a.Notifications["reboot_required"].Value != nil && a.Notifications["reboot_required"].Value.(bool) {
+		reboot = ansi.Color("[reboot required]", "red+h")
+	}
+
 	listRec(w,
 		strings.ToLower(a.Name),
 		a.Address,
 		a.Roles,
 		a.Health(),
 		prettyTime{t},
+		reboot,
 	)
 }
 
