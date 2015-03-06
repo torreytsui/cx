@@ -83,7 +83,10 @@ func runCreateStack(c *cli.Context) {
 	err = initiateBuildStack(stack.Uid)
 	must(err)
 
-	stack, err = waitForBuild(stack)
+	// logging output
+	go StartListen(stack)
+
+	stack, err = waitForBuild(stack.Uid)
 	must(err)
 	fmt.Println("Stack build completed successfully!")
 }
@@ -105,12 +108,8 @@ func initiateBuildStack(stackUid string) error {
 	return err
 }
 
-func waitForBuild(stack *cloud66.Stack) (*cloud66.Stack, error) {
-
-	// log output
-	StartListen(stack)
-	return nil, nil
-	// return client.WaitStackBuild(stackUid)
+func waitForBuild(stackUid string) (*cloud66.Stack, error) {
+	return client.WaitStackBuild(stackUid, false)
 }
 
 func askForCloud(accountInfo cloud66.Account) (string, error) {
