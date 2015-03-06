@@ -76,17 +76,16 @@ func runCreateStack(c *cli.Context) {
 	must(err)
 
 	// wait for the stack analysis to complete
-	genericRes, err := endCreateStack(*asyncId, stack.Uid)
+	_, err = endCreateStack(*asyncId, stack.Uid)
 	must(err)
-	printGenericResponse(*genericRes)
+	fmt.Printf("\nStack created; Build starting...\n\n")
 
-	fmt.Println("Stack created; Build starting")
 	err = initiateBuildStack(stack.Uid)
 	must(err)
 
-	stack, err = waitForBuild(stack.Uid)
+	stack, err = waitForBuild(stack)
 	must(err)
-	fmt.Println("Stack build completed successfully")
+	fmt.Println("Stack build completed successfully!")
 }
 
 func startCreateStack(name, environment, serviceYaml, manifestYaml string, targetOptions map[string]string) (*int, error) {
@@ -98,7 +97,7 @@ func startCreateStack(name, environment, serviceYaml, manifestYaml string, targe
 }
 
 func endCreateStack(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
-	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute, true)
+	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute, false)
 }
 
 func initiateBuildStack(stackUid string) error {
@@ -106,8 +105,12 @@ func initiateBuildStack(stackUid string) error {
 	return err
 }
 
-func waitForBuild(stackUid string) (*cloud66.Stack, error) {
-	return client.WaitStackBuild(stackUid)
+func waitForBuild(stack *cloud66.Stack) (*cloud66.Stack, error) {
+
+	// log output
+	StartListen(stack)
+	return nil, nil
+	// return client.WaitStackBuild(stackUid)
 }
 
 func askForCloud(accountInfo cloud66.Account) (string, error) {
