@@ -15,9 +15,9 @@ import (
 	"os/exec"
 	"runtime"
 
-	"bitbucket.org/kardianos/osext"
 	"github.com/cloud66/cli"
 	"github.com/inconshreveable/go-update"
+	"github.com/kardianos/osext"
 )
 
 var cmdUpdate = &Command{
