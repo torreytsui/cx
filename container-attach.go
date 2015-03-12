@@ -14,6 +14,8 @@ func runContainerAttach(c *cli.Context) {
 		os.Exit(2)
 	}
 
+	fmt.Println("Attaching to container...")
+
 	stack := mustStack(c)
 	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
 	defer w.Flush()

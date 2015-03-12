@@ -70,6 +70,37 @@ Examples:
 $ cx containers attach -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c
 `,
 		},
+		cli.Command{
+			Name:   "start",
+			Action: runContainerStart,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "service",
+					Usage: "service to start",
+				},
+				cli.StringFlag{
+					Name:  "server",
+					Usage: "server to start the container on",
+				},
+				cli.BoolFlag{
+					Name:  "attach",
+					Usage: "Attach to the started container after start. Default is true",
+				},
+				cli.BoolFlag{
+					Name:  "no-kill",
+					Usage: "Don't kill the container after detach. Default is false.",
+				},
+				cli.StringFlag{
+					Name:  "command",
+					Usage: "Command to run. If not provided, uses the default command of the service",
+				},
+			},
+			Usage: "Start a container on a specific server",
+			Description: `Starts a container with network with an option to attach to it.
+Examples:
+$ cx containers start -s mystack --service my_service
+`,
+		},
 	}
 	return base
 }
