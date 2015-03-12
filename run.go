@@ -65,12 +65,17 @@ func runRun(c *cli.Context) {
 
 	serverName := c.String("server")
 
-	if len(c.Args()) != 1 {
-		cli.ShowCommandHelp(c, "run")
-		os.Exit(2)
+	if !c.IsSet("service") {
+		if len(c.Args()) != 1 {
+			cli.ShowCommandHelp(c, "run")
+			os.Exit(2)
+		}
 	}
 
-	userCommand := c.Args()[0]
+	userCommand := ""
+	if len(c.Args()) == 1 {
+		userCommand = c.Args()[0]
+	}
 
 	servers, err := client.Servers(stack.Uid)
 	if err != nil {
