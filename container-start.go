@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/signal"
 	"text/tabwriter"
 
 	"github.com/cloud66/cli"
@@ -56,23 +57,28 @@ func runContainerStart(c *cli.Context) {
 		fmt.Println("Attaching to the container...")
 		userCommand := fmt.Sprintf("sudo docker attach --sig-proxy=false %s", container.Uid)
 
+		if !noKill {
+			c := make(chan os.Signal, 1)
+			signal.Notify(c, os.Interrupt)
+			go func() {
+				for sig := range c {
+					fmt.Printf("Stopping container with %s...\n", sig)
+					asyncId, err := startContainerStop(stack.Uid, container.Uid)
+					if err != nil {
+						printFatal(err.Error())
+					}
+					genericRes, err := endServerSet(*asyncId, stack.Uid)
+					if err != nil {
+						printFatal(err.Error())
+					}
+					printGenericResponse(*genericRes)
+				}
+			}()
+		}
+
 		err = SshToServerForCommand(*server, userCommand, "")
 		if err != nil {
 			printFatal(err.Error())
-		}
-
-		// NOTE: doesn't work since the signal is trapped by the SSH
-		if !noKill {
-			fmt.Println("Stopping container...")
-			asyncId, err := startContainerStop(stack.Uid, container.Uid)
-			if err != nil {
-				printFatal(err.Error())
-			}
-			genericRes, err := endServerSet(*asyncId, stack.Uid)
-			if err != nil {
-				printFatal(err.Error())
-			}
-			printGenericResponse(*genericRes)
 		}
 	}
 
