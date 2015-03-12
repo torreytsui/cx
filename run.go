@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"runtime"
 
@@ -112,6 +113,7 @@ func SshToServerForCommand(server cloud66.Server, userCommand string, serviceNam
 	}
 
 	if serviceName != "" {
+		fmt.Println("Note: you may need to push <enter> to view output after the connection completes..")
 		return startProgram("ssh", []string{
 			server.UserName + "@" + server.Address,
 			"-i", sshFile,

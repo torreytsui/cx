@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/cloud66/cli"
+	"github.com/cloud66/cloud66"
 	"github.com/cloud66/wray"
 	"github.com/mgutz/ansi"
 )
@@ -30,6 +31,10 @@ type tailHandler struct {
 func runListen(c *cli.Context) {
 	stack := mustStack(c)
 
+	StartListen(stack)
+}
+
+func StartListen(stack *cloud66.Stack) {
 	if debugMode {
 		fmt.Printf("Connecting to Faye on %s\n", fayeEndpoint)
 	}
