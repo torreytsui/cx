@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/user"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -34,6 +35,16 @@ func fileExists(path string) (bool, error) {
 		return false, nil
 	}
 	return false, err
+}
+
+func expandPath(filePath string) string {
+	if filePath[:2] == "~/" {
+		usr, _ := user.Current()
+		dir := usr.HomeDir
+		return strings.Replace(filePath, "~", dir, 1)
+	} else {
+		return filePath
+	}
 }
 
 // concatenates the file content and returns a new one
@@ -71,10 +82,10 @@ func appendFiles(files []string, filename string) error {
 
 func must(err error) {
 	if err != nil {
-		printFatal(err.Error())
 		if debugMode {
 			log.Fatal(err)
 		}
+		printFatal(err.Error())
 	}
 }
 
