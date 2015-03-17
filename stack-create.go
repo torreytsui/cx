@@ -108,10 +108,6 @@ func initiateBuildStack(stackUid string) error {
 	return err
 }
 
-func waitForBuild(stackUid string) (*cloud66.Stack, error) {
-	return client.WaitStackBuild(stackUid, false)
-}
-
 func askForCloud(accountInfo cloud66.Account) (string, error) {
 	if len(accountInfo.UsedClouds) == 0 {
 		return "", errors.New("No available cloud providers in current account, please add via the Cloud 66 UI")
@@ -223,4 +219,54 @@ func currentAccountInfo() (*cloud66.Account, error) {
 		}
 	}
 	return nil, errors.New("No account found for current user")
+}
+
+func sleep(done chan<- bool) {
+	time.Sleep(pollInterval)
+	done <- r
+}
+
+func waitStackBuild(stackUid string) (*Stack, error) {
+	timeout := 3 * time.Hour
+	checkFrequency := 1 * time.Minute
+	timeoutTime := time.Now().Add(timeout)
+
+	// handle interrupts
+	termChan := make(chan os.Signal, 1)
+	signal.Notify(termChan, syscall.SIGINT, syscall.SIGTERM)
+
+	updates := time.NewTicker(checkFrequency)
+	complete := make(chan *Stack)
+	ticker := time.NewTicker(updateInterval)
+
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				fmt.Printf(".")
+
+			case <-updates:
+				// fetch the current status of the async action
+				stack, err := c.FindStackByUid(stackUid)
+				if err != nil {
+					return nil, err
+				}
+				// check for a result!
+				if (stack.StatusCode == 1 || stack.StatusCode == 2 || stack.StatusCode == 7) &&
+					(stack.HealthCode == 2 || stack.HealthCode == 3 || stack.HealthCode == 4) {
+					complete <- stack
+				}
+
+			case <-termChan:
+				return
+			}
+		}
+	}()
+
+	for {
+		select {
+		case stack <- complete:
+			return stack, nil
+		}
+	}
 }
