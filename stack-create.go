@@ -223,11 +223,6 @@ func currentAccountInfo() (*cloud66.Account, error) {
 	return nil, errors.New("No account found for current user")
 }
 
-// func sleep(done chan<- bool) {
-// 	time.Sleep(pollInterval)
-// 	done <- r
-// }
-
 func waitStackBuild(stackUid string, visualFeedback bool) (*cloud66.Stack, error) {
 
 	// timout timer
