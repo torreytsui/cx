@@ -88,7 +88,7 @@ func runCreateStack(c *cli.Context) {
 	// logging output
 	go StartListen(stack)
 
-	stack, err = waitStackBuild(stack.Uid, true)
+	stack, err = waitStackBuild(stack.Uid, false)
 	must(err)
 	fmt.Println("Stack build completed successfully!")
 }
@@ -239,7 +239,7 @@ func waitStackBuild(stackUid string, visualFeedback bool) (*cloud66.Stack, error
 	defer updateTicker.Stop()
 
 	// perform visual feedbacks
-	visualTicker := time.NewTicker(30 * time.Second)
+	visualTicker := time.NewTicker(20 * time.Second)
 	defer visualTicker.Stop()
 
 	// capture results
