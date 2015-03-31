@@ -70,8 +70,11 @@ func main() {
 	app := cli.NewApp()
 
 	cmds := []cli.Command{}
+
 	for _, cmd := range commands {
+
 		cliCommand := cmd.Build()
+
 		if cmd.Name == "" {
 			printFatal("No Name is specified for %s", cmd)
 		}
@@ -87,10 +90,10 @@ func main() {
 				cliCommand.Flags = append(cliCommand.Flags,
 					cli.StringFlag{
 						Name:  "stack,s",
-						Usage: "Full or partial stack name. This can be omitted if the current directory is a stack directory",
+						Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
 					}, cli.StringFlag{
 						Name:  "environment,e",
-						Usage: "Full or partial environment name.",
+						Usage: "full or partial environment name",
 					})
 			}
 		} else {
@@ -99,10 +102,10 @@ func main() {
 					sub.Flags = append(sub.Flags,
 						cli.StringFlag{
 							Name:  "stack,s",
-							Usage: "Full or partial stack name. This can be omitted if the current directory is a stack directory",
+							Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
 						}, cli.StringFlag{
 							Name:  "environment,e",
-							Usage: "Full or partial environment name.",
+							Usage: "full or partial environment name",
 						})
 				}
 
@@ -124,7 +127,6 @@ func main() {
 	app.Action = doMain
 
 	setGlobals(app)
-
 	app.Run(os.Args)
 }
 

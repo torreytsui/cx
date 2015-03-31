@@ -27,7 +27,7 @@ func buildStacks() cli.Command {
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "environment,e",
-					Usage: "Full or partial environment name.",
+					Usage: "full or partial environment name",
 				},
 			},
 			Action: runStacks,
@@ -85,19 +85,20 @@ $ cx stacks create --name my_docker_stack --environment production --service_yam
 				},
 				cli.StringFlag{
 					Name:  "git-ref",
-					Usage: "git reference",
+					Usage: "[classic stacks] git reference",
 				},
-				cli.StringFlag{
-					Name:  "services",
-					Usage: "comma separated list of services to include in the deploy",
+				cli.StringSliceFlag{
+					Name:  "service",
+					Usage: "[docker stacks] service name (and optional colon separated reference) to include in the deploy. Repeatable for multiple services",
+					Value: &cli.StringSlice{},
 				},
 				cli.StringFlag{
 					Name:  "environment,e",
-					Usage: "Full or partial environment name.",
+					Usage: "full or partial environment name",
 				},
 				cli.StringFlag{
 					Name:  "stack,s",
-					Usage: "Full or partial stack name. This can be omitted if the current directory is a stack directory",
+					Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
 				},
 			},
 			Action: runRedeploy,
@@ -106,8 +107,8 @@ If the stack is already building, another build will be enqueued and performed i
 after the current one is finished.
 
 -y answers yes to confirmation question if the stack is production.
---git-ref will redeploy the specific branch, tag or hash git reference (non-docker stacks)
---services will deploy the specified services from your stack only (docker stacks)
+--git-ref will redeploy the specific branch, tag or hash git reference [classic stacks]
+--service is a repeateable option to deploy only the specified service(s). Including a reference (separated by a colon) will attempt to deploy that particular reference for that service [docker stacks]
 `,
 		},
 		cli.Command{
@@ -126,11 +127,11 @@ For more information on restart command, please refer to help.cloud66.com
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "environment,e",
-					Usage: "Full or partial environment name.",
+					Usage: "full or partial environment name",
 				},
 				cli.StringFlag{
 					Name:  "stack,s",
-					Usage: "Full or partial stack name. This can be omitted if the current directory is a stack directory",
+					Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
 				},
 			},
 			Usage: "clears all existing stack code caches",
@@ -148,11 +149,11 @@ However, rebasing or forcing a commit doesn't have any association with Cloud 66
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "environment,e",
-					Usage: "Full or partial environment name.",
+					Usage: "full or partial environment name",
 				},
 				cli.StringFlag{
 					Name:  "stack,s",
-					Usage: "Full or partial stack name. This can be omitted if the current directory is a stack directory",
+					Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
 				},
 			},
 			Description: `This acts as a log tail for deployment of a stack so you don't have to follow the deployment on the web.
@@ -238,11 +239,11 @@ func basicFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
 			Name:  "environment,e",
-			Usage: "Full or partial environment name.",
+			Usage: "full or partial environment name",
 		},
 		cli.StringFlag{
 			Name:  "stack,s",
-			Usage: "Full or partial stack name. This can be omitted if the current directory is a stack directory",
+			Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
 		},
 	}
 }

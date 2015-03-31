@@ -88,7 +88,7 @@ func runCreateStack(c *cli.Context) {
 	// logging output
 	go StartListen(stack)
 
-	stack, err = waitStackBuild(stack.Uid, false)
+	stack, err = WaitStackBuild(stack.Uid, false)
 	must(err)
 	fmt.Println("Stack build completed successfully!")
 }
@@ -106,7 +106,7 @@ func endCreateStack(asyncId int, stackUid string) (*cloud66.GenericResponse, err
 }
 
 func initiateStackBuild(stackUid string) error {
-	_, err := client.RedeployStack(stackUid, "", "")
+	_, err := client.RedeployStack(stackUid, "", nil)
 	return err
 }
 
@@ -223,7 +223,7 @@ func currentAccountInfo() (*cloud66.Account, error) {
 	return nil, errors.New("No account found for current user")
 }
 
-func waitStackBuild(stackUid string, visualFeedback bool) (*cloud66.Stack, error) {
+func WaitStackBuild(stackUid string, visualFeedback bool) (*cloud66.Stack, error) {
 
 	// timout timer
 	timeout := 3 * time.Hour
