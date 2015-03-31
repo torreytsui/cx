@@ -70,8 +70,11 @@ func main() {
 	app := cli.NewApp()
 
 	cmds := []cli.Command{}
+
 	for _, cmd := range commands {
+
 		cliCommand := cmd.Build()
+
 		if cmd.Name == "" {
 			printFatal("No Name is specified for %s", cmd)
 		}
@@ -87,10 +90,10 @@ func main() {
 				cliCommand.Flags = append(cliCommand.Flags,
 					cli.StringFlag{
 						Name:  "stack,s",
-						Usage: "Full or partial stack name. This can be omitted if the current directory is a stack directory",
+						Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
 					}, cli.StringFlag{
 						Name:  "environment,e",
-						Usage: "Full or partial environment name.",
+						Usage: "full or partial environment name",
 					})
 			}
 		} else {
@@ -99,10 +102,10 @@ func main() {
 					sub.Flags = append(sub.Flags,
 						cli.StringFlag{
 							Name:  "stack,s",
-							Usage: "Full or partial stack name. This can be omitted if the current directory is a stack directory",
+							Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
 						}, cli.StringFlag{
 							Name:  "environment,e",
-							Usage: "Full or partial environment name.",
+							Usage: "full or partial environment name",
 						})
 				}
 
@@ -124,7 +127,6 @@ func main() {
 	app.Action = doMain
 
 	setGlobals(app)
-
 	app.Run(os.Args)
 }
 
@@ -225,11 +227,17 @@ func recoverPanic() {
 	}
 }
 
-func filterByEnvironment(item interface{}) bool {
+func filterByEnvironmentExact(item interface{}) bool {
 	if flagEnvironment == "" {
 		return true
 	}
+	return strings.ToLower(item.(cloud66.Stack).Environment) == strings.ToLower(flagEnvironment)
+}
 
+func filterByEnvironmentFuzzy(item interface{}) bool {
+	if flagEnvironment == "" {
+		return true
+	}
 	return strings.HasPrefix(strings.ToLower(item.(cloud66.Stack).Environment), strings.ToLower(flagEnvironment))
 }
 
@@ -244,7 +252,7 @@ func stack(c *cli.Context) (*cloud66.Stack, error) {
 
 	var err error
 	if c.String("stack") != "" {
-		stacks, err := client.StackListWithFilter(filterByEnvironment)
+		stacks, err := client.StackListWithFilter(filterByEnvironmentExact)
 		if err != nil {
 			return nil, err
 		}
@@ -254,7 +262,19 @@ func stack(c *cli.Context) (*cloud66.Stack, error) {
 		}
 		idx, err := fuzzyFind(stackNames, c.String("stack"), false)
 		if err != nil {
-			return nil, err
+			// try fuzzy env match
+			stacks, err = client.StackListWithFilter(filterByEnvironmentFuzzy)
+			if err != nil {
+				return nil, err
+			}
+			var stackFuzzNames []string
+			for _, stack := range stacks {
+				stackFuzzNames = append(stackFuzzNames, stack.Name)
+			}
+			idx, err = fuzzyFind(stackFuzzNames, c.String("stack"), false)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		flagStack = &stacks[idx]

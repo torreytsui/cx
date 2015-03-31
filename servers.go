@@ -50,11 +50,11 @@ orca         162.243.201.164  [rails web app]  Healthy   Mar 26 11:23
 					Flags: []cli.Flag{
 						cli.StringFlag{
 							Name:  "stack,s",
-							Usage: "Full or partial stack name. This can be omitted if the current directory is a stack directory",
+							Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
 						},
 						cli.StringFlag{
 							Name:  "environment,e",
-							Usage: "Full or partial environment name.",
+							Usage: "full or partial environment name",
 						},
 						cli.StringFlag{
 							Name:  "server",
@@ -81,11 +81,11 @@ server.name         tiger                                                      f
 					Flags: []cli.Flag{
 						cli.StringFlag{
 							Name:  "stack,s",
-							Usage: "Full or partial stack name. This can be omitted if the current directory is a stack directory",
+							Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
 						},
 						cli.StringFlag{
 							Name:  "environment,e",
-							Usage: "Full or partial environment name.",
+							Usage: "full or partial environment name",
 						},
 						cli.StringFlag{
 							Name:  "server",

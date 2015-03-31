@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/cloud66/cloud66"
@@ -80,13 +82,13 @@ func runCreateStack(c *cli.Context) {
 	must(err)
 	fmt.Printf("\nStack created; Build starting...\n\n")
 
-	err = initiateBuildStack(stack.Uid)
+	err = initiateStackBuild(stack.Uid)
 	must(err)
 
 	// logging output
 	go StartListen(stack)
 
-	stack, err = waitForBuild(stack.Uid)
+	stack, err = WaitStackBuild(stack.Uid, false)
 	must(err)
 	fmt.Println("Stack build completed successfully!")
 }
@@ -103,13 +105,13 @@ func endCreateStack(asyncId int, stackUid string) (*cloud66.GenericResponse, err
 	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute, false)
 }
 
-func initiateBuildStack(stackUid string) error {
-	_, err := client.RedeployStack(stackUid, "", "")
+func initiateStackBuild(stackUid string) error {
+	_, err := client.RedeployStack(stackUid, "", nil)
 	return err
 }
 
 func waitForBuild(stackUid string) (*cloud66.Stack, error) {
-	return client.WaitStackBuild(stackUid, false)
+	return WaitStackBuild(stackUid, false)
 }
 
 func askForCloud(accountInfo cloud66.Account) (string, error) {
@@ -223,4 +225,73 @@ func currentAccountInfo() (*cloud66.Account, error) {
 		}
 	}
 	return nil, errors.New("No account found for current user")
+}
+
+func WaitStackBuild(stackUid string, visualFeedback bool) (*cloud66.Stack, error) {
+
+	// timout timer
+	timeout := 3 * time.Hour
+	timeoutTimer := time.NewTimer(timeout)
+	defer timeoutTimer.Stop()
+
+	// handle interrupts
+	termChan := make(chan os.Signal, 1)
+	signal.Notify(termChan, syscall.SIGINT, syscall.SIGTERM)
+
+	// perform checks
+	updateTicker := time.NewTicker(1 * time.Minute)
+	defer updateTicker.Stop()
+
+	// perform visual feedbacks
+	visualTicker := time.NewTicker(20 * time.Second)
+	defer visualTicker.Stop()
+
+	// capture results
+	completeChan := make(chan *cloud66.Stack)
+	errorChan := make(chan error)
+
+	go func() {
+		for {
+			select {
+			case <-visualTicker.C:
+				if visualFeedback {
+					fmt.Printf(".")
+				}
+
+			case <-updateTicker.C:
+				// fetch the current status of the async action
+				stack, err := client.FindStackByUid(stackUid)
+				if err != nil {
+					errorChan <- err
+					return
+				}
+				// check for a result!
+				if (stack.StatusCode == 1 || stack.StatusCode == 2 || stack.StatusCode == 7) &&
+					(stack.HealthCode == 2 || stack.HealthCode == 3 || stack.HealthCode == 4) {
+					completeChan <- stack
+					return
+				}
+
+			case <-timeoutTimer.C:
+				// too late! abort!
+				errorChan <- errors.New("timed-out after " + strconv.FormatInt(int64(timeout)/int64(time.Second), 10) + " second(s)")
+				return
+
+			case <-termChan:
+				// too late! abort!
+				errorChan <- errors.New("Aborted!")
+				return
+			}
+		}
+	}()
+
+	for {
+		select {
+		case stack := <-completeChan:
+			return stack, nil
+
+		case err := <-errorChan:
+			return nil, err
+		}
+	}
 }
