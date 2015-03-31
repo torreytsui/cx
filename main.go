@@ -263,7 +263,7 @@ func stack(c *cli.Context) (*cloud66.Stack, error) {
 		idx, err := fuzzyFind(stackNames, c.String("stack"), false)
 		if err != nil {
 			// try fuzzy env match
-			stacks, err := client.StackListWithFilter(filterByEnvironmentFuzzy)
+			stacks, err = client.StackListWithFilter(filterByEnvironmentFuzzy)
 			if err != nil {
 				return nil, err
 			}
