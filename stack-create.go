@@ -110,10 +110,6 @@ func initiateStackBuild(stackUid string) error {
 	return err
 }
 
-func waitForBuild(stackUid string) (*cloud66.Stack, error) {
-	return WaitStackBuild(stackUid, false)
-}
-
 func askForCloud(accountInfo cloud66.Account) (string, error) {
 	if len(accountInfo.UsedClouds) == 0 {
 		return "", errors.New("No available cloud providers in current account, please add via the Cloud 66 UI")
