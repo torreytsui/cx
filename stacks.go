@@ -92,6 +92,10 @@ $ cx stacks create --name my_docker_stack --environment production --service_yam
 					Usage: "[docker stacks] service name (and optional colon separated reference) to include in the deploy. Repeatable for multiple services",
 					Value: &cli.StringSlice{},
 				},
+				cli.BoolFlag{
+					Name:  "listen",
+					Usage: "show stack deployment progress and log output",
+				},
 				cli.StringFlag{
 					Name:  "environment,e",
 					Usage: "full or partial environment name",

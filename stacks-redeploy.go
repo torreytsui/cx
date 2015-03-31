@@ -16,6 +16,10 @@ var cmdRedeploy = &Command{
 			Name:  "y",
 			Usage: "answer yes to confirmations",
 		},
+		cli.BoolFlag{
+			Name:  "listen",
+			Usage: "show stack deployment progress and log output",
+		},
 		cli.StringFlag{
 			Name:  "git-ref",
 			Usage: "[classic stacks] git reference",
@@ -53,7 +57,7 @@ func runRedeploy(c *cli.Context) {
 	result, err := client.RedeployStack(stack.Uid, c.String("git-ref"), c.StringSlice("service"))
 	must(err)
 
-	if result.Queued {
+	if !c.Bool("listen") || result.Queued {
 		// its queued - just message and exit
 		fmt.Println(result.Message)
 	} else {
