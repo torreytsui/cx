@@ -48,9 +48,9 @@ func StartListen(stack *cloud66.Stack) {
 
 	fc := wray.NewFayeClient(fayeEndpoint)
 	sub := fc.Subscribe(channel, true, handleMessage)
-	// if debugMode {
-	// fmt.Printf("Subscribed to %s\n", sub)
-	// }
+	if debugMode {
+		fmt.Printf("Subscribed to %s\n", sub)
+	}
 	go fc.Listen()
 
 	// handle interrupts
