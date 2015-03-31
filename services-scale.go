@@ -23,6 +23,7 @@ func runServiceScale(c *cli.Context) {
 	count := c.Args()[1]
 
 	flagServer := c.String("server")
+	flagGroup := c.String("group")
 
 	// fetch servers info
 	servers, err := client.Servers(stack.Uid)
@@ -41,6 +42,12 @@ func runServiceScale(c *cli.Context) {
 		// filter servers collection down
 		servers = make([]cloud66.Server, 1)
 		servers[0] = *server
+	}
+
+	if flagGroup != "" {
+		if flagGroup != "web" {
+			printFatal("Only web group is supported at the moment")
+		}
 	}
 
 	// param for api call
@@ -80,7 +87,15 @@ func runServiceScale(c *cli.Context) {
 
 	fmt.Println("Scaling your '" + serviceName + "' service")
 
-	asyncId, err := startServiceScale(stack.Uid, serviceName, serverCountDesired)
+	var asyncId *int
+	if flagGroup != "" {
+		var groupMap = make(map[string]int)
+		groupMap["web"] = absoluteCount
+		asyncId, err = startServiceScaleByGroup(stack.Uid, serviceName, groupMap)
+	} else {
+		asyncId, err = startServiceScale(stack.Uid, serviceName, serverCountDesired)
+	}
+
 	must(err)
 	genericRes, err := endServiceScale(*asyncId, stack.Uid)
 	must(err)
@@ -90,6 +105,12 @@ func runServiceScale(c *cli.Context) {
 
 func startServiceScale(stackUid string, serviceName string, serverCount map[string]int) (*int, error) {
 	asyncRes, err := client.ScaleService(stackUid, serviceName, serverCount)
+	must(err)
+	return &asyncRes.Id, err
+}
+
+func startServiceScaleByGroup(stackUid string, serviceName string, groupCount map[string]int) (*int, error) {
+	asyncRes, err := client.ScaleServiceByGroup(stackUid, serviceName, groupCount)
 	must(err)
 	return &asyncRes.Id, err
 }

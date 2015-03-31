@@ -69,16 +69,21 @@ $ cx services stop -s mystack --server my_server my_web_service
 				cli.StringFlag{
 					Name: "server",
 				},
+				cli.StringFlag{
+					Name: "group",
+				},
 			},
 			Description: `Starts <count> containers from the given service.
 <count> can be an absolute value like "2" or a relative value like "+2" or "-3" etc.
 If server is provided, will start <count> containers on that server.
 If server is not provided, will start <count> containers on every server.
+If group is provided, will scale the containers of the service across all servers of a group. Currently only web is a valid group name.
 
 Examples:
 $ cx services scale -s mystack my_web_service 1
-$ cx services scale -s mystack a_backend_service --server backend +5
+$ cx services scale -s mystack --server backend a_backend_service +5
 $ cx services sclae -s mystack a_backend_service -2
+$ cx services sclae -s mystack --group web a_backend_service 15
 `},
 		cli.Command{
 			Name:   "restart",
