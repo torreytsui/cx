@@ -60,5 +60,5 @@ func startSlaveResync(stackUid string, serverUid string, dbType *string) (*int, 
 }
 
 func endSlaveResync(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
-	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute, true)
+	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 2*time.Hour, true)
 }
