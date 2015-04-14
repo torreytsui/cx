@@ -166,7 +166,7 @@ func setGlobals(app *cli.App) {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:   "runenv",
-			Usage:  "sets the environment this toolbelt is running agains",
+			Usage:  "sets the environment this toolbelt is running against",
 			Value:  "production",
 			EnvVar: "CXENVIRONMENT",
 		},
@@ -177,7 +177,7 @@ func setGlobals(app *cli.App) {
 		},
 		cli.BoolFlag{
 			Name:   "debug",
-			Usage:  "run in debug more",
+			Usage:  "run in debug mode",
 			EnvVar: "CXDEBUG",
 		},
 	}
