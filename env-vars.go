@@ -24,11 +24,17 @@ func buildEnvVars() cli.Command {
 	base.Subcommands = []cli.Command{
 		cli.Command{
 			Name:   "list",
-			Usage:  "lists environment variables",
+			Usage:  "lists environement variables",
 			Action: runEnvVars,
-			Description: `Lists all the environment variables of the given stack.
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "history",
+					Usage: "show environment variable history",
+				},
+			},
+			Description: `Lists all the environement variables of the given stack.
 The environment_variables options can be a list of multiple environment_variables as separate parameters.
-To change environment variable values, use the env-vars-set command.
+To change environement variable values, use the env-vars-set command.
 
 Examples:
 $ cx env-vars list -s mystack
@@ -43,6 +49,18 @@ RAILS_ENV 			production
 $ cx env-vars list -s mystack RAILS_ENV STACK_BASE
 RAILS_ENV 			production
 STACK_BASE      	/abc/def
+
+$ cx env-vars list -s mystack -history
+RAILS_ENV 			production         
+STACK_BASE      	/abc/def           
+--> 2015-02-24 12:32:11     /xyz/123
+--> 2015-03-12 15:54:08     /xyz/456
+STACK_PATH      	/abc/def/current
+
+$ cx env-vars list -s mystack -history STACK_BASE
+STACK_BASE      	/abc/def           
+--> 2015-02-24 12:32:11     /xyz/123
+--> 2015-03-12 15:54:08     /xyz/456
 `,
 		},
 		cli.Command{
@@ -74,9 +92,11 @@ func runEnvVars(c *cli.Context) {
 	must(err)
 
 	envVarKeys := c.Args()
+	flagShowHistory := c.Bool("history")
+
 	sort.Strings(envVarKeys)
 	if len(envVarKeys) == 0 {
-		printEnvVarsList(w, envVars)
+		printEnvVarsList(w, envVars, flagShowHistory)
 	} else {
 		// filter out the unwanted env_vars
 		var filteredEnvVars []cloud66.StackEnvVar
@@ -86,20 +106,20 @@ func runEnvVars(c *cli.Context) {
 				filteredEnvVars = append(filteredEnvVars, i)
 			}
 		}
-		printEnvVarsList(w, filteredEnvVars)
+		printEnvVarsList(w, filteredEnvVars, flagShowHistory)
 	}
 }
 
-func printEnvVarsList(w io.Writer, envVars []cloud66.StackEnvVar) {
+func printEnvVarsList(w io.Writer, envVars []cloud66.StackEnvVar, showHistory bool) {
 	sort.Sort(envVarsByName(envVars))
 	for _, a := range envVars {
 		if a.Key != "" {
-			listEnvVar(w, a)
+			listEnvVar(w, a, showHistory)
 		}
 	}
 }
 
-func listEnvVar(w io.Writer, a cloud66.StackEnvVar) {
+func listEnvVar(w io.Writer, a cloud66.StackEnvVar, showHistory bool) {
 	var readonly string
 	if a.Readonly {
 		readonly = "readonly"
@@ -111,6 +131,12 @@ func listEnvVar(w io.Writer, a cloud66.StackEnvVar) {
 		a.Value,
 		readonly,
 	)
+
+	if showHistory {
+		for _, h := range a.History {
+			listRec(w, "----->", h.Value, h.CreatedAt)
+		}
+	}
 }
 
 type envVarsByName []cloud66.StackEnvVar
