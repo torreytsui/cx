@@ -70,6 +70,7 @@ func runSsh(c *cli.Context) {
 
 	err = sshToServer(*server)
 	if err != nil {
+		printError("If you're having issues connecting to your server, you may find some help at http://help.cloud66.com/managing-your-stack/ssh-to-your-server")
 		printFatal(err.Error())
 	}
 }
