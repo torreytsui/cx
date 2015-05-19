@@ -134,7 +134,7 @@ func listEnvVar(w io.Writer, a cloud66.StackEnvVar, showHistory bool) {
 
 	if showHistory {
 		for _, h := range a.History {
-			listRec(w, "----->", h.Value, h.CreatedAt)
+			listRec(w, "----->", h.Value, h.UpdatedAt)
 		}
 	}
 }
