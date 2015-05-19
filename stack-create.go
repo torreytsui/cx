@@ -58,9 +58,10 @@ func runCreateStack(c *cli.Context) {
 		fmt.Println("Note: No manifest provided; for additional options you can provide your own manifest with this command")
 		targetCloud, err := askForCloud(*accountInfo)
 		must(err)
-		targetOptions["cloud"] = targetCloud
+		targetOptions["cloud"] = targetCloud.Id
+		targetOptions["key_name"] = targetCloud.KeyName
 
-		targetRegion, targetSize, err := askForSizeAndRegion(targetCloud)
+		targetRegion, targetSize, err := askForSizeAndRegion(*targetCloud)
 		must(err)
 		targetOptions["region"] = targetRegion
 		targetOptions["size"] = targetSize
@@ -110,17 +111,18 @@ func initiateStackBuild(stackUid string) error {
 	return err
 }
 
-func askForCloud(accountInfo cloud66.Account) (string, error) {
-	if len(accountInfo.UsedClouds) == 0 {
-		return "", errors.New("No available cloud providers in current account, please add via the Cloud 66 UI")
+func askForCloud(accountInfo cloud66.Account) (*cloud66.Cloud, error) {
+	cloudsInfo, err := client.GetCloudsInfo()
+	if err != nil {
+		return nil, errors.New("No available cloud providers in current account, please add via the Cloud 66 UI")
 	}
 
 	fmt.Println("\nPlease select your target cloud:")
-	cloudMap := make(map[string]string)
-	for index, usedCloud := range accountInfo.UsedClouds {
+	cloudMap := make(map[string]cloud66.Cloud)
+	for index, usedCloud := range cloudsInfo {
 		stringIndex := strconv.Itoa(index + 1)
 		cloudMap[stringIndex] = usedCloud
-		fmt.Printf("%s. %s\n", stringIndex, usedCloud)
+		fmt.Printf("%s. %s (%s)\n", stringIndex, usedCloud.Id, usedCloud.KeyName)
 	}
 	if term.IsTerminal(os.Stdin) {
 		fmt.Printf("> ")
@@ -129,18 +131,14 @@ func askForCloud(accountInfo cloud66.Account) (string, error) {
 	if _, err := fmt.Scanln(&selection); err != nil {
 		printFatal(err.Error())
 	}
-	if cloudMap[selection] == "" {
-		return "", errors.New("Invalid selection!")
+	cloudInfo := cloudMap[selection]
+	if cloudInfo.Id == "" {
+		return nil, errors.New("Invalid selection!")
 	}
-	return cloudMap[selection], nil
+	return &cloudInfo, nil
 }
 
-func askForSizeAndRegion(cloudName string) (string, string, error) {
-	cloudInfo, err := client.GetCloudInfo(cloudName)
-	if err != nil {
-		return "", "", err
-	}
-
+func askForSizeAndRegion(cloudInfo cloud66.Cloud) (string, string, error) {
 	fmt.Println("\nPlease select your cloud region:")
 	regionMap := make(map[string]string)
 	for index, region := range cloudInfo.Regions {
