@@ -61,7 +61,7 @@ func runCreateStack(c *cli.Context) {
 		targetOptions["cloud"] = targetCloud.Id
 		targetOptions["key_name"] = targetCloud.KeyName
 
-		targetRegion, targetSize, err := askForSizeAndRegion(targetCloud)
+		targetRegion, targetSize, err := askForSizeAndRegion(*targetCloud)
 		must(err)
 		targetOptions["region"] = targetRegion
 		targetOptions["size"] = targetSize
@@ -138,7 +138,7 @@ func askForCloud(accountInfo cloud66.Account) (*cloud66.Cloud, error) {
 	return &cloudInfo, nil
 }
 
-func askForSizeAndRegion(cloudInfo *cloud66.Cloud) (string, string, error) {
+func askForSizeAndRegion(cloudInfo cloud66.Cloud) (string, string, error) {
 	fmt.Println("\nPlease select your cloud region:")
 	regionMap := make(map[string]string)
 	for index, region := range cloudInfo.Regions {
