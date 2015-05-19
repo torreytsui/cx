@@ -117,6 +117,8 @@ func SshToServerForCommand(server cloud66.Server, userCommand string, serviceNam
 		printFatal("Unable to open server lease")
 	}
 
+	// add source
+	userCommand = fmt.Sprintf("source /var/.cloud66_env && %s", userCommand)
 	if serviceName != "" {
 		fmt.Println("Note: you may need to push <enter> to view output after the connection completes..")
 		return startProgram("ssh", []string{
