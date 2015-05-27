@@ -166,6 +166,92 @@ Examples:
 $ cx stacks listen
 $ cx stacks listen -s mystack
 `},
+		cli.Command{
+			Name:  "configure",
+			Usage: "list, download and upload of configuration files",
+			Subcommands: []cli.Command{
+				cli.Command{
+					Name:   "list",
+					Action: runStackConfigureFileList,
+					Usage:  "list of all versions of a configuration file",
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "file,f",
+							Usage: "supported values are: service.yml , manifest.yml",
+						},
+						cli.StringFlag{
+							Name:  "environment,e",
+							Usage: "full or partial environment name",
+						},
+						cli.StringFlag{
+							Name:  "stack,s",
+							Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
+						},
+					},
+					Description: `This acts list of all versions of configuration file.
+`},
+				cli.Command{
+					Name:   "download",
+					Action: runStackConfigureDownloadFile,
+					Usage:  "download a configuration file",
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "file,f",
+							Usage: "supported values are: service.yml , manifest.yml",
+						},
+						cli.StringFlag{
+							Name:  "version,v",
+							Usage: "full or partial file version (optional)",
+						},
+						cli.StringFlag{
+							Name:  "output,o",
+							Usage: "full path of output file (optional)",
+						},
+						cli.StringFlag{
+							Name:  "environment,e",
+							Usage: "full or partial environment name",
+						},
+						cli.StringFlag{
+							Name:  "stack,s",
+							Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
+						},
+					},
+					Description: `download service.yml and manifest.yml.
+`},
+				cli.Command{
+					Name:   "upload",
+					Action: runStackConfigureUploadFile,
+					Usage:  "uploading new version of configuration file",
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "file,f",
+							Usage: "supported values are: service.yml , manifest.yml",
+						},
+						cli.StringFlag{
+							Name:  "comments,c",
+							Usage: "a brief description of your changes",
+						},
+						cli.StringFlag{
+							Name:  "environment,e",
+							Usage: "full or partial environment name",
+						},
+						cli.StringFlag{
+							Name:  "stack,s",
+							Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
+						},
+					},
+					Description: `upload new service.yml or manifest.yml.
+`},
+			},
+			Description: `
+
+Examples:
+$ cx stacks configure list -f service.yml -s mystack
+$ cx stacks configure download -f manifest.yml -s mystack 
+$ cx stacks configure download -f service.yml -o /tmp/my_stack_servive.yml -s mystack 
+$ cx stacks configure download -f manifest.yml -v f345 -s mystack 
+$ cx stacks configure upload /tmp/mystack_edited_service.yml -f service.yml -s mystack --comments "new service added"
+`},
 	}
 
 	return base

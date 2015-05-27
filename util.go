@@ -353,6 +353,18 @@ func writeSshFile(filename string, content string) error {
 	return nil
 }
 
+func writeFile(filename, content string) error {
+	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0600)
+	defer file.Close()
+	if err != nil {
+		return err
+	}
+	if _, err := file.WriteString(content); err != nil {
+		return err
+	}
+	return nil
+}
+
 // finds the item in the list without case sensitivity, and returns the index
 // of the item that matches or begins with the given item
 // if more than one match is found, it returns an error
