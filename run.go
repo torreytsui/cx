@@ -99,13 +99,14 @@ func runRun(c *cli.Context) {
 		userCommand = service.WrapCommand
 	}
 
-	err = SshToServerForCommand(*server, userCommand, c.String("service"))
+	includeTty := c.String("service") != ""
+	err = SshToServerForCommand(*server, userCommand, includeTty)
 	if err != nil {
 		printFatal(err.Error())
 	}
 }
 
-func SshToServerForCommand(server cloud66.Server, userCommand string, serviceName string) error {
+func SshToServerForCommand(server cloud66.Server, userCommand string, includeTty bool) error {
 	sshFile, err := prepareLocalSshKey(server)
 	must(err)
 
@@ -119,7 +120,7 @@ func SshToServerForCommand(server cloud66.Server, userCommand string, serviceNam
 
 	// add source
 	userCommand = fmt.Sprintf("source /var/.cloud66_env && %s", userCommand)
-	if serviceName != "" {
+	if includeTty {
 		fmt.Println("Note: you may need to push <enter> to view output after the connection completes..")
 		return startProgram("ssh", []string{
 			server.UserName + "@" + server.Address,

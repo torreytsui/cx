@@ -32,9 +32,9 @@ func runContainerExec(c *cli.Context) {
 	server, err := client.GetServer(stack.Uid, container.ServerUid, 0)
 	must(err)
 
-	userCommand := fmt.Sprintf("sudo docker exec -it %s %s", container.Uid, command)
-
-	err = SshToServerForCommand(*server, userCommand, "")
+	dockerFlags := c.String("docker-flags")
+	userCommand := fmt.Sprintf("sudo docker exec %s %s %s", dockerFlags, container.Uid, command)
+	err = SshToServerForCommand(*server, userCommand, true)
 	if err != nil {
 		printFatal(err.Error())
 	}

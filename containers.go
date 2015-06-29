@@ -33,13 +33,19 @@ func buildContainers() cli.Command {
 					Name:  "server",
 					Usage: "server to target",
 				},
+				cli.StringFlag{
+					Name:  "trunc",
+					Value: "false",
+					Usage: "truncate container Ids",
+				},
 			},
 			Usage: "lists all the running containers of a stack (or server)",
-			Description: `List all the running containers of a stack or a server.
+			Description: `List all the running containers of a stack or a server. Optionally can truncate container Ids for easier reading.
 
 Examples:
 $ cx containers list -s mystack
 $ cx containers list -s mystack --server orca
+$ cx containers list -s mystack --trunc true --server orca
 `,
 		},
 		cli.Command{
@@ -68,7 +74,8 @@ $ cx containers restart -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "docker-flags",
-					Usage: "docker flag options",
+					Value: "--interactive=true --tty=true --detach=false",
+					Usage: "specify docker flags",
 				},
 			},
 			Usage: "Execute a command within the context of a running container",
@@ -100,6 +107,7 @@ func runContainers(c *cli.Context) {
 
 	flagServer := c.String("server")
 	flagServiceName := c.String("service")
+	flagTruncate := c.Bool("trunc")
 
 	var serverUid *string
 	if flagServer == "" {
@@ -123,10 +131,10 @@ func runContainers(c *cli.Context) {
 	containers, err := client.GetContainers(stack.Uid, serverUid, &flagServiceName)
 	must(err)
 
-	printContainerList(w, containers)
+	printContainerList(w, containers, flagTruncate)
 }
 
-func printContainerList(w io.Writer, containers []cloud66.Container) {
+func printContainerList(w io.Writer, containers []cloud66.Container, flagTruncate bool) {
 	listRec(w,
 		"SERVICE",
 		"SERVER",
@@ -141,18 +149,25 @@ func printContainerList(w io.Writer, containers []cloud66.Container) {
 	sort.Sort(containersByService(containers))
 	for _, a := range containers {
 		if a.Uid != "" {
-			listContainer(w, a)
+			listContainer(w, a, flagTruncate)
 		}
 	}
 }
 
-func listContainer(w io.Writer, a cloud66.Container) {
+func listContainer(w io.Writer, a cloud66.Container, flagTruncate bool) {
 	t := a.StartedAt
+
+	var containerId string
+	if flagTruncate {
+		containerId = abbrev(a.Uid, 16)
+	} else {
+		containerId = a.Uid
+	}
 
 	listRec(w,
 		strings.ToLower(a.ServiceName),
 		a.ServerName,
-		abbrev(a.Uid, 16),
+		containerId,
 		a.PrivateIP,
 		a.DockerIP,
 		a.Image,
