@@ -247,9 +247,9 @@ $ cx stacks listen -s mystack
 
 Examples:
 $ cx stacks configure list -f service.yml -s mystack
-$ cx stacks configure download -f manifest.yml -s mystack 
-$ cx stacks configure download -f service.yml -o /tmp/my_stack_servive.yml -s mystack 
-$ cx stacks configure download -f manifest.yml -v f345 -s mystack 
+$ cx stacks configure download -f manifest.yml -s mystack
+$ cx stacks configure download -f service.yml -o /tmp/my_stack_servive.yml -s mystack
+$ cx stacks configure download -f manifest.yml -v f345 -s mystack
 $ cx stacks configure upload /tmp/mystack_edited_service.yml -f service.yml -s mystack --comments "new service added"
 `},
 	}

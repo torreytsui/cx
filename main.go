@@ -62,6 +62,9 @@ var (
 )
 
 func main() {
+	// add aliases for commands
+	commands = populateAliases(commands)
+
 	honeybadger.ApiKey = "09d82034"
 	defer recoverPanic()
 
