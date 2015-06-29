@@ -71,9 +71,9 @@ $ cx containers restart -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce
 					Usage: "docker flag options",
 				},
 			},
-			Usage: "Execute a command within the context of a running container on the given stack",
+			Usage: "Execute a command within the context of a running container",
 			Description: `Execute a command within the context of a running container. The default docker-flags are for an interactive shell though they can be specified with the command.
-			
+
 Examples:
 $ cx containers exec -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c /bin/bash
 $ cx containers exec -s mystack --docker-flags="--interactive=true --tty=true --detach=false" 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c /bin/bash
