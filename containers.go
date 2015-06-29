@@ -57,8 +57,27 @@ $ cx containers stop -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4
 			Action: runContainerRestart,
 			Usage:  "Restarts a particular container on the given stack",
 			Description: `Restarts a particular container on the given stack by container Id.
+
 Examples:
 $ cx containers restart -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c
+`,
+		},
+		cli.Command{
+			Name:   "exec",
+			Action: runContainerExec,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "docker-flags",
+					Usage: "docker flag options",
+				},
+			},
+			Usage: "Execute a command within the context of a running container on the given stack",
+			Description: `Execute a command within the context of a running container. The default docker-flags are for an interactive shell though they can be specified with the command.
+			
+Examples:
+$ cx containers exec -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c /bin/bash
+$ cx containers exec -s mystack --docker-flags="--interactive=true --tty=true --detach=false" 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c /bin/bash
+$ cx containers exec -s mystack --docker-flags="--interactive=false --tty=false --detach=true" 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c /tmp/my_background_command
 `,
 		},
 		cli.Command{
