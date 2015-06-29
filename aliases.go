@@ -21,7 +21,7 @@ func populateAliases(commands []*Command) []*Command {
 						NeedsStack: command.NeedsStack,
 						Name:       alias,
 						Build:      command.Build,
-						Short:      fmt.Sprintf("%s [alias]", command.Short),
+						Short:      fmt.Sprintf("[%s alias] %s", key, command.Short),
 					}
 					commands = append(commands, newCmd)
 				}
