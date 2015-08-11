@@ -35,7 +35,7 @@ func buildContainers() cli.Command {
 				},
 				cli.StringFlag{
 					Name:  "trunc",
-					Value: "false",
+					Value: "true",
 					Usage: "truncate container Ids",
 				},
 			},
@@ -45,27 +45,33 @@ func buildContainers() cli.Command {
 Examples:
 $ cx containers list -s mystack
 $ cx containers list -s mystack --server orca
-$ cx containers list -s mystack --trunc true --server orca
+$ cx containers list -s mystack --trunc false --server orca
 `,
 		},
 		cli.Command{
 			Name:   "stop",
 			Action: runContainerStop,
 			Usage:  "Stops a particular container on the given stack",
-			Description: `Stops a particular container on the given stack by container Id.
+			Description: `Stops a particular container on the given stack by container Id or Name.
 
 Examples:
 $ cx containers stop -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c
+$ cx containers stop -s mystack 2844142c
+$ cx containers stop -s mystack web.pro-active-quick-witted-dinosaur
+$ cx containers stop -s mystack web
 `,
 		},
 		cli.Command{
 			Name:   "restart",
 			Action: runContainerRestart,
 			Usage:  "Restarts a particular container on the given stack",
-			Description: `Restarts a particular container on the given stack by container Id.
+			Description: `Restarts a particular container on the given stack by container Id or Name.
 
 Examples:
-$ cx containers restart -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c
+$ cx containers stop -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c
+$ cx containers stop -s mystack 2844142c
+$ cx containers stop -s mystack web.pro-active-quick-witted-dinosaur
+$ cx containers stop -s mystack web
 `,
 		},
 		cli.Command{
@@ -82,9 +88,9 @@ $ cx containers restart -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce
 			Description: `Execute a command within the context of a running container. The default docker-flags are for an interactive shell though they can be specified with the command.
 
 Examples:
-$ cx containers exec -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c /bin/bash
-$ cx containers exec -s mystack --docker-flags="--interactive=true --tty=true --detach=false" 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c /bin/bash
-$ cx containers exec -s mystack --docker-flags="--interactive=false --tty=false --detach=true" 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c /tmp/my_background_command
+$ cx containers exec -s mystack 2844142c /bin/bash
+$ cx containers exec -s mystack --docker-flags="--interactive=true --tty=true --detach=false" 2844142c /bin/bash
+$ cx containers exec -s mystack --docker-flags="--interactive=false --tty=false --detach=true" 2844142c /tmp/my_background_command
 `,
 		},
 		cli.Command{
@@ -93,7 +99,7 @@ $ cx containers exec -s mystack --docker-flags="--interactive=false --tty=false 
 			Usage:  "Attach to a container on the given stack",
 			Description: `Attach to a container on the given stack by container Id.
 Examples:
-$ cx containers attach -s mystack 2844142cbfc064123777b6be765b3914e43a9e083afce4e4348b5979127c220c
+$ cx containers attach -s mystack 2844142c
 `,
 		},
 	}
@@ -138,6 +144,7 @@ func printContainerList(w io.Writer, containers []cloud66.Container, flagTruncat
 	listRec(w,
 		"SERVICE",
 		"SERVER",
+		"NAME",
 		"CONTAINER ID",
 		"CONTAINER_NET_IP",
 		"DOCKER_IP",
@@ -167,6 +174,7 @@ func listContainer(w io.Writer, a cloud66.Container, flagTruncate bool) {
 	listRec(w,
 		strings.ToLower(a.ServiceName),
 		a.ServerName,
+		a.Name,
 		containerId,
 		a.PrivateIP,
 		a.DockerIP,
