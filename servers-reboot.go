@@ -11,10 +11,9 @@ import (
 )
 
 func runServerReboot(c *cli.Context) {
-	fmt.Println(c.Args())
 	stack := mustStack(c)
 
-	if len(c.Args()) != 1 {
+	if len(c.Args()) != 0 {
 		cli.ShowSubcommandHelp(c)
 		os.Exit(2)
 	}

@@ -41,6 +41,22 @@ orca         162.243.201.164  [rails web app]  Healthy   Mar 26 11:23
 `,
 		},
 		cli.Command{
+			Name:   "reboot",
+			Action: runServerReboot,
+			Usage:  "reboots the specified server",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "server",
+					Usage: "server name",
+				},
+			},
+			Description: `Reboots a server.
+
+Examples:
+$ cx server reboot -s mystack --server lion
+`,
+		},
+		cli.Command{
 			Name: "settings",
 			Subcommands: []cli.Command{
 				cli.Command{
@@ -97,30 +113,6 @@ work and therefore this command will return immediately after the setting operat
 
 Examples:
 $ cx servers settings set -s mystack --server lion server.name=tiger
-`,
-				},
-				cli.Command{
-					Name:   "reboot",
-					Action: runServerReboot,
-					Usage:  "reboots the specified server",
-					Flags: []cli.Flag{
-						cli.StringFlag{
-							Name:  "stack,s",
-							Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
-						},
-						cli.StringFlag{
-							Name:  "environment,e",
-							Usage: "full or partial environment name",
-						},
-						cli.StringFlag{
-							Name:  "server",
-							Usage: "server name",
-						},
-					},
-					Description: `Reboots a server.
-
-Examples:
-$ cx server reboot -s mystack --server lion
 `,
 				},
 			},
