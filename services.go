@@ -111,8 +111,8 @@ $ cx services restart -s mystack --server my_server my_web_service
 					Name: "server",
 				},
 			},
-			Usage: "restarts all the containers from the given service",
-			Description: `Restarts all the containers from the given service.
+			Usage: "get info from given the service`",
+			Description: `Get info from given the service.
 The list of available stack services can be obtained through the 'services' command.
 If the server is provided it will only act on the specified server.
 

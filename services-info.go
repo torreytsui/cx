@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
-	"time"
+	"strconv"
+	"text/tabwriter"
 
 	"github.com/cloud66/cloud66"
 
@@ -15,6 +17,9 @@ func runServiceInfo(c *cli.Context) {
 		cli.ShowSubcommandHelp(c)
 		os.Exit(2)
 	}
+
+	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
+	defer w.Flush()
 
 	stack := mustStack(c)
 	serviceName := c.Args()[0]
@@ -43,28 +48,23 @@ func runServiceInfo(c *cli.Context) {
 		serverUid = &server.Uid
 	}
 
-	fmt.Printf("%s\n", serverUid)
-	fmt.Printf("%s\n", serviceName)
-	// asyncId, err := startServiceRestart(stack.Uid, serviceName, serverUid)
-	// if err != nil {
-	// 	printFatal(err.Error())
-	// }
-	// genericRes, err := endServiceRestart(*asyncId, stack.Uid)
-	// if err != nil {
-	// 	printFatal(err.Error())
-	// }
-	// printGenericResponse(*genericRes)
+	service, err := client.GetService(stack.Uid, serviceName, serverUid, nil)
+	must(err)
+
+	printServiceInfoList(w, service)
 	return
 }
 
-func startServiceInfo(stackUid string, serviceName string, serverUid *string) (*int, error) {
-	asyncRes, err := client.InvokeStackServiceAction(stackUid, serviceName, serverUid, "service_restart")
-	if err != nil {
-		return nil, err
-	}
-	return &asyncRes.Id, err
-}
-
-func endServiceInfo(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
-	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute, true)
+func printServiceInfoList(w io.Writer, service *cloud66.Service) {
+	listRec(w, "NAME", "VALUE")
+	listRec(w, "name", service.Name)
+	listRec(w, "source type", service.SourceType)
+	listRec(w, "git-ref", service.GitRef)
+	listRec(w, "container count", strconv.Itoa(len(service.Containers)))
+	listRec(w, "image name", service.ImageName)
+	listRec(w, "image uid", service.ImageUid)
+	listRec(w, "image hash", service.ImageHash)
+	listRec(w, "command", service.Command)
+	listRec(w, "build command", service.BuildCommand)
+	listRec(w, "deploy command", service.DeployCommand)
 }
