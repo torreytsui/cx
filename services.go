@@ -102,8 +102,25 @@ Examples:
 $ cx services restart -s mystack my_web_service
 $ cx services restart -s mystack a_backend_service
 $ cx services restart -s mystack --server my_server my_web_service
-`,
-		},
+`},
+		cli.Command{
+			Name:   "info",
+			Action: runServiceInfo,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "server",
+				},
+			},
+			Usage: "restarts all the containers from the given service",
+			Description: `Restarts all the containers from the given service.
+The list of available stack services can be obtained through the 'services' command.
+If the server is provided it will only act on the specified server.
+
+Examples:
+$ cx services info -s mystack my_web_service
+$ cx services info -s mystack a_backend_service
+$ cx services info -s mystack --server my_server my_web_service
+`},
 	}
 
 	return base
