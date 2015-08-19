@@ -41,6 +41,22 @@ orca         162.243.201.164  [rails web app]  Healthy   Mar 26 11:23
 `,
 		},
 		cli.Command{
+			Name:   "reboot",
+			Action: runServerReboot,
+			Usage:  "reboots the specified server",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "server",
+					Usage: "server name",
+				},
+			},
+			Description: `Reboots a server.
+
+Examples:
+$ cx server reboot -s mystack --server lion
+`,
+		},
+		cli.Command{
 			Name: "settings",
 			Subcommands: []cli.Command{
 				cli.Command{
