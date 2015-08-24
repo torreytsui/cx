@@ -63,7 +63,7 @@ func printServiceInfoList(w io.Writer, service *cloud66.Service) {
 	listRec(w, "container count", strconv.Itoa(len(service.Containers)))
 	listRec(w, "image name", service.ImageName)
 	listRec(w, "image uid", service.ImageUid)
-	listRec(w, "image hash", service.ImageHash)
+	listRec(w, "image tag", service.ImageTag)
 	listRec(w, "command", service.Command)
 	listRec(w, "build command", service.BuildCommand)
 	listRec(w, "deploy command", service.DeployCommand)
