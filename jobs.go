@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
-	// "sort"
 	"text/tabwriter"
 
 	"github.com/cloud66/cloud66"
@@ -125,51 +123,64 @@ func printJobsList(w io.Writer, jobs []cloud66.Job, flagServer string) {
 		"PARAMS",
 	)
 
-	// sort.Sort(ServiceByNameServer(services))
 	for _, a := range jobs {
 		listJob(w, a, flagServer)
 	}
 }
 
 func listJob(w io.Writer, a cloud66.Job, flagServer string) {
-	listRec(w,
-		a.Name,
-		a.Type,
-		a.Cron,
-		cloud66.JobStatus[a.Status],
-		prettifyParams(a.Params),
-	)
-	// if len(a.Containers) != 0 {
-	// 	for serverName, count := range a.ServerContainerCountMap() {
-	// 		listRec(w,
-	// 			a.Name,
-	// 			serverName,
-	// 			count,
-	// 		)
-	// 	}
-	// } else if flagServer == "" {
-	// 	listRec(w,
-	// 		a.Name,
-	// 		"n/a",
-	// 		"0",
-	// 	)
-	// }
-
-}
-
-func prettifyParams(params map[string]string) string {
-	res := ""
-	for k, v := range params {
-		k = strings.Replace(k, "_", " ", -1)
-		res += fmt.Sprintf("%s: %s | ", k, v)
+	switch a.(type) {
+	case *cloud66.DockerHostTaskJob:
+		DockerHostTaskJob(*a.(*cloud66.DockerHostTaskJob)).PrintList(w)
+	case *cloud66.DockerServiceTaskJob:
+		DockerServiceTaskJob(*a.(*cloud66.DockerServiceTaskJob)).PrintList(w)
+	default:
+		BasicJob(*a.(*cloud66.BasicJob)).PrintList(w)
 	}
-	res = strings.TrimSuffix(res, "| ")
-
-	return res
 }
 
-// type ServiceByNameServer []cloud66.Service
+type BasicJob cloud66.BasicJob
 
-// func (a ServiceByNameServer) Len() int           { return len(a) }
-// func (a ServiceByNameServer) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-// func (a ServiceByNameServer) Less(i, j int) bool { return a[i].Name < a[j].Name }
+func (job BasicJob) PrintList(w io.Writer) {
+	index := 0
+	for k, v := range job.Params {
+		index += 1
+		if index == 1 {
+			listRec(w,
+				job.Name,
+				job.Type,
+				job.Cron,
+				cloud66.JobStatus[job.Status],
+				fmt.Sprintf("%s: %s", pascalCase(k, " "), v))
+		} else {
+			listRec(w, "", "", "", "", fmt.Sprintf("%s: %s", pascalCase(k, " "), v))
+		}
+
+	}
+}
+
+type DockerHostTaskJob cloud66.DockerHostTaskJob
+
+func (job DockerHostTaskJob) PrintList(w io.Writer) {
+	listRec(w,
+		job.Name,
+		job.Type,
+		job.Cron,
+		cloud66.JobStatus[job.Status],
+		fmt.Sprintf("Command: %s", job.Command),
+	)
+}
+
+type DockerServiceTaskJob cloud66.DockerServiceTaskJob
+
+func (job DockerServiceTaskJob) PrintList(w io.Writer) {
+	listRec(w,
+		job.Name,
+		job.Type,
+		job.Cron,
+		cloud66.JobStatus[job.Status],
+		fmt.Sprintf("Task: %s", job.Task),
+	)
+	listRec(w, "", "", "", "", fmt.Sprintf("Service Name: %s", job.ServiceName))
+	listRec(w, "", "", "", "", fmt.Sprintf("Private IP: %s", job.PrivateIp))
+}

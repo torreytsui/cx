@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -15,26 +14,29 @@ func runJobRun(c *cli.Context) {
 	stack := mustStack(c)
 
 	// get the job
-	serverName := c.String("job")
+	jobName := c.String("job")
 	if len(jobName) == 0 {
 		cli.ShowSubcommandHelp(c)
 		os.Exit(2)
 	}
 
-	// asyncId, err := startJobRun(stack.Uid, serviceName, serverUid)
-	// if err != nil {
-	// 	printFatal(err.Error())
-	// }
-	// genericRes, err := endJobRun(*asyncId, stack.Uid)
-	// if err != nil {
-	// 	printFatal(err.Error())
-	// }
-	// printGenericResponse(*genericRes)
+	var jobId string
+	var jobVars *string
+
+	asyncId, err := startJobRun(stack.Uid, jobId, jobVars)
+	if err != nil {
+		printFatal(err.Error())
+	}
+	genericRes, err := endJobRun(*asyncId, stack.Uid)
+	if err != nil {
+		printFatal(err.Error())
+	}
+	printGenericResponse(*genericRes)
 	return
 }
 
-func startJobRun(stackUid string, serviceName string, serverUid *string) (*int, error) {
-	asyncRes, err := client.StopService(stackUid, serviceName, serverUid)
+func startJobRun(stackUid string, jobId string, jobVars *string) (*int, error) {
+	asyncRes, err := client.RunJobNow(stackUid, jobId, jobVars)
 	if err != nil {
 		return nil, err
 	}
