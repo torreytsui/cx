@@ -44,11 +44,11 @@ $ cx jobs list -s mystack --service web
 		},
 		cli.Command{
 			Name:   "run",
-			Action: runJobRun,
 			Usage:  "runs the given job once with given parameters",
+			Action: runJobRun,
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name: "server",
+					Name: "args",
 				},
 			},
 			Description: `Runs the given job once with given parameters.
@@ -56,6 +56,7 @@ The list of available stack jobs can be obtained through the 'jobs list' command
 
 Examples:
 $ cx jobs run -s mystack my_job
+$ cx jobs run -s mystack --args "arg1 arg2" my_job
 `,
 		},
 	}
@@ -139,8 +140,6 @@ func listJob(w io.Writer, a cloud66.Job, flagServer string) {
 	}
 }
 
-type BasicJob cloud66.BasicJob
-
 func (job BasicJob) PrintList(w io.Writer) {
 	index := 0
 	for k, v := range job.Params {
@@ -159,8 +158,6 @@ func (job BasicJob) PrintList(w io.Writer) {
 	}
 }
 
-type DockerHostTaskJob cloud66.DockerHostTaskJob
-
 func (job DockerHostTaskJob) PrintList(w io.Writer) {
 	listRec(w,
 		job.Name,
@@ -170,8 +167,6 @@ func (job DockerHostTaskJob) PrintList(w io.Writer) {
 		fmt.Sprintf("Command: %s", job.Command),
 	)
 }
-
-type DockerServiceTaskJob cloud66.DockerServiceTaskJob
 
 func (job DockerServiceTaskJob) PrintList(w io.Writer) {
 	listRec(w,
@@ -184,3 +179,7 @@ func (job DockerServiceTaskJob) PrintList(w io.Writer) {
 	listRec(w, "", "", "", "", fmt.Sprintf("Service Name: %s", job.ServiceName))
 	listRec(w, "", "", "", "", fmt.Sprintf("Private IP: %s", job.PrivateIp))
 }
+
+type BasicJob cloud66.BasicJob
+type DockerHostTaskJob cloud66.DockerHostTaskJob
+type DockerServiceTaskJob cloud66.DockerServiceTaskJob

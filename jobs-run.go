@@ -14,16 +14,31 @@ func runJobRun(c *cli.Context) {
 	stack := mustStack(c)
 
 	// get the job
-	jobName := c.String("job")
-	if len(jobName) == 0 {
+	if len(c.Args()) != 1 {
 		cli.ShowSubcommandHelp(c)
 		os.Exit(2)
 	}
+	jobName := c.Args()[0]
 
-	var jobId string
-	var jobVars *string
+	jobs, err := client.GetJobs(stack.Uid, nil)
+	if err != nil {
+		printFatal(err.Error())
+	}
 
-	asyncId, err := startJobRun(stack.Uid, jobId, jobVars)
+	var jobNames []string
+	for _, job := range jobs {
+		jobNames = append(jobNames, job.GetBasicJob().Name)
+	}
+
+	idx, err := fuzzyFind(jobNames, jobName, false)
+	if err != nil {
+		printFatal(err.Error())
+	}
+	jobUid := string(jobs[idx].GetBasicJob().Uid)
+
+	jobArgs := c.String("args")
+
+	asyncId, err := startJobRun(stack.Uid, jobUid, &jobArgs)
 	if err != nil {
 		printFatal(err.Error())
 	}
@@ -35,8 +50,8 @@ func runJobRun(c *cli.Context) {
 	return
 }
 
-func startJobRun(stackUid string, jobId string, jobVars *string) (*int, error) {
-	asyncRes, err := client.RunJobNow(stackUid, jobId, jobVars)
+func startJobRun(stackUid string, jobId string, jobArgs *string) (*int, error) {
+	asyncRes, err := client.RunJobNow(stackUid, jobId, jobArgs)
 	if err != nil {
 		return nil, err
 	}
