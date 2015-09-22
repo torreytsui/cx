@@ -51,6 +51,7 @@ var commands = []*Command{
 	cmdContainers,
 	cmdServices,
 	cmdDatabases,
+	cmdJobs,
 	cmdHelpEnviron,
 	cmdUpdate,
 	cmdInfo,

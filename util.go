@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -11,6 +12,7 @@ import (
 	"os/exec"
 	"os/user"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 	"time"
@@ -456,4 +458,26 @@ func findServer(servers []cloud66.Server, serverName string) (*cloud66.Server, e
 	}
 
 	return nil, nil
+}
+
+var camelingRegex = regexp.MustCompile("[0-9A-Za-z]+")
+
+func camelCase(src string, sep string) string {
+	byteSrc := []byte(src)
+	chunks := camelingRegex.FindAll(byteSrc, -1)
+	for idx, val := range chunks {
+		if idx > 0 {
+			chunks[idx] = bytes.Title(val)
+		}
+	}
+	return string(bytes.Join(chunks, []byte(sep)))
+}
+
+func pascalCase(src string, sep string) string {
+	byteSrc := []byte(src)
+	chunks := camelingRegex.FindAll(byteSrc, -1)
+	for idx, val := range chunks {
+		chunks[idx] = bytes.Title(val)
+	}
+	return string(bytes.Join(chunks, []byte(sep)))
 }
