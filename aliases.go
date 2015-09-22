@@ -8,6 +8,7 @@ func populateAliases(commands []*Command) []*Command {
 	aliasMap["backups"] = []string{"backup"}
 	aliasMap["containers"] = []string{"container"}
 	aliasMap["databases"] = []string{"database"}
+	aliasMap["jobs"] = []string{"job"}
 	aliasMap["servers"] = []string{"server"}
 	aliasMap["services"] = []string{"service"}
 	aliasMap["settings"] = []string{"setting"}
