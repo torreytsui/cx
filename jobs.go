@@ -47,8 +47,9 @@ $ cx jobs list -s mystack --service web
 			Usage:  "runs the given job once with given parameters",
 			Action: runJobRun,
 			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name: "args",
+				cli.StringSliceFlag{
+					Name: "arg",
+					Value: &cli.StringSlice{},
 				},
 			},
 			Description: `Runs the given job once with given parameters.
@@ -56,7 +57,7 @@ The list of available stack jobs can be obtained through the 'jobs list' command
 
 Examples:
 $ cx jobs run -s mystack my_job
-$ cx jobs run -s mystack --args "arg1 arg2" my_job
+$ cx jobs run -s mystack --arg arg1 --arg arg2 my_job
 `,
 		},
 	}
