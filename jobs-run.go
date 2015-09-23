@@ -36,7 +36,16 @@ func runJobRun(c *cli.Context) {
 	}
 	jobUid := string(jobs[idx].GetBasicJob().Uid)
 
-	jobArgs := c.String("args")
+	jobArgs := ""
+
+	if len(c.StringSlice("arg")) > 0 {
+		for i, arg := range c.StringSlice("arg") {
+			if i > 0 {
+				jobArgs = jobArgs + " "				
+			}
+			jobArgs = jobArgs + "\"" + arg + "\""
+		}
+	}
 
 	asyncId, err := startJobRun(stack.Uid, jobUid, &jobArgs)
 	if err != nil {
