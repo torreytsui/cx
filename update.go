@@ -208,10 +208,8 @@ func (download *CxDownload) update() error {
 		return err
 	}
 
-	err, errRecover := update.New().FromStream(bytes.NewBuffer(bin))
-	if errRecover != nil {
-		return fmt.Errorf("update and recovery errors: %q %q\n", err, errRecover)
-	}
+	reader := bytes.NewBuffer(bin)
+	err = update.Apply(reader, &update.Options{})
 	if err != nil {
 		return err
 	}
