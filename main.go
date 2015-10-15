@@ -55,6 +55,7 @@ var commands = []*Command{
 	cmdHelpEnviron,
 	cmdUpdate,
 	cmdInfo,
+	cmdTest,
 }
 
 var (
@@ -155,8 +156,12 @@ func beforeCommand(c *cli.Context) error {
 		command = c.Args().First()
 	}
 
-	if (command != "version") && (command != "help") && (command != "update") {
-		initClients(c)
+	if (command != "version") && (command != "help") && (command != "update") && (command != "test") {
+		initClients(c, true)
+	}
+
+	if command == "test" {
+		initClients(c, false)
 	}
 
 	if (command != "update") && (VERSION != "dev") {
@@ -195,13 +200,17 @@ func doMain(c *cli.Context) {
 	cli.ShowAppHelp(c)
 }
 
-func initClients(c *cli.Context) {
+func initClients(c *cli.Context, startAuth bool) {
 	// is there a token file?
 	_, err := os.Stat(filepath.Join(cxHome(), tokenFile))
 	if err != nil {
 		fmt.Println("No previous authentication found.")
-		cloud66.Authorize(cxHome(), tokenFile)
-		os.Exit(1)
+		if startAuth {
+			cloud66.Authorize(cxHome(), tokenFile)
+			os.Exit(1)
+		} else {
+			os.Exit(1)
+		}
 	} else {
 		client = cloud66.GetClient(cxHome(), tokenFile, VERSION)
 		debugMode = c.GlobalBool("debug")
