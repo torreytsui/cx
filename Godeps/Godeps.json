@@ -32,7 +32,7 @@
 		},
 		{
 			"ImportPath": "github.com/cloud66/wray",
-			"Rev": "7dda1a149080e097f44c22c1d73f7e6edf6f869a"
+			"Rev": "19624b7fbd8037566e8298754bc5d2c917cc1fa3"
 		},
 		{
 			"ImportPath": "github.com/gorilla/websocket",
