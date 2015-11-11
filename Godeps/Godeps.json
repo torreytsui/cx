@@ -53,6 +53,10 @@
 		{
 			"ImportPath": "github.com/mgutz/ansi",
 			"Rev": "452f5f5396543168418a299cd963697ac742b56e"
+		},
+		{
+			"ImportPath": "github.com/skratchdot/open-golang/open",
+			"Rev": "c8748311a7528d0ba7330d302adbc5a677ef9c9e"
 		}
 	]
 }
