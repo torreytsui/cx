@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"syscall"
 	"time"
+	"strings"
 
 	"github.com/cloud66/cloud66"
 	"github.com/cloud66/cx/term"
@@ -17,7 +18,7 @@ import (
 )
 
 func runCreateStack(c *cli.Context) {
-	name := c.String("name")
+	name := strings.Trim(c.String("name"), " ")
 	environment := c.String("environment")
 	serviceYamlFile := c.String("service_yaml")
 	manifestYamlFile := c.String("manifest_yaml")
