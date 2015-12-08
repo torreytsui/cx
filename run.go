@@ -119,7 +119,7 @@ func SshToServerForCommand(server cloud66.Server, userCommand string, includeTty
 	}
 
 	// add source
-	userCommand = fmt.Sprintf("source /var/.cloud66_env && %s", userCommand)
+	userCommand = fmt.Sprintf("source /var/.cloud66_env &>/dev/null ; %s", userCommand)
 	if includeTty {
 		fmt.Println("Note: you may need to push <enter> to view output after the connection completes..")
 		return startProgram("ssh", []string{
