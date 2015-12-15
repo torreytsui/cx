@@ -33,10 +33,9 @@ func buildContainers() cli.Command {
 					Name:  "server",
 					Usage: "server to target",
 				},
-				cli.StringFlag{
-					Name:  "trunc",
-					Value: "true",
-					Usage: "truncate container Ids",
+				cli.BoolFlag{
+					Name:  "verbose",
+					Usage: "Show more and full information about each container",
 				},
 			},
 			Usage: "lists all the running containers of a stack (or server)",
@@ -45,7 +44,7 @@ func buildContainers() cli.Command {
 Examples:
 $ cx containers list -s mystack
 $ cx containers list -s mystack --server orca
-$ cx containers list -s mystack --trunc false --server orca
+$ cx containers list -s mystack --verbose --server orca
 `,
 		},
 		cli.Command{
@@ -113,7 +112,7 @@ func runContainers(c *cli.Context) {
 
 	flagServer := c.String("server")
 	flagServiceName := c.String("service")
-	flagTruncate := c.Bool("trunc")
+	flagVerbose := c.Bool("verbose")
 
 	var serverUid *string
 	if flagServer == "" {
@@ -137,51 +136,73 @@ func runContainers(c *cli.Context) {
 	containers, err := client.GetContainers(stack.Uid, serverUid, &flagServiceName)
 	must(err)
 
-	printContainerList(w, containers, flagTruncate)
+	printContainerList(w, containers, flagVerbose)
 }
 
-func printContainerList(w io.Writer, containers []cloud66.Container, flagTruncate bool) {
-	listRec(w,
-		"SERVICE",
-		"SERVER",
-		"NAME",
-		"CONTAINER ID",
-		"CONTAINER_NET_IP",
-		"DOCKER_IP",
-		"IMAGE",
-		"STARTED AT",
-		"HEALTH",
-	)
+func printContainerList(w io.Writer, containers []cloud66.Container, flagVerbose bool) {
+	if flagVerbose {
+		listRec(w,
+			"SERVICE",
+			"SERVER",
+			"NAME",
+			"CONTAINER ID",
+			"CONTAINER_NET_IP",
+			"DOCKER_IP",
+			"IMAGE",
+			"STARTED AT",
+			"HEALTH")
+	} else {
+		listRec(w,
+			"SERVICE",
+			"SERVER",
+			"NAME",
+			"CONTAINER ID",
+			"CONTAINER_NET_IP",
+			"DOCKER_IP",
+			"STARTED AT",
+			"HEALTH")
+	}
 
 	sort.Sort(containersByService(containers))
 	for _, a := range containers {
 		if a.Uid != "" {
-			listContainer(w, a, flagTruncate)
+			listContainer(w, a, flagVerbose)
 		}
 	}
 }
 
-func listContainer(w io.Writer, a cloud66.Container, flagTruncate bool) {
+func listContainer(w io.Writer, a cloud66.Container, flagVerbose bool) {
 	t := a.StartedAt
 
 	var containerId string
-	if flagTruncate {
-		containerId = abbrev(a.Uid, 16)
-	} else {
+	if flagVerbose {
 		containerId = a.Uid
+	} else {
+		containerId = abbrev(a.Uid, 16)
 	}
 
-	listRec(w,
-		strings.ToLower(a.ServiceName),
-		a.ServerName,
-		a.Name,
-		containerId,
-		a.PrivateIP,
-		a.DockerIP,
-		a.Image,
-		prettyTime{t},
-		HealthText(a),
-	)
+	if flagVerbose {
+		listRec(w,
+			strings.ToLower(a.ServiceName),
+			a.ServerName,
+			a.Name,
+			containerId,
+			a.PrivateIP,
+			a.DockerIP,
+			a.Image,
+			prettyTime{t},
+			HealthText(a))
+	} else {
+		listRec(w,
+			strings.ToLower(a.ServiceName),
+			a.ServerName,
+			a.Name,
+			containerId,
+			a.PrivateIP,
+			a.DockerIP,
+			prettyTime{t},
+			HealthText(a))
+	}
 }
 
 type containersByService []cloud66.Container
