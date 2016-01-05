@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	//	"fmt"
 	"github.com/cloud66/cli"
 	"io/ioutil"
 	"os"
@@ -69,15 +69,17 @@ func runListGatewayKey(c *cli.Context) {
 		os.Exit(2)
 	}
 
-	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
-	defer w.Flush()
+	if gateway_key != nil {
+		w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
+		defer w.Flush()
 
-	listRec(w,
-		gateway_key.Id,
-		gateway_key.Ttl,
-		gateway_key.Content,
-		gateway_key.CreatedAt,
-	)
+		listRec(w,
+			gateway_key.Id,
+			gateway_key.Ttl,
+			gateway_key.Content,
+			gateway_key.CreatedAt,
+		)
+	}
 
 }
 
@@ -127,8 +129,6 @@ func runRemoveGatewayKey(c *cli.Context) {
 		printFatal("Error remove gateway key : " + err.Error())
 		os.Exit(2)
 	}
-
-	fmt.Printf("Remove Gateway %d \n", currentAccountId)
 }
 
 func findAccountId() int {
