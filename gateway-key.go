@@ -102,9 +102,10 @@ func runAddGatewayKey(c *cli.Context) {
 		os.Exit(2)
 	}
 
-	key_content, err := ioutil.ReadFile(key_path)
+	key_path_file := expandPath(key_path)
+	key_content, err := ioutil.ReadFile(key_path_file)
 	if err != nil {
-		printFatal("Can not read from %s : "+err.Error(), key_path)
+		printFatal("Can not read from %s : "+err.Error(), key_path_file)
 		os.Exit(2)
 	}
 
@@ -131,6 +132,7 @@ func runRemoveGatewayKey(c *cli.Context) {
 	}
 }
 
+/*
 func findAccountId() int {
 	accountInfos, err := client.AccountInfos()
 	if err != nil {
@@ -155,3 +157,4 @@ func findAccountId() int {
 
 	return currentAccountId
 }
+*/
