@@ -31,12 +31,15 @@ $ cx gateways list
 		cli.Command{
 			Name:   "add",
 			Action: runAddGateway,
-			Usage:  "gateways add <gateway name> --address <gateway address> --username <gateway username>",
+			Usage:  "gateways add --name <gateway name> --address <gateway address> --username <gateway username>",
 			Description: `Add gateway to an account.
 Examples:
-$ cx gateways add aws_bastion --address 192.168.100.100  --username ec2-user
+$ cx gateways add --name aws_bastion --address 192.168.100.100  --username ec2-user
 				`,
 			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "name",
+				},
 				cli.StringFlag{
 					Name: "address",
 				},
@@ -48,11 +51,14 @@ $ cx gateways add aws_bastion --address 192.168.100.100  --username ec2-user
 		cli.Command{
 			Name:   "open",
 			Action: runOpenGateway,
-			Usage:  "gateways open <gateway name> --key <path/to/gateway/key/file>  --ttl <time to live>",
+			Usage:  "gateways open --name <gateway name> --key <path/to/gateway/key/file>  --ttl <time to live>",
 			Description: `Make the gateway available to use with cloud66 for ttl amount of time.
 Example:
 $ cx gateways open aws_bastion --key /tmp/gateway.pem --ttl 1800`,
 			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "name",
+				},
 				cli.StringFlag{
 					Name: "key",
 				},
@@ -64,10 +70,15 @@ $ cx gateways open aws_bastion --key /tmp/gateway.pem --ttl 1800`,
 		cli.Command{
 			Name:   "remove",
 			Action: runRemoveGateway,
-			Usage:  "gateways remove <gateway name>",
+			Usage:  "gateways remove --name <gateway name>",
 			Description: `Remove gateway from an account.
 Example:
 $ cx gateways remove aws_bastion`,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "name",
+				},
+			},
 		},
 	}
 
@@ -83,7 +94,7 @@ func runListGateways(c *cli.Context) {
 
 	gateways, err := client.ListGateways(currentAccountId)
 	if err != nil {
-		printFatal("Error list gateways: " + err.Error())
+		printFatal("Error listing gateways: " + err.Error())
 		os.Exit(2)
 	}
 
@@ -108,18 +119,20 @@ func runListGateways(c *cli.Context) {
 }
 
 func runAddGateway(c *cli.Context) {
-	if len(c.Args()) == 0 {
-		printFatal("You should specify a name for gateway")
+	gatewayName := ""
+	if c.IsSet("name") {
+		gatewayName = c.String("name")
+	} else {
+		printFatal("You should specify a name for gateway\ngateways add --name <gateway name> --address <gateway address> --username <gateway username>")
 		os.Exit(2)
 	}
-	name := c.Args()[0]
 
 	flagAddress := ""
 
 	if c.IsSet("address") {
 		flagAddress = c.String("address")
 	} else {
-		printFatal("You should specify an address for gateway")
+		printFatal("You should specify an address for gateway\ngateways add --name <gateway name> --address <gateway address> --username <gateway username>")
 		os.Exit(2)
 	}
 
@@ -128,7 +141,7 @@ func runAddGateway(c *cli.Context) {
 	if c.IsSet("username") {
 		flagUsername = c.String("username")
 	} else {
-		printFatal("You should specify a username for gateway")
+		printFatal("You should specify a username for gateway\ngateways add --name <gateway name> --address <gateway address> --username <gateway username>")
 		os.Exit(2)
 	}
 
@@ -138,7 +151,7 @@ func runAddGateway(c *cli.Context) {
 		os.Exit(2)
 	}
 
-	err := client.AddGateway(currentAccountId, name, flagAddress, flagUsername)
+	err := client.AddGateway(currentAccountId, gatewayName, flagAddress, flagUsername)
 
 	if err != nil {
 		printFatal("Error adding gateway : " + err.Error())
@@ -147,11 +160,13 @@ func runAddGateway(c *cli.Context) {
 }
 
 func runOpenGateway(c *cli.Context) {
-	if len(c.Args()) == 0 {
-		printFatal("You should specify name of gateway to delete")
+	gatewayName := ""
+	if c.IsSet("name") {
+		gatewayName = c.String("name")
+	} else {
+		printFatal("You should specify the name of gateway to open\ngateways open --name <gateway name> --key <path/to/gateway/key/file>  --ttl <time to live>")
 		os.Exit(2)
 	}
-	gatewayName := c.Args()[0]
 
 	currentAccountId := findAccountId()
 	if currentAccountId == 0 {
@@ -166,7 +181,7 @@ func runOpenGateway(c *cli.Context) {
 	if c.IsSet("ttl") {
 		flagTtl = c.Int("ttl")
 	} else {
-		printFatal("You should specify a ttl for gateway to be open")
+		printFatal("You should specify a ttl for gateway to be open\ngateways open --name <gateway name> --key <path/to/gateway/key/file>  --ttl <time to live>")
 		os.Exit(2)
 	}
 
@@ -175,7 +190,7 @@ func runOpenGateway(c *cli.Context) {
 	if c.IsSet("key") {
 		flagKeyFile = c.String("key")
 	} else {
-		printFatal("You should specify a key file path")
+		printFatal("You should specify a key file path\ngateways open --name <gateway name> --key <path/to/gateway/key/file>  --ttl <time to live>")
 		os.Exit(2)
 	}
 
@@ -196,11 +211,13 @@ func runOpenGateway(c *cli.Context) {
 }
 
 func runRemoveGateway(c *cli.Context) {
-	if len(c.Args()) == 0 {
-		printFatal("You should specify name of gateway to delete")
+	gatewayName := ""
+	if c.IsSet("name") {
+		gatewayName = c.String("name")
+	} else {
+		printFatal("You should specify the name of gateway to delete\ngateways remove --name <gateway name>")
 		os.Exit(2)
 	}
-	gatewayName := c.Args()[0]
 
 	currentAccountId := findAccountId()
 	if currentAccountId == 0 {
