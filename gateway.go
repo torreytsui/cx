@@ -6,6 +6,7 @@ import (
 	"github.com/cloud66/cloud66"
 	"io/ioutil"
 	"os"
+	"time"
 	"strings"
 	"text/tabwriter"
 )
@@ -148,13 +149,20 @@ func runListGateways(c *cli.Context) {
 				} else {
 					state = "close"
 				}
+				
+				ttl_string := "N/A"
+				t, err := time.Parse("2006-01-02T15:04:05Z",g.Ttl) 
+				if err == nil {
+				    ttl_string = prettyTime{t}.String()
+				}
+
 				listRec(w,
 					g.Id,
 					g.Name,
 					g.Username,
 					g.Address,
 					g.PrivateIp,
-					g.Ttl,
+					ttl_string,
 					state,
 					prettyTime{g.CreatedAt},
 					g.CreatedBy,
@@ -227,40 +235,45 @@ func runOpenGateway(c *cli.Context) {
 		os.Exit(2)
 	}
 
-	accountId, gatewayId := findGatwayInfo(gatewayName)
+	accountId, gatewayId, state := findGatwayInfo(gatewayName)
 
-	flagTtl := 0
-
-	if c.IsSet("ttl") {
-		flagTtl = c.Int("ttl")
+	if strings.Compare(state,"open") == 0  {
+		fmt.Println("Gateway is already open.")
 	} else {
-		printFatal("You should specify a ttl for gateway to be open\ngateways open --name <gateway name> --key <path/to/gateway/key/file>  --ttl <time to live>")
-		os.Exit(2)
+		flagTtl := 0
+	
+		if c.IsSet("ttl") {
+			flagTtl = c.Int("ttl")
+		} else {
+			printFatal("You should specify a ttl for gateway to be open\ngateways open --name <gateway name> --key <path/to/gateway/key/file>  --ttl <time to live>")
+			os.Exit(2)
+		}
+	
+		flagKeyFile := ""
+	
+		if c.IsSet("key") {
+			flagKeyFile = c.String("key")
+		} else {
+			printFatal("You should specify a key file path\ngateways open --name <gateway name> --key <path/to/gateway/key/file>  --ttl <time to live>")
+			os.Exit(2)
+		}
+	
+		keyfilePath := expandPath(flagKeyFile)
+		keyContent, err := ioutil.ReadFile(keyfilePath)
+		if err != nil {
+			printFatal("Can not read from %s : "+err.Error(), keyfilePath)
+			os.Exit(2)
+		}
+	
+		err = client.UpdateGateway(accountId, gatewayId, string(keyContent), flagTtl)
+	
+		if err != nil {
+			printFatal("Error opening gateway : " + err.Error())
+			os.Exit(2)
+		}
+		fmt.Println("Gateway opened successfully!")
 	}
-
-	flagKeyFile := ""
-
-	if c.IsSet("key") {
-		flagKeyFile = c.String("key")
-	} else {
-		printFatal("You should specify a key file path\ngateways open --name <gateway name> --key <path/to/gateway/key/file>  --ttl <time to live>")
-		os.Exit(2)
-	}
-
-	keyfilePath := expandPath(flagKeyFile)
-	keyContent, err := ioutil.ReadFile(keyfilePath)
-	if err != nil {
-		printFatal("Can not read from %s : "+err.Error(), keyfilePath)
-		os.Exit(2)
-	}
-
-	err = client.UpdateGateway(accountId, gatewayId, string(keyContent), flagTtl)
-
-	if err != nil {
-		printFatal("Error opening gateway : " + err.Error())
-		os.Exit(2)
-	}
-	fmt.Println("Gateway opened successfully!")
+	
 }
 
 func runRemoveGateway(c *cli.Context) {
@@ -272,15 +285,19 @@ func runRemoveGateway(c *cli.Context) {
 		os.Exit(2)
 	}
 
-	accountId, gatewayId := findGatwayInfo(gatewayName)
+	accountId, gatewayId,state := findGatwayInfo(gatewayName)
 
-	err := client.RemoveGateway(accountId, gatewayId)
-
-	if err != nil {
-		printFatal("Error remove gateway : " + err.Error())
-		os.Exit(2)
+	if strings.Compare(state,"open") == 0 {
+		printFatal("Can not remove an open gateway, please close it first.")
+	} else {
+		err := client.RemoveGateway(accountId, gatewayId)
+	
+		if err != nil {
+			printFatal("Error remove gateway : " + err.Error())
+			os.Exit(2)
+		}
+		fmt.Println("Gateway removed successfully!")
 	}
-	fmt.Println("Gateway removed successfully!")
 }
 
 func runCloseGateway(c *cli.Context) {
@@ -292,18 +309,22 @@ func runCloseGateway(c *cli.Context) {
 		os.Exit(2)
 	}
 
-	accountId, gatewayId := findGatwayInfo(gatewayName)
+	accountId, gatewayId, state := findGatwayInfo(gatewayName)
 
-	flagTtl := 1
-	keyContent := ""
-
-	err := client.UpdateGateway(accountId, gatewayId, string(keyContent), flagTtl)
-
-	if err != nil {
-		printFatal("Error close gateway : " + err.Error())
-		os.Exit(2)
+	if strings.Compare(state,"close") == 0 {
+		fmt.Println("Gateway is already closed.")
+	} else {
+		flagTtl := 1
+		keyContent := ""
+	
+		err := client.UpdateGateway(accountId, gatewayId, string(keyContent), flagTtl)
+	
+		if err != nil {
+			printFatal("Error close gateway : " + err.Error())
+			os.Exit(2)
+		}
+		fmt.Println("Gateway closed successfully!")
 	}
-	fmt.Println("Gateway closed successfully!")
 }
 
 
@@ -334,7 +355,7 @@ func findAccountId() int {
 	return currentAccountId
 }
 
-func findGatwayInfo(gatewayName string) (int, int) {
+func findGatwayInfo(gatewayName string) (int, int, string) {
 	accountInfos, err := client.AccountInfos()
 	if err != nil {
 		printFatal("Can not retrive account info.")
@@ -343,6 +364,7 @@ func findGatwayInfo(gatewayName string) (int, int) {
     	
 	result_gateway_id := -1
 	result_account_id := -1
+	result_state := "N/A"
 	for _, accountInfo := range accountInfos {		
 		gateways, err := client.ListGateways(accountInfo.Id)
 		if err == nil {
@@ -350,6 +372,11 @@ func findGatwayInfo(gatewayName string) (int, int) {
 				if strings.Compare(g.Name, gatewayName) == 0 {
 					result_gateway_id = g.Id
 					result_account_id = accountInfo.Id
+					if (len(g.Content) > 0) && (strings.Compare(g.Content,"N/A") != 0) {
+						result_state = "open"
+					} else {
+						result_state = "close"
+					}
 					break
 				}
 			}
@@ -363,5 +390,5 @@ func findGatwayInfo(gatewayName string) (int, int) {
 		printFatal(fmt.Sprintf("Can not find gateway(%s)", gatewayName))
 		os.Exit(2)
 	}
-	return result_account_id,result_gateway_id
+	return result_account_id,result_gateway_id, result_state
 }
