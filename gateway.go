@@ -28,7 +28,13 @@ func buildGateways() cli.Command {
 			Description: `lists gateways of an account
 Examples:
 $ cx gateways list
-`,
+$ cx gateways list --verbose
+`,			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "verbose",
+					Usage: "Show more information about each gateway",
+				},
+			},
 		},
 		cli.Command{
 			Name:   "add",
@@ -40,7 +46,7 @@ $ cx gateways add --name aws_bastion --address 192.168.100.100  --username ec2-u
 				`,
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name: "name",
+					Name: "name,n",
 				},
 				cli.StringFlag{
 					Name: "address",
@@ -56,18 +62,18 @@ $ cx gateways add --name aws_bastion --address 192.168.100.100  --username ec2-u
 		cli.Command{
 			Name:   "open",
 			Action: runOpenGateway,
-			Usage:  "gateways open --name <gateway name> --key <path/to/gateway/key/file>  --ttl <time to live>",
+			Usage:  "gateways open --name <gateway name> --key <path/to/gateway/key/file>  --ttl <time to live  1h, 30m, 30s, ...>",
 			Description: `Make the gateway available to use with cloud66 for ttl amount of time.
 Example:
-$ cx gateways open aws_bastion --key /tmp/gateway.pem --ttl 1800`,
+$ cx gateways open aws_bastion --key /tmp/gateway.pem --ttl 45m`,
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name: "name",
+					Name: "name,n",
 				},
 				cli.StringFlag{
 					Name: "key",
 				},
-				cli.IntFlag{
+				cli.StringFlag{
 					Name: "ttl",
 				},
 			},
@@ -81,7 +87,7 @@ Example:
 $ cx gateways remove aws_bastion`,
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name: "name",
+					Name: "name,n",
 				},
 			},
 		},
@@ -94,7 +100,7 @@ Example:
 $ cx gateways close aws_bastion`,
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name: "name",
+					Name: "name,n",
 				},
 			},
 		},
@@ -110,6 +116,8 @@ func runListGateways(c *cli.Context) {
 		os.Exit(2)
 	}
     
+	flagVerbose := c.Bool("verbose")
+	
 	result := []cloud66.Gateway{}
 	
 	for _, accountInfo := range accountInfos {		
@@ -140,7 +148,11 @@ func runListGateways(c *cli.Context) {
 		if len(result) == 0 {
 			fmt.Println("No gateway defined.")
 		} else {
-			listRec(w,"Id","Name","Username","Address","Private IP","TTL","State","Creation Time","Created By","Updated By")
+			if flagVerbose {
+				listRec(w,"NAME","USERNAME","ADDRESS","PRIVATE IP","OPEN UNTIL","STATE","CREATED AT","CREATED BY","UPDATED AT","UPDATED BY")				
+			} else {
+				listRec(w,"NAME","USERNAME","ADDRESS","PRIVATE IP","OPEN UNTIL","STATE")				
+			}
 	
 			for _, g := range result {
 				state := "N/A"
@@ -156,18 +168,29 @@ func runListGateways(c *cli.Context) {
 				    ttl_string = prettyTime{t}.String()
 				}
 
-				listRec(w,
-					g.Id,
-					g.Name,
-					g.Username,
-					g.Address,
-					g.PrivateIp,
-					ttl_string,
-					state,
-					prettyTime{g.CreatedAt},
-					g.CreatedBy,
-					g.UpdatedBy,	
-				)
+				if flagVerbose {
+					listRec(w,
+						g.Name,
+						g.Username,
+						g.Address,
+						g.PrivateIp,
+						ttl_string,
+						state,
+						prettyTime{g.CreatedAt},
+						g.CreatedBy,
+						prettyTime{g.UpdatedAt},
+						g.UpdatedBy,	
+					)					
+				} else {
+					listRec(w,
+						g.Name,
+						g.Username,
+						g.Address,
+						g.PrivateIp,
+						ttl_string,
+						state,
+					)					
+				}				
 			}
 			
 		}
@@ -231,7 +254,7 @@ func runOpenGateway(c *cli.Context) {
 	if c.IsSet("name") {
 		gatewayName = c.String("name")
 	} else {
-		printFatal("You should specify the name of gateway to open\ngateways open --name <gateway name> --key <path/to/gateway/key/file>  --ttl <time to live>")
+		printFatal("You should specify the name of gateway to open\ngateways open --name <gateway name> --key <path/to/gateway/key/file>  --ttl <time to live  1h, 30m, 30s, ...>")
 		os.Exit(2)
 	}
 
@@ -240,12 +263,19 @@ func runOpenGateway(c *cli.Context) {
 	if strings.Compare(state,"open") == 0  {
 		fmt.Println("Gateway is already open.")
 	} else {
-		flagTtl := 0
+		ttlValue := 0
 	
 		if c.IsSet("ttl") {
-			flagTtl = c.Int("ttl")
+			flagTtl := c.String("ttl")
+			
+			d , e := time.ParseDuration(flagTtl)
+			if e != nil {
+				printFatal("Wrong TTL format : " + e.Error())
+				os.Exit(2)
+			}
+			ttlValue = int(d.Seconds()) 
 		} else {
-			printFatal("You should specify a ttl for gateway to be open\ngateways open --name <gateway name> --key <path/to/gateway/key/file>  --ttl <time to live>")
+			printFatal("You should specify a ttl for gateway to be open\ngateways open --name <gateway name> --key <path/to/gateway/key/file>  --ttl <time to live  1h, 30m, 30s, ...>")
 			os.Exit(2)
 		}
 	
@@ -265,7 +295,7 @@ func runOpenGateway(c *cli.Context) {
 			os.Exit(2)
 		}
 	
-		err = client.UpdateGateway(accountId, gatewayId, string(keyContent), flagTtl)
+		err = client.UpdateGateway(accountId, gatewayId, string(keyContent), ttlValue)
 	
 		if err != nil {
 			printFatal("Error opening gateway : " + err.Error())
@@ -387,7 +417,7 @@ func findGatwayInfo(gatewayName string) (int, int, string) {
 	}
 
 	if result_gateway_id == -1 {
-		printFatal(fmt.Sprintf("Can not find gateway(%s)", gatewayName))
+		printFatal(fmt.Sprintf("Can not find gateway \"%s\"", gatewayName))
 		os.Exit(2)
 	}
 	return result_account_id,result_gateway_id, result_state
