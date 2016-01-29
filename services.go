@@ -74,7 +74,7 @@ $ cx services stop -s mystack --server my_server my_web_service
 				},
 			},
 			Description: `Starts <count> containers from the given service.
-<count> can be an absolute value like "2" or a relative value like "+2" or "-3" etc.
+<count> can be an absolute value like "2" or a relative value like "[+2]" or "[-3]" etc.
 If server is provided, will start <count> containers on that server.
 If server is not provided, will start <count> containers on every server.
 If group is provided, will scale the containers of the service across all servers of a group. Currently only web is a valid group name.

@@ -40,6 +40,14 @@ $ cx processes list -s mystack
 $ cx processes list -s mystack --server orca
 $ cx processes list -s mystack --name worker
 $ cx processes list -s mystack --server orca --name worker
+
+Example Output:
+
+NAME       COMMAND                                           SERVER    COUNT
+scheduler  bundle exec rake test:work FIRST={{UNIQUE_INT}}   Flamingo  1
+scheduler  bundle exec rake test:work FIRST={{UNIQUE_INT}}   Jackal    1
+worker     bundle exec rake test:work SECOND={{UNIQUE_INT}}  Flamingo  1
+worker     bundle exec rake test:work SECOND={{UNIQUE_INT}}  Jackal    2
 `,
 		},
 		cli.Command{
@@ -55,7 +63,7 @@ $ cx processes list -s mystack --server orca --name worker
 				},
 			},
 			Description: `Starts <count> processes from the given process definition.
-<count> can be an absolute value like "2" or a relative value like "+2" or "-3" etc.
+<count> can be an absolute value like "2" or a relative value like "[+2]" or "[-3]" etc.
 If server is provided, will start <count> processes on that server.
 If server is not provided, will start <count> processes on every server.
 NOTE: the square brackets are required for relative count values
@@ -64,8 +72,7 @@ Examples:
 $ cx processes scale -s mystack --server backend1 --name worker [+5]
 $ cx processes scale -s mystack --server backend2 --name worker [-5]
 $ cx processes scale -s mystack --server backend3 --name worker 15
-$ cx processes scale -s mystack --name worker 2
-`},
+$ cx processes scale -s mystack --name worker 2`},
 	}
 
 	return base
