@@ -12,25 +12,27 @@ import (
 )
 
 func runProcessScale(c *cli.Context) {
-	if len(c.Args()) != 2 {
+	flagServer := c.String("server")
+	flagName := c.String("name")
+	if flagName == "" || len(c.Args()) != 1 {
 		cli.ShowSubcommandHelp(c)
 		os.Exit(2)
 	}
+	count := c.Args()[0]
 
 	stack := mustStack(c)
 	if stack.Framework == "docker" {
 		printFatal("Stack '" + stack.Name + "' is a docker stack; 'cx processes' is not supported, use 'cx services' instead")
 	}
 
-	processName := c.Args()[0]
-	count := c.Args()[1]
-
-	flagServer := c.String("server")
 	// fetch servers info
 	servers, err := client.Servers(stack.Uid)
 	must(err)
 
-	if flagServer != "" {
+	var serverUid *string
+	if flagServer == "" {
+		serverUid = nil
+	} else {
 		server, err := findServer(servers, flagServer)
 		must(err)
 		if server == nil {
@@ -40,6 +42,7 @@ func runProcessScale(c *cli.Context) {
 		// filter servers collection down
 		servers = make([]cloud66.Server, 1)
 		servers[0] = *server
+		serverUid = &server.Uid
 	}
 
 	// param for api call
@@ -48,11 +51,11 @@ func runProcessScale(c *cli.Context) {
 	var absoluteCount int
 	if strings.ContainsAny(count, "+ & -") {
 
-		// fetch service information for existing counts
-		service, err := client.GetService(stack.Uid, processName, nil, nil)
+		// fetch process information for existing counts
+		process, err := client.GetProcess(stack.Uid, flagName, serverUid)
 		must(err)
 
-		serverCountCurrent := service.ServerContainerCountMap()
+		serverCountCurrent := process.ServerProcessCount
 		relativeCount, _ := strconv.Atoi(count)
 
 		for _, server := range servers {
@@ -62,7 +65,6 @@ func runProcessScale(c *cli.Context) {
 				serverCountDesired[server.Uid] = relativeCount
 			}
 		}
-
 	} else {
 		absoluteCount, _ = strconv.Atoi(count)
 		for _, server := range servers {
@@ -77,36 +79,24 @@ func runProcessScale(c *cli.Context) {
 		}
 	}
 
-	fmt.Println("Scaling your '" + processName + "' service")
+	fmt.Println("Scaling your '" + flagName + "' process")
 
 	var asyncId *int
-	if flagGroup != "" {
-		var groupMap = make(map[string]int)
-		groupMap["web"] = absoluteCount
-		asyncId, err = startServiceScaleByGroup(stack.Uid, processName, groupMap)
-	} else {
-		asyncId, err = startServiceScale(stack.Uid, processName, serverCountDesired)
-	}
+	asyncId, err = startProcessScale(stack.Uid, flagName, serverCountDesired)
 
 	must(err)
-	genericRes, err := endServiceScale(*asyncId, stack.Uid)
+	genericRes, err := endProcessScale(*asyncId, stack.Uid)
 	must(err)
 	printGenericResponse(*genericRes)
 	return
 }
 
-func startServiceScale(stackUid string, processName string, serverCount map[string]int) (*int, error) {
-	asyncRes, err := client.ScaleService(stackUid, processName, serverCount)
+func startProcessScale(stackUid string, processName string, serverCount map[string]int) (*int, error) {
+	asyncRes, err := client.ScaleProcess(stackUid, processName, serverCount)
 	must(err)
 	return &asyncRes.Id, err
 }
 
-func startServiceScaleByGroup(stackUid string, processName string, groupCount map[string]int) (*int, error) {
-	asyncRes, err := client.ScaleServiceByGroup(stackUid, processName, groupCount)
-	must(err)
-	return &asyncRes.Id, err
-}
-
-func endServiceScale(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
+func endProcessScale(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
 	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 20*time.Minute, true)
 }

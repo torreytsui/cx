@@ -57,6 +57,7 @@ var commands = []*Command{
 	cmdInfo,
 	cmdTest,
 	cmdGateway,
+	cmdProcesses,
 }
 
 var (
