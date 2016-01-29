@@ -20,7 +20,11 @@ func runServiceScale(c *cli.Context) {
 
 	stack := mustStack(c)
 	serviceName := c.Args()[0]
+
 	count := c.Args()[1]
+	count = strings.Replace(count, "[", "", -1)
+	count = strings.Replace(count, "]", "", -1)
+	count = strings.Replace(count, " ", "", -1)
 
 	flagServer := c.String("server")
 	flagGroup := c.String("group")

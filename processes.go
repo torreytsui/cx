@@ -58,10 +58,11 @@ $ cx processes list -s mystack --server orca --name worker
 <count> can be an absolute value like "2" or a relative value like "+2" or "-3" etc.
 If server is provided, will start <count> processes on that server.
 If server is not provided, will start <count> processes on every server.
+NOTE: the square brackets are required for relative count values
 
 Examples:
-$ cx processes scale -s mystack --server backend1 --name worker +5
-$ cx processes scale -s mystack --server backend2 --name worker -5
+$ cx processes scale -s mystack --server backend1 --name worker [+5]
+$ cx processes scale -s mystack --server backend2 --name worker [-5]
 $ cx processes scale -s mystack --server backend3 --name worker 15
 $ cx processes scale -s mystack --name worker 2
 `},

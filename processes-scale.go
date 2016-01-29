@@ -19,6 +19,9 @@ func runProcessScale(c *cli.Context) {
 		os.Exit(2)
 	}
 	count := c.Args()[0]
+	count = strings.Replace(count, "[", "", -1)
+	count = strings.Replace(count, "]", "", -1)
+	count = strings.Replace(count, " ", "", -1)
 
 	stack := mustStack(c)
 	if stack.Framework == "docker" {
