@@ -42,7 +42,6 @@ $ cx processes list -s mystack --name worker
 $ cx processes list -s mystack --server orca --name worker
 
 Example Output:
-
 NAME       COMMAND                                           SERVER    COUNT
 scheduler  bundle exec rake test:work FIRST={{UNIQUE_INT}}   Flamingo  1
 scheduler  bundle exec rake test:work FIRST={{UNIQUE_INT}}   Jackal    1

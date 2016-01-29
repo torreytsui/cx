@@ -126,6 +126,51 @@ For more information on restart command, please refer to help.cloud66.com
 `,
 		},
 		cli.Command{
+			Name:   "reboot",
+			Action: runStackReboot,
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "y",
+					Usage: "answer yes to confirmations",
+				},
+				cli.StringFlag{
+					Name:  "group",
+					Usage: "Specify which group you would like to reboot",
+				},
+				cli.StringFlag{
+					Name:  "strategy",
+					Usage: "Specify how you would like to reboot your servers",
+				},
+				cli.StringFlag{
+					Name:  "environment,e",
+					Usage: "full or partial environment name",
+				},
+				cli.StringFlag{
+					Name:  "stack,s",
+					Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
+				},
+			},
+			Usage: "reboot servers in your stack",
+			Description: `reboot servers in your stack.
+
+The group parameter specifies which group of servers you wish to reboot. Valid values are "all", "web", "haproxy", "db";
+DB specific values like "mysql" or "redis" for example are also supported.
+If this value is left unspecified, the default value of "web" will be used
+
+The strategy parameter specifies whether you want all your servers to be rebooted in parallel or in serial.
+Valid values for this parameter are "serial" or "parallel"; "serial" reboots involves web servers being removed/re-added to the LB one by one.
+Note that for this only applies to web servers; non-web server will still be rebooted in parallel.
+If this value is left unspecified, Cloud 66 will determine the best strategy based on your infrastructure layout.
+
+Examples:
+$ cx stack reboot -s mystack
+$ cx stack reboot -s mystack --group web
+$ cx stack reboot -s mystack --group all
+$ cx stack reboot -s mystack --strategy parallel
+$ cx stack reboot -s mystack --group web --strategy serial 
+`},
+
+		cli.Command{
 			Name:   "clear-caches",
 			Action: runClearCaches,
 			Flags: []cli.Flag{
