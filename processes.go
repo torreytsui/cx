@@ -145,7 +145,13 @@ func printProcessesList(w io.Writer, processes []cloud66.Process) {
 }
 
 func listProcess(w io.Writer, process cloud66.Process) {
-	for serverName, count := range process.ServerProcessCount {
+	var serverNames []string
+	for serverName := range process.ServerProcessCount {
+		serverNames = append(serverNames, serverName)
+	}
+	sort.Strings(serverNames)
+	for _, serverName := range serverNames {
+		count := process.ServerProcessCount[serverName]
 		listRec(w,
 			process.Name,
 			process.Command,
