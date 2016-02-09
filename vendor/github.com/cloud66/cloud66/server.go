@@ -37,6 +37,9 @@ type Server struct {
 	PersonalKey      bool                          `json:"personal_key"`
 	SshPrivateKey    *string                       `json:"ssh_private_key"`
 	Notifications    map[string]ServerNotification `json:"notifications"`
+	HasDeployGateway   bool                          `json:"has_deploy_gateway"`
+	DeployGatewayAddress  string                   `json:"deploy_gateway_address"`
+	DeployGatewayUsername  string                   `json:"deploy_gateway_user_name"`
 }
 
 func (s Server) Health() string {
@@ -149,7 +152,7 @@ func (c *Client) ServerSet(stackUid string, serverUid string, key string, value 
 }
 
 func (c *Client) ServerReboot(stackUid string, serverUid string) (*AsyncResult, error) {
-	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/servers/"+serverUid+"/reboot.json", nil, nil)
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/servers/"+serverUid+"/reboot_server.json", nil, nil)
 	if err != nil {
 		return nil, err
 	}

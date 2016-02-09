@@ -14,6 +14,13 @@ var cmdSsh = &Command{
 	Name:       "ssh",
 	Run:        runSsh,
 	Build:      buildBasicCommand,
+		Flags: []cli.Flag{
+		cli.StringFlag{
+			Name:  "gateway-key",
+			Usage: "path to the bastion server key",
+			Value: "",
+		},
+	},
 	NeedsStack: true,
 	Short:      "starts a ssh shell into the server",
 	Long: `This will open the firewall for SSH from your IP address temporaritly (20 minutes), downloads the keys if you don't have them
@@ -27,12 +34,15 @@ If a role is specified the command will connect to the first server with that ro
 
 Names are case insensitive and will work with the starting characters as well.
 
+You should provide a key to your bastion server if it is deployed with a deploy gateway.
+
 This command is only supported on Linux and OS X.
 
 Examples:
 $ cx ssh -s mystack lion
 $ cx ssh -s mystack 52.65.34.98
 $ cx ssh -s mystack web
+$ cx ssh -s mystack db   --gateway-key ~/.ssh/bastion_key
 `,
 }
 
@@ -66,16 +76,31 @@ func runSsh(c *cli.Context) {
 		printFatal("Server '" + serverName + "' not found")
 	}
 
+	flagGatewayKey := ""
+	if server.HasDeployGateway {
+		if c.IsSet("gateway-key") {
+			flagGatewayKey = c.String("gateway-key")
+			if len(server.DeployGatewayAddress) == 0 {
+				printFatal("Can not find the address of gateway server")
+			}
+			if len(server.DeployGatewayUsername) == 0 {
+				printFatal("Can not find the username of gateway server")
+			}
+		} else {
+			printFatal("This server deployed behind the gateway. You need to specify the key for the bastion server")
+		}
+	}
+
 	fmt.Printf("Server: %s\n", server.Name)
 
-	err = sshToServer(*server)
+	err = sshToServer(*server,flagGatewayKey)
 	if err != nil {
 		printError("If you're having issues connecting to your server, you may find some help at http://help.cloud66.com/managing-your-stack/ssh-to-your-server")
 		printFatal(err.Error())
 	}
 }
 
-func sshToServer(server cloud66.Server) error {
+func sshToServer(server cloud66.Server,gatewayKey string) error {
 	sshFile, err := prepareLocalSshKey(server)
 	must(err)
 
@@ -89,15 +114,32 @@ func sshToServer(server cloud66.Server) error {
 	}
 
 	fmt.Printf("Connecting to %s (%s)...\n", server.Name, server.Address)
-	return startProgram("ssh", []string{
-		server.UserName + "@" + server.Address,
-		"-i", sshFile,
-		"-o", "UserKnownHostsFile=/dev/null",
-		"-o", "CheckHostIP=no",
-		"-o", "StrictHostKeyChecking=no",
-		"-o", "LogLevel=QUIET",
-		"-o", "IdentitiesOnly=yes",
-		"-A",
-		"-p", "22",
-	})
+	
+	if server.HasDeployGateway {
+		sshProxyCommand := "'ssh " + server.DeployGatewayUsername + "@" + server.DeployGatewayAddress  + " -i  " + gatewayKey + "  nc  " + server.Address + "22'" 
+		return startProgram("ssh", []string{
+			server.UserName + "@" + server.Address,
+			"-o","ProxyCommand=" + sshProxyCommand,
+			"-i", sshFile,
+			"-o", "UserKnownHostsFile=/dev/null",
+			"-o", "CheckHostIP=no",
+			"-o", "StrictHostKeyChecking=no",
+			"-o", "LogLevel=QUIET",
+			"-o", "IdentitiesOnly=yes",
+			"-A",
+			"-p", "22",
+		})
+	} else {
+		return startProgram("ssh", []string{
+			server.UserName + "@" + server.Address,
+			"-i", sshFile,
+			"-o", "UserKnownHostsFile=/dev/null",
+			"-o", "CheckHostIP=no",
+			"-o", "StrictHostKeyChecking=no",
+			"-o", "LogLevel=QUIET",
+			"-o", "IdentitiesOnly=yes",
+			"-A",
+			"-p", "22",
+		})
+	}
 }
