@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"os"
 	"runtime"
-
+	"strings"
 	"github.com/cloud66/cloud66"
-
 	"github.com/cloud66/cli"
 )
 
@@ -42,7 +41,7 @@ Examples:
 $ cx ssh -s mystack lion
 $ cx ssh -s mystack 52.65.34.98
 $ cx ssh -s mystack web
-$ cx ssh -s mystack db   --gateway-key ~/.ssh/bastion_key
+$ cx ssh --gateway-key ~/.ssh/bastion_key  -s mystack db   
 `,
 }
 
@@ -87,6 +86,7 @@ func runSsh(c *cli.Context) {
 				printFatal("Can not find the username of gateway server")
 			}
 		} else {
+			cli.ShowCommandHelp(c, "ssh")
 			printFatal("This server deployed behind the gateway. You need to specify the key for the bastion server")
 		}
 	}
@@ -116,11 +116,9 @@ func sshToServer(server cloud66.Server,gatewayKey string) error {
 	fmt.Printf("Connecting to %s (%s)...\n", server.Name, server.Address)
 	
 	if server.HasDeployGateway {
-		sshProxyCommand := "'ssh " + server.DeployGatewayUsername + "@" + server.DeployGatewayAddress  + " -i  " + gatewayKey + "  nc  " + server.Address + "22'" 
-		return startProgram("ssh", []string{
-			server.UserName + "@" + server.Address,
-			"-o","ProxyCommand=" + sshProxyCommand,
-			"-i", sshFile,
+		tags := []string{
+			"ssh", 
+			"-o",  "ProxyCommand='ssh " + server.DeployGatewayUsername + "@" + server.DeployGatewayAddress  + " -i  " + gatewayKey + "  nc  " + server.Address + " 22' " ,
 			"-o", "UserKnownHostsFile=/dev/null",
 			"-o", "CheckHostIP=no",
 			"-o", "StrictHostKeyChecking=no",
@@ -128,6 +126,11 @@ func sshToServer(server cloud66.Server,gatewayKey string) error {
 			"-o", "IdentitiesOnly=yes",
 			"-A",
 			"-p", "22",
+			server.UserName + "@" + server.Address,
+			"-i", sshFile,
+		}
+		return startProgram("bash",[]string{
+			"-c", strings.Join(tags," "),
 		})
 	} else {
 		return startProgram("ssh", []string{
