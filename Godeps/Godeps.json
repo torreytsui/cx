@@ -19,8 +19,8 @@
 		},
 		{
 			"ImportPath": "github.com/cloud66/cloud66",
-			"Comment": "0.1.27-31-gdcf0b26",
-			"Rev": "dcf0b26689379513900c751ec2b5e799acc46da6"
+			"Comment": "0.1.27-38-gfa51d4a",
+			"Rev": "fa51d4abbb778aa92c1bc1626d9327510e6016da"
 		},
 		{
 			"ImportPath": "github.com/cloud66/fayego/fayeclient",

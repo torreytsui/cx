@@ -157,16 +157,18 @@ func runApplyProfile(c *cli.Context) {
 
 	j := c.String("json")
 
-	var user cloud66.User
+	var apt cloud66.AccessProfileType
 	b, err := ioutil.ReadFile(j)
 	if err != nil {
 		printFatal("Failed to load %s due to %s", j, err.Error())
 	}
-	err = json.Unmarshal(b, &user)
+	err = json.Unmarshal(b, &apt)
 	if err != nil {
 		printFatal("Invalid JSON profile %s", err.Error())
 	}
 
+	user := cloud66.User{}
+	user.AccessProfile = apt
 	_, err = client.UpdateUser(found.Id, user)
 	if err != nil {
 		printFatal("Failed to upload and apply the profile to %s due to %s", email, err.Error())
