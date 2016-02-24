@@ -52,6 +52,7 @@ type AccountProfileType struct {
 type AccessProfileType struct {
 	AccountProfile AccountProfileType `json:"account_profile"`
 	StackProfiles  []StackProfileType `json:"stack_profiles"`
+	Override       bool               `json:"override"`
 }
 
 type User struct {

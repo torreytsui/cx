@@ -170,6 +170,7 @@ func runApplyProfile(c *cli.Context) {
 
 	user := cloud66.User{}
 	user.AccessProfile = apt
+	user.AccessProfile.Override = c.Bool("override")
 	_, err = client.UpdateUser(found.Id, user)
 	if err != nil {
 		printFatal("Failed to upload and apply the profile to %s due to %s", email, err.Error())
