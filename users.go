@@ -147,6 +147,7 @@ func runApplyProfile(c *cli.Context) {
 	for _, user := range users {
 		if user.Email == email {
 			found = &user
+			break
 		}
 	}
 
