@@ -139,14 +139,27 @@ func main() {
 }
 
 func beforeCommand(c *cli.Context) error {
+	account := ""
+	environment := ""
+	if c.GlobalString("account") != "" {
+		account = "_" + c.GlobalString("account")
+	}
+
 	// set the env vars from global options
 	if c.GlobalString("runenv") != "production" {
-		tokenFile = "cx_" + c.GlobalString("runenv") + ".json"
+		environment = "_" + c.GlobalString("runenv")
+
 		fmt.Printf(ansi.Color(fmt.Sprintf("Running against %s environment\n", c.GlobalString("runenv")), "grey"))
 		honeybadger.Environment = c.GlobalString("runenv")
 	} else {
 		honeybadger.Environment = "production"
 	}
+
+	if account != "" || environment != "" {
+		tokenFile = "cx" + account + environment + ".json"
+	}
+
+	fmt.Printf("Using %s as config file\n", tokenFile)
 
 	if c.GlobalString("fayeEndpoint") != "" {
 		fayeEndpoint = c.GlobalString("fayeEndpoint")
@@ -181,6 +194,11 @@ func setGlobals(app *cli.App) {
 			Usage:  "sets the environment this toolbelt is running against",
 			Value:  "production",
 			EnvVar: "CXENVIRONMENT",
+		},
+		cli.StringFlag{
+			Name:  "account",
+			Usage: "switches between different Cloud 66 account profiles",
+			Value: "",
 		},
 		cli.StringFlag{
 			Name:   "fayeEndpoint",

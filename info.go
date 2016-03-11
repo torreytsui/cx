@@ -35,6 +35,7 @@ func runInfo(c *cli.Context) {
 	if err := toolbeltInfo(); err != nil {
 		printFatal(err.Error())
 	}
+	fmt.Println("Fetching accounts which you have access to...")
 	if err := accountInfo(); err != nil {
 		printFatal(err.Error())
 	}
@@ -58,6 +59,7 @@ func accountInfo() error {
 
 	for _, accountInfo := range accountInfos {
 		fmt.Printf("\n")
+		fmt.Printf("Name: %s\n", accountInfo.Name)
 		fmt.Printf("Account owner: %s\n", accountInfo.Owner)
 		fmt.Printf("Running %d stack(s)\n", accountInfo.StackCount)
 		fmt.Printf("Used clouds: %s\n", strings.Join(accountInfo.UsedClouds, ", "))
