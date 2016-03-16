@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -308,6 +309,30 @@ func startProgram(command string, args []string) error {
 	if err := cmd.Run(); err != nil {
 		return err
 	}
+	return nil
+}
+
+func clearSshKeyCache() error {
+	dir := filepath.Join(homePath(), ".ssh")
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return err
+	}
+
+	res := []string{}
+	for _, f := range files {
+		if !f.IsDir() && strings.HasPrefix(f.Name(), "cx_") {
+			res = append(res, filepath.Join(dir, f.Name()))
+		}
+	}
+
+	for _, f := range res {
+		err := os.Remove(f)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

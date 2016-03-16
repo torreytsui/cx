@@ -2,18 +2,18 @@ package main
 
 import (
 	"fmt"
+	"github.com/cloud66/cli"
+	"github.com/cloud66/cloud66"
 	"os"
 	"runtime"
 	"strings"
-	"github.com/cloud66/cloud66"
-	"github.com/cloud66/cli"
 )
 
 var cmdSsh = &Command{
-	Name:       "ssh",
-	Run:        runSsh,
-	Build:      buildBasicCommand,
-		Flags: []cli.Flag{
+	Name:  "ssh",
+	Run:   runSsh,
+	Build: buildBasicCommand,
+	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name:  "gateway-key",
 			Usage: "path to the bastion server key",
@@ -41,7 +41,7 @@ Examples:
 $ cx ssh -s mystack lion
 $ cx ssh -s mystack 52.65.34.98
 $ cx ssh -s mystack web
-$ cx ssh --gateway-key ~/.ssh/bastion_key  -s mystack db   
+$ cx ssh --gateway-key ~/.ssh/bastion_key  -s mystack db
 `,
 }
 
@@ -93,14 +93,14 @@ func runSsh(c *cli.Context) {
 
 	fmt.Printf("Server: %s\n", server.Name)
 
-	err = sshToServer(*server,flagGatewayKey)
+	err = sshToServer(*server, flagGatewayKey)
 	if err != nil {
 		printError("If you're having issues connecting to your server, you may find some help at http://help.cloud66.com/managing-your-stack/ssh-to-your-server")
 		printFatal(err.Error())
 	}
 }
 
-func sshToServer(server cloud66.Server,gatewayKey string) error {
+func sshToServer(server cloud66.Server, gatewayKey string) error {
 	sshFile, err := prepareLocalSshKey(server)
 	must(err)
 
@@ -114,11 +114,11 @@ func sshToServer(server cloud66.Server,gatewayKey string) error {
 	}
 
 	fmt.Printf("Connecting to %s (%s)...\n", server.Name, server.Address)
-	
+
 	if server.HasDeployGateway {
 		tags := []string{
-			"ssh", 
-			"-o",  "ProxyCommand='ssh " + server.DeployGatewayUsername + "@" + server.DeployGatewayAddress  + " -i  " + gatewayKey + "  nc  " + server.Address + " 22' " ,
+			"ssh",
+			"-o", "ProxyCommand='ssh " + server.DeployGatewayUsername + "@" + server.DeployGatewayAddress + " -i  " + gatewayKey + "  nc  " + server.Address + " 22' ",
 			"-o", "UserKnownHostsFile=/dev/null",
 			"-o", "CheckHostIP=no",
 			"-o", "StrictHostKeyChecking=no",
@@ -129,8 +129,8 @@ func sshToServer(server cloud66.Server,gatewayKey string) error {
 			server.UserName + "@" + server.Address,
 			"-i", sshFile,
 		}
-		return startProgram("bash",[]string{
-			"-c", strings.Join(tags," "),
+		return startProgram("bash", []string{
+			"-c", strings.Join(tags, " "),
 		})
 	} else {
 		return startProgram("ssh", []string{

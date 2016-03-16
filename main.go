@@ -143,6 +143,11 @@ func beforeCommand(c *cli.Context) error {
 	environment := ""
 	if c.GlobalString("account") != "" {
 		account = "_" + c.GlobalString("account")
+		// remove all cached ssh keys upon account switch
+		err := clearSshKeyCache()
+		if err != nil {
+			return err
+		}
 	}
 
 	// set the env vars from global options
@@ -158,8 +163,6 @@ func beforeCommand(c *cli.Context) error {
 	if account != "" || environment != "" {
 		tokenFile = "cx" + account + environment + ".json"
 	}
-
-	fmt.Printf("Using %s as config file\n", tokenFile)
 
 	if c.GlobalString("fayeEndpoint") != "" {
 		fayeEndpoint = c.GlobalString("fayeEndpoint")
