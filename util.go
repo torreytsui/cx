@@ -321,7 +321,7 @@ func clearSshKeyCache() error {
 
 	res := []string{}
 	for _, f := range files {
-		if !f.IsDir() && strings.HasPrefix(f.Name(), "cx_") {
+		if !f.IsDir() && strings.HasPrefix(f.Name(), "cx_") && strings.HasSuffix(f.Name(), "_pkey") {
 			res = append(res, filepath.Join(dir, f.Name()))
 		}
 	}
