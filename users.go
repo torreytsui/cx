@@ -102,6 +102,7 @@ func runShowUser(c *cli.Context) {
 	for _, user := range users {
 		if user.Email == email {
 			found = &user
+			break
 		}
 	}
 
@@ -110,15 +111,15 @@ func runShowUser(c *cli.Context) {
 		return
 	}
 
+	jsonFile := c.String("json")
 	user, err := client.GetUser(found.Id)
 	if err != nil {
 		printFatal(err.Error())
 	}
 
-	jsonFile := c.String("json")
 	if jsonFile != "" {
 		fmt.Printf("Exporting the profile for %s to %s\n", email, jsonFile)
-		b, err := json.MarshalIndent(found, "", "\t")
+		b, err := json.MarshalIndent(user.AccessProfile, "", "\t")
 		if err != nil {
 			printFatal(err.Error())
 		}
