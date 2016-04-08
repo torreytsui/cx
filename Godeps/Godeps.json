@@ -5,12 +5,12 @@
 		{
 			"ImportPath": "code.google.com/p/go-uuid/uuid",
 			"Comment": "null-15",
-			"Rev": "35bc42037350f0078e3c974c6ea690f1926603ab"
+			"Rev": "'35bc42037350f0078e3c974c6ea690f1926603ab'"
 		},
 		{
 			"ImportPath": "code.google.com/p/goauth2/oauth",
 			"Comment": "weekly-57",
-			"Rev": "222e66a2882ef45c3153c86c0aa82fe65fc29a78"
+			"Rev": "'222e66a2882ef45c3153c86c0aa82fe65fc29a78'"
 		},
 		{
 			"ImportPath": "github.com/cloud66/cli",
