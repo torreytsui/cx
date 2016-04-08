@@ -15,6 +15,7 @@ var cmdTail = &Command{
 	Build:      buildBasicCommand,
 	Run:        runTail,
 	NeedsStack: true,
+	NeedsOrg:   false,
 	Short:      "shows and tails the logfile specified on the given server",
 	Long: `This will run a Linux tail command on the specified server and given logfile.
 Logs are read from stack's log folder (current/log) and should be the full logfile name

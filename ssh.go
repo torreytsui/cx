@@ -21,6 +21,7 @@ var cmdSsh = &Command{
 		},
 	},
 	NeedsStack: true,
+	NeedsOrg:   false,
 	Short:      "starts a ssh shell into the server",
 	Long: `This will open the firewall for SSH from your IP address temporaritly (20 minutes), downloads the keys if you don't have them
 and starts a SSH session.

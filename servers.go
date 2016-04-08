@@ -19,6 +19,7 @@ var cmdServers = &Command{
 	Build:      buildServers,
 	Short:      "commands to work with servers",
 	NeedsStack: true,
+	NeedsOrg:   false,
 }
 
 func buildServers() cli.Command {

@@ -32,6 +32,7 @@ var cmdRedeploy = &Command{
 	},
 
 	NeedsStack: true,
+	NeedsOrg:   false,
 	Short:      "An alias for 'stacks redeploy' command",
 }
 

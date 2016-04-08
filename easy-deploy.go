@@ -17,6 +17,7 @@ var cmdEasyDeploy = &Command{
 	Build:      buildEasyDeply,
 	Short:      "commands to work with EasyDeploy",
 	NeedsStack: false,
+	NeedsOrg:   false,
 }
 
 func buildEasyDeply() cli.Command {

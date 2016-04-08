@@ -28,6 +28,7 @@ var cmdLease = &Command{
 		},
 	},
 	NeedsStack: true,
+	NeedsOrg:   false,
 	Short:      "leases firewall access to the given server on the stack",
 	Long: `This will poke a hole in the firewall of the given server for a limited time.
 'Time to open' is in minutes (ie. 60 for 1 hour)

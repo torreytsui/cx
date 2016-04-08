@@ -17,6 +17,7 @@ var cmdUsers = &Command{
 	Name:       "users",
 	Build:      buildUsers,
 	NeedsStack: false,
+	NeedsOrg:   true,
 	Short:      "user and account management actions",
 }
 

@@ -21,6 +21,7 @@ var cmdUpload = &Command{
 		},
 	},
 	NeedsStack: true,
+	NeedsOrg:   false,
 	Short:      "copies a file from your local computer to the remote server",
 	Long: `This command will copy a file from your local computer to the remote server.
 

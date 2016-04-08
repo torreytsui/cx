@@ -7,9 +7,9 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
-	"strings"
 
 	"github.com/cloud66/cloud66"
 	"github.com/cloud66/cx/term"
@@ -41,7 +41,7 @@ func runCreateStack(c *cli.Context) {
 	must(err)
 	serviceYaml := string(serviceYamlBytes)
 
-	accountInfo, err := currentAccountInfo()
+	accountInfo, err := org(c)
 	must(err)
 
 	fmt.Printf("Using account: %s\n", accountInfo.Owner)
@@ -203,23 +203,6 @@ func askForBuildType() (string, error) {
 		return "", errors.New("Invalid selection!")
 	}
 	return serverMap[selection], nil
-}
-
-func currentAccountInfo() (*cloud66.Account, error) {
-	accountInfos, err := client.AccountInfos()
-	if err != nil {
-		return nil, err
-	}
-
-	if len(accountInfos) < 1 {
-		printFatal("User associated with this request has no accounts")
-	}
-	for _, accountInfo := range accountInfos {
-		if accountInfo.CurrentAccount {
-			return &accountInfo, nil
-		}
-	}
-	return nil, errors.New("No account found for current user")
 }
 
 func WaitStackBuild(stackUid string, visualFeedback bool) (*cloud66.Stack, error) {

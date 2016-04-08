@@ -16,6 +16,7 @@ var cmdProcesses = &Command{
 	Build:      buildProcesses,
 	Short:      "commands to work with processes",
 	NeedsStack: true,
+	NeedsOrg:   false,
 }
 
 func buildProcesses() cli.Command {

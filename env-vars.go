@@ -17,6 +17,7 @@ var cmdEnvVars = &Command{
 	Run:        runEnvVars,
 	Short:      "commands to work with environment variables",
 	NeedsStack: true,
+	NeedsOrg:   false,
 }
 
 func buildEnvVars() cli.Command {
@@ -51,14 +52,14 @@ RAILS_ENV 			production
 STACK_BASE      	/abc/def
 
 $ cx env-vars list -s mystack -history
-RAILS_ENV 			production         
-STACK_BASE      	/abc/def           
+RAILS_ENV 			production
+STACK_BASE      	/abc/def
 --> 2015-02-24 12:32:11     /xyz/123
 --> 2015-03-12 15:54:08     /xyz/456
 STACK_PATH      	/abc/def/current
 
 $ cx env-vars list -s mystack -history STACK_BASE
-STACK_BASE      	/abc/def           
+STACK_BASE      	/abc/def
 --> 2015-02-24 12:32:11     /xyz/123
 --> 2015-03-12 15:54:08     /xyz/456
 `,

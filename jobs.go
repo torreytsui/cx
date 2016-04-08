@@ -16,6 +16,7 @@ var cmdJobs = &Command{
 	Build:      buildJobs,
 	Short:      "commands to work with jobs",
 	NeedsStack: true,
+	NeedsOrg:   false,
 }
 
 func buildJobs() cli.Command {
@@ -48,7 +49,7 @@ $ cx jobs list -s mystack --service web
 			Action: runJobRun,
 			Flags: []cli.Flag{
 				cli.StringSliceFlag{
-					Name: "arg",
+					Name:  "arg",
 					Value: &cli.StringSlice{},
 				},
 			},

@@ -17,6 +17,7 @@ var cmdServices = &Command{
 	Build:      buildServices,
 	Short:      "commands to work with services",
 	NeedsStack: true,
+	NeedsOrg:   false,
 }
 
 func buildServices() cli.Command {

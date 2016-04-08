@@ -19,6 +19,7 @@ var cmdInfo = &Command{
 	Name:       "info",
 	Run:        runInfo,
 	NeedsStack: true,
+	NeedsOrg:   false,
 	Build:      buildBasicCommand,
 	Flags: []cli.Flag{
 		cli.BoolFlag{

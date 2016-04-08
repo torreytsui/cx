@@ -9,6 +9,7 @@ var cmdDatabases = &Command{
 	Build:      buildDatabases,
 	Short:      "commands to work with databases",
 	NeedsStack: true,
+	NeedsOrg:   false,
 }
 
 func buildDatabases() cli.Command {

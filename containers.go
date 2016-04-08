@@ -19,6 +19,7 @@ var cmdContainers = &Command{
 	Build:      buildContainers,
 	Short:      "commands to work with containers",
 	NeedsStack: true,
+	NeedsOrg:   false,
 }
 
 func buildContainers() cli.Command {

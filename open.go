@@ -12,6 +12,7 @@ var cmdOpen = &Command{
 	Build:      buildBasicCommand,
 	Name:       "open",
 	NeedsStack: true,
+	NeedsOrg:   false,
 	Short:      "opens the web browser to visit the app served by the stack",
 	Long: `This opens the client web browser to visit the app servers by the stack. This could be the web page
 specifically served by one server or the load balancer.

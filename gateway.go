@@ -6,13 +6,14 @@ import (
 	"github.com/cloud66/cloud66"
 	"io/ioutil"
 	"os"
-	"time"
 	"strings"
 	"text/tabwriter"
+	"time"
 )
 
 var cmdGateway = &Command{
 	NeedsStack: false,
+	NeedsOrg:   false,
 	Build:      buildGateways,
 	Name:       "gateways",
 	Short:      "commands to work with gateways",
@@ -29,7 +30,7 @@ func buildGateways() cli.Command {
 Examples:
 $ cx gateways list
 $ cx gateways list --verbose
-`,			Flags: []cli.Flag{
+`, Flags: []cli.Flag{
 				cli.BoolFlag{
 					Name:  "verbose",
 					Usage: "Show more information about each gateway",
@@ -110,36 +111,24 @@ $ cx gateways close aws_bastion`,
 }
 
 func runListGateways(c *cli.Context) {
-	accountInfos, err := client.AccountInfos()
+	org, err := org(c)
 	if err != nil {
-		printFatal("Can not retrive account info.")
+		printFatal("Failed to retrieve account information, please specify --org")
 		os.Exit(2)
 	}
-    
-	flagVerbose := c.Bool("verbose")
-	
-	result := []cloud66.Gateway{}
-	
-	for _, accountInfo := range accountInfos {		
-		if accountInfo.CurrentAccount {
-			gateways, err := client.ListGateways(accountInfo.Id)
-			if err != nil {
-				printFatal("Error listing gateways: " + err.Error())
-				os.Exit(2)
-			}
-			for _, g := range gateways {
-				result = append(result, g)
-			}
-		} else {
-			gateways, err := client.ListGateways(accountInfo.Id)
-			if err == nil {
-				for _, g := range gateways {
-					result = append(result, g)
-				}
-			}
-		}		
-	}
 
+	flagVerbose := c.Bool("verbose")
+
+	result := []cloud66.Gateway{}
+
+	gateways, err := client.ListGateways(org.Id)
+	if err != nil {
+		printFatal("Error listing gateways: " + err.Error())
+		os.Exit(2)
+	}
+	for _, g := range gateways {
+		result = append(result, g)
+	}
 
 	if result != nil {
 		w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
@@ -149,23 +138,23 @@ func runListGateways(c *cli.Context) {
 			fmt.Println("No gateway defined.")
 		} else {
 			if flagVerbose {
-				listRec(w,"NAME","USERNAME","ADDRESS","PRIVATE IP","OPEN UNTIL","STATE","CREATED AT","CREATED BY","UPDATED AT","UPDATED BY")				
+				listRec(w, "NAME", "USERNAME", "ADDRESS", "PRIVATE IP", "OPEN UNTIL", "STATE", "CREATED AT", "CREATED BY", "UPDATED AT", "UPDATED BY")
 			} else {
-				listRec(w,"NAME","USERNAME","ADDRESS","PRIVATE IP","OPEN UNTIL","STATE")				
+				listRec(w, "NAME", "USERNAME", "ADDRESS", "PRIVATE IP", "OPEN UNTIL", "STATE")
 			}
-	
+
 			for _, g := range result {
 				state := "N/A"
-				if (len(g.Content) > 0) && (strings.Compare(g.Content,"N/A") != 0) {
+				if (len(g.Content) > 0) && (strings.Compare(g.Content, "N/A") != 0) {
 					state = "open"
 				} else {
 					state = "close"
 				}
-				
+
 				ttl_string := "N/A"
-				t, err := time.Parse("2006-01-02T15:04:05Z",g.Ttl) 
+				t, err := time.Parse("2006-01-02T15:04:05Z", g.Ttl)
 				if err == nil {
-				    ttl_string = prettyTime{t}.String()
+					ttl_string = prettyTime{t}.String()
 				}
 
 				if flagVerbose {
@@ -179,8 +168,8 @@ func runListGateways(c *cli.Context) {
 						prettyTime{g.CreatedAt},
 						g.CreatedBy,
 						prettyTime{g.UpdatedAt},
-						g.UpdatedBy,	
-					)					
+						g.UpdatedBy,
+					)
 				} else {
 					listRec(w,
 						g.Name,
@@ -189,10 +178,10 @@ func runListGateways(c *cli.Context) {
 						g.PrivateIp,
 						ttl_string,
 						state,
-					)					
-				}				
+					)
+				}
 			}
-			
+
 		}
 	}
 
@@ -234,7 +223,7 @@ func runAddGateway(c *cli.Context) {
 		os.Exit(2)
 	}
 
-	currentAccountId := findAccountId()
+	currentAccountId := findAccountId(c)
 	if currentAccountId == 0 {
 		printFatal("Can not find current account")
 		os.Exit(2)
@@ -258,52 +247,52 @@ func runOpenGateway(c *cli.Context) {
 		os.Exit(2)
 	}
 
-	accountId, gatewayId, state := findGatwayInfo(gatewayName)
+	accountId, gatewayId, state := findGatwayInfo(c, gatewayName)
 
-	if strings.Compare(state,"open") == 0  {
+	if strings.Compare(state, "open") == 0 {
 		fmt.Println("Gateway is already open.")
 	} else {
 		ttlValue := 0
-	
+
 		if c.IsSet("ttl") {
 			flagTtl := c.String("ttl")
-			
-			d , e := time.ParseDuration(flagTtl)
+
+			d, e := time.ParseDuration(flagTtl)
 			if e != nil {
 				printFatal("Wrong TTL format : " + e.Error())
 				os.Exit(2)
 			}
-			ttlValue = int(d.Seconds()) 
+			ttlValue = int(d.Seconds())
 		} else {
 			printFatal("You should specify a ttl for gateway to be open\ngateways open --name <gateway name> --key <path/to/gateway/key/file>  --ttl <time to live  1h, 30m, 30s, ...>")
 			os.Exit(2)
 		}
-	
+
 		flagKeyFile := ""
-	
+
 		if c.IsSet("key") {
 			flagKeyFile = c.String("key")
 		} else {
 			printFatal("You should specify a key file path\ngateways open --name <gateway name> --key <path/to/gateway/key/file>  --ttl <time to live>")
 			os.Exit(2)
 		}
-	
+
 		keyfilePath := expandPath(flagKeyFile)
 		keyContent, err := ioutil.ReadFile(keyfilePath)
 		if err != nil {
 			printFatal("Can not read from %s : "+err.Error(), keyfilePath)
 			os.Exit(2)
 		}
-	
+
 		err = client.UpdateGateway(accountId, gatewayId, string(keyContent), ttlValue)
-	
+
 		if err != nil {
 			printFatal("Error opening gateway : " + err.Error())
 			os.Exit(2)
 		}
 		fmt.Println("Gateway opened successfully!")
 	}
-	
+
 }
 
 func runRemoveGateway(c *cli.Context) {
@@ -315,13 +304,13 @@ func runRemoveGateway(c *cli.Context) {
 		os.Exit(2)
 	}
 
-	accountId, gatewayId,state := findGatwayInfo(gatewayName)
+	accountId, gatewayId, state := findGatwayInfo(c, gatewayName)
 
-	if strings.Compare(state,"open") == 0 {
+	if strings.Compare(state, "open") == 0 {
 		printFatal("Can not remove an open gateway, please close it first.")
 	} else {
 		err := client.RemoveGateway(accountId, gatewayId)
-	
+
 		if err != nil {
 			printFatal("Error remove gateway : " + err.Error())
 			os.Exit(2)
@@ -339,16 +328,16 @@ func runCloseGateway(c *cli.Context) {
 		os.Exit(2)
 	}
 
-	accountId, gatewayId, state := findGatwayInfo(gatewayName)
+	accountId, gatewayId, state := findGatwayInfo(c, gatewayName)
 
-	if strings.Compare(state,"close") == 0 {
+	if strings.Compare(state, "close") == 0 {
 		fmt.Println("Gateway is already closed.")
 	} else {
 		flagTtl := 1
 		keyContent := ""
-	
+
 		err := client.UpdateGateway(accountId, gatewayId, string(keyContent), flagTtl)
-	
+
 		if err != nil {
 			printFatal("Error close gateway : " + err.Error())
 			os.Exit(2)
@@ -357,68 +346,47 @@ func runCloseGateway(c *cli.Context) {
 	}
 }
 
-
-
-func findAccountId() int {
-	accountInfos, err := client.AccountInfos()
+func findAccountId(c *cli.Context) int {
+	account, err := org(c)
 	if err != nil {
-		printFatal("Error requesting account info : " + err.Error())
+		printFatal(fmt.Sprintf("Unable to find the right account due to %s", err.Error()))
 		os.Exit(2)
 	}
 
-	if len(accountInfos) < 1 {
-		printFatal("User associated with this request returning zero references")
-		os.Exit(2)
-	}
-
-	var currentAccountId int
-	currentAccountId = 0
-
-	for _, accountInfo := range accountInfos {
-
-		if accountInfo.CurrentAccount {
-			currentAccountId = accountInfo.Id
-			break
-		}
-	}
-
-	return currentAccountId
+	return account.Id
 }
 
-func findGatwayInfo(gatewayName string) (int, int, string) {
-	accountInfos, err := client.AccountInfos()
+func findGatwayInfo(c *cli.Context, gatewayName string) (int, int, string) {
+	org, err := org(c)
 	if err != nil {
-		printFatal("Can not retrive account info.")
+		printFatal("Cannot retrive account info.")
 		os.Exit(2)
 	}
-    	
-	result_gateway_id := -1
-	result_account_id := -1
-	result_state := "N/A"
-	for _, accountInfo := range accountInfos {		
-		gateways, err := client.ListGateways(accountInfo.Id)
-		if err == nil {
-			for _, g := range gateways {
-				if strings.Compare(g.Name, gatewayName) == 0 {
-					result_gateway_id = g.Id
-					result_account_id = accountInfo.Id
-					if (len(g.Content) > 0) && (strings.Compare(g.Content,"N/A") != 0) {
-						result_state = "open"
-					} else {
-						result_state = "close"
-					}
-					break
+
+	resultGatewayId := -1
+	resultAccountId := -1
+	resultState := "N/A"
+
+	gateways, err := client.ListGateways(org.Id)
+	if err == nil {
+		for _, g := range gateways {
+			if strings.Compare(g.Name, gatewayName) == 0 {
+				resultGatewayId = g.Id
+				resultAccountId = org.Id
+				if (len(g.Content) > 0) && (strings.Compare(g.Content, "N/A") != 0) {
+					resultState = "open"
+				} else {
+					resultState = "close"
 				}
+				break
 			}
 		}
-		if result_gateway_id != -1 {
-			break
-		}		
 	}
 
-	if result_gateway_id == -1 {
+	if resultGatewayId == -1 {
 		printFatal(fmt.Sprintf("Can not find gateway \"%s\"", gatewayName))
 		os.Exit(2)
 	}
-	return result_account_id,result_gateway_id, result_state
+
+	return resultGatewayId, resultAccountId, resultState
 }

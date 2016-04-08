@@ -14,6 +14,7 @@ import (
 
 var cmdBackups = &Command{
 	NeedsStack: true,
+	NeedsOrg:   false,
 	Build:      buildBackups,
 	Name:       "backups",
 	Short:      "commands to work with backups",

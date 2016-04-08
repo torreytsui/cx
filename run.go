@@ -25,6 +25,7 @@ var cmdRun = &Command{
 	},
 	Run:        runRun,
 	NeedsStack: true,
+	NeedsOrg:   false,
 	Short:      "executes a command directly on the server",
 	Long: `This command will execute a command directly on the remote server.
 

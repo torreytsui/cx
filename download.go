@@ -21,6 +21,7 @@ var cmdDownload = &Command{
 	},
 	Build:      buildBasicCommand,
 	NeedsStack: true,
+	NeedsOrg:   false,
 	Short:      "copies a file from the remote server to your local computer",
 	Long: `This command will copy a file from the remote server to your local computer.
 

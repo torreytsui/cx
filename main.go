@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -22,6 +23,7 @@ type Command struct {
 	Short      string
 	Long       string
 	NeedsStack bool
+	NeedsOrg   bool
 }
 
 var (
@@ -63,6 +65,7 @@ var commands = []*Command{
 
 var (
 	flagStack       *cloud66.Stack
+	flagOrg         *cloud66.Account
 	flagEnvironment string
 )
 
@@ -104,6 +107,13 @@ func main() {
 						Usage: "full or partial environment name",
 					})
 			}
+			if cmd.NeedsOrg {
+				cliCommand.Flags = append(cliCommand.Flags,
+					cli.StringFlag{
+						Name:  "org",
+						Usage: "full or partial organization name.",
+					})
+			}
 		} else {
 			for idx, sub := range cliCommand.Subcommands {
 				if cmd.NeedsStack {
@@ -114,6 +124,13 @@ func main() {
 						}, cli.StringFlag{
 							Name:  "environment,e",
 							Usage: "full or partial environment name",
+						})
+				}
+				if cmd.NeedsOrg {
+					cliCommand.Flags = append(sub.Flags,
+						cli.StringFlag{
+							Name:  "org",
+							Usage: "full or partial organization name.",
 						})
 				}
 
@@ -200,7 +217,12 @@ func setGlobals(app *cli.App) {
 		},
 		cli.StringFlag{
 			Name:  "account",
-			Usage: "switches between different Cloud 66 account profiles",
+			Usage: "switches between different Cloud 66 profiles (this is a cx client profile)",
+			Value: "",
+		},
+		cli.StringFlag{
+			Name:  "org",
+			Usage: "targets a specific organisation for a command (this is a Cloud 66 Organisation)",
 			Value: "",
 		},
 		cli.StringFlag{
@@ -237,6 +259,14 @@ func initClients(c *cli.Context, startAuth bool) {
 		}
 	} else {
 		client = cloud66.GetClient(cxHome(), tokenFile, VERSION)
+		organization, err := org(c)
+		if err != nil {
+			printFatal("Unable to retrieve organization due to %s", err.Error())
+			os.Exit(2)
+		}
+		if organization != nil {
+			client.AccountId = &organization.Id
+		}
 		debugMode = c.GlobalBool("debug")
 		client.Debug = debugMode
 	}
@@ -276,6 +306,37 @@ func filterByEnvironmentFuzzy(item interface{}) bool {
 		return true
 	}
 	return strings.HasPrefix(strings.ToLower(item.(cloud66.Stack).Environment), strings.ToLower(flagEnvironment))
+}
+
+func org(c *cli.Context) (*cloud66.Account, error) {
+	if flagOrg != nil {
+		return flagOrg, nil
+	}
+
+	if c.String("org") != "" {
+		orgs, err := client.AccountInfos()
+		if err != nil {
+			return nil, err
+		}
+
+		var orgNames []string
+		for _, org := range orgs {
+			if org.Name == "" {
+				return nil, errors.New("One or more of the organizations you are a member of don't have a name. Please make sure you name the organizations.")
+			}
+			orgNames = append(orgNames, org.Name)
+		}
+		idx, err := fuzzyFind(orgNames, c.String("org"), false)
+		if err != nil {
+			return nil, err
+		}
+
+		flagOrg = &orgs[idx]
+	} else {
+		flagOrg = nil
+	}
+
+	return flagOrg, nil
 }
 
 func stack(c *cli.Context) (*cloud66.Stack, error) {
@@ -344,4 +405,17 @@ func mustStack(c *cli.Context) *cloud66.Stack {
 	}
 
 	return stack
+}
+
+func mustOrg(c *cli.Context) *cloud66.Account {
+	org, err := org(c)
+	if err != nil {
+		printFatal(err.Error())
+	}
+
+	if org == nil {
+		printFatal("No organization specified. Please use --org flag")
+	}
+
+	return org
 }

@@ -15,6 +15,7 @@ var cmdSettings = &Command{
 	Name:       "settings",
 	Build:      buildSettings,
 	NeedsStack: true,
+	NeedsOrg:   false,
 	Short:      "list and set stack settings",
 }
 

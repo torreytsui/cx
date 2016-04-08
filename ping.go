@@ -11,6 +11,7 @@ var cmdTest = &Command{
 	Build:      buildBasicCommand,
 	Run:        runTest,
 	NeedsStack: false,
+	NeedsOrg:   false,
 	Short:      "checks if cx is properly installed and authenticated",
 	Long: `This command is usually used by other tools to check if Cloud 66 Toolbelt is installed, configured and authenticated with the server.
 `,
