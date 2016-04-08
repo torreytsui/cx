@@ -11,6 +11,60 @@
 			"ImportPath": "code.google.com/p/goauth2/oauth",
 			"Comment": "weekly-57",
 			"Rev": "222e66a2882ef45c3153c86c0aa82fe65fc29a78"
+		},
+		{
+			"ImportPath": "github.com/cloud66/cli",
+			"Comment": "1.2.0-65-g99fe3ed",
+			"Rev": "99fe3ed9502b7ed1fb1e2b39de0e4ca618123c12"
+		},
+		{
+			"ImportPath": "github.com/cloud66/cloud66",
+			"Comment": "0.1.27-47-ga4a6820",
+			"Rev": "a4a6820aad4984ea3f7b7baa2257841f95b24350"
+		},
+		{
+			"ImportPath": "github.com/cloud66/fayego/fayeclient",
+			"Rev": "95df6d2fd2d062752e423aee118ab15361cc6339"
+		},
+		{
+			"ImportPath": "github.com/cloud66/fayego/fayeserver",
+			"Rev": "95df6d2fd2d062752e423aee118ab15361cc6339"
+		},
+		{
+			"ImportPath": "github.com/cloud66/wray",
+			"Rev": "19624b7fbd8037566e8298754bc5d2c917cc1fa3"
+		},
+		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Rev": "361d4c0ffd78338ebe0a9e6320cdbe115d7dc026"
+		},
+		{
+			"ImportPath": "github.com/inconshreveable/go-update",
+			"Rev": "8455de157e5e3eee5d680febf627fc4c03b59332"
+		},
+		{
+			"ImportPath": "github.com/inconshreveable/go-update/internal/binarydist",
+			"Rev": "8455de157e5e3eee5d680febf627fc4c03b59332"
+		},
+		{
+			"ImportPath": "github.com/inconshreveable/go-update/internal/osext",
+			"Rev": "8455de157e5e3eee5d680febf627fc4c03b59332"
+		},
+		{
+			"ImportPath": "github.com/jcoene/honeybadger",
+			"Rev": "3b3b55a9c3ace1d03cf71a52f833fe27cb885430"
+		},
+		{
+			"ImportPath": "github.com/kardianos/osext",
+			"Rev": "6e7f843663477789fac7c02def0d0909e969b4e5"
+		},
+		{
+			"ImportPath": "github.com/mgutz/ansi",
+			"Rev": "c286dcecd19ff979eeb73ea444e479b903f2cfcb"
+		},
+		{
+			"ImportPath": "github.com/skratchdot/open-golang/open",
+			"Rev": "c8748311a7528d0ba7330d302adbc5a677ef9c9e"
 		}
 	]
 }

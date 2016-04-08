@@ -209,7 +209,7 @@ func (download *CxDownload) update() error {
 	}
 
 	reader := bytes.NewBuffer(bin)
-	err = update.Apply(reader, &update.Options{})
+	err = update.Apply(reader, update.Options{})
 	if err != nil {
 		return err
 	}
