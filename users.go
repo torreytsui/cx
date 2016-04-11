@@ -77,6 +77,7 @@ $ cx users apply-profile jack@gmail.com --json=/tmp/jim_profile.json
 }
 
 func runUsers(c *cli.Context) {
+	mustOrg(c)
 	users, err := client.ListUsers()
 	if err != nil {
 		printFatal(err.Error())
@@ -89,6 +90,7 @@ func runUsers(c *cli.Context) {
 }
 
 func runShowUser(c *cli.Context) {
+
 	var found *cloud66.User
 	users, err := client.ListUsers()
 	if err != nil {
@@ -135,6 +137,7 @@ func runShowUser(c *cli.Context) {
 }
 
 func runApplyProfile(c *cli.Context) {
+	mustOrg(c)
 	var found *cloud66.User
 	users, err := client.ListUsers()
 	if err != nil {
