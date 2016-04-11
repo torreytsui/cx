@@ -111,12 +111,7 @@ $ cx gateways close aws_bastion`,
 }
 
 func runListGateways(c *cli.Context) {
-	org, err := org(c)
-	if err != nil {
-		printFatal("Failed to retrieve account information, please specify --org")
-		os.Exit(2)
-	}
-
+	org := mustOrg(c)
 	flagVerbose := c.Bool("verbose")
 
 	result := []cloud66.Gateway{}
@@ -347,21 +342,13 @@ func runCloseGateway(c *cli.Context) {
 }
 
 func findAccountId(c *cli.Context) int {
-	account, err := org(c)
-	if err != nil {
-		printFatal(fmt.Sprintf("Unable to find the right account due to %s", err.Error()))
-		os.Exit(2)
-	}
+	account := mustOrg(c)
 
 	return account.Id
 }
 
 func findGatwayInfo(c *cli.Context, gatewayName string) (int, int, string) {
-	org, err := org(c)
-	if err != nil {
-		printFatal("Cannot retrive account info.")
-		os.Exit(2)
-	}
+	org := mustOrg(c)
 
 	resultGatewayId := -1
 	resultAccountId := -1

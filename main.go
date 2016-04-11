@@ -261,7 +261,7 @@ func initClients(c *cli.Context, startAuth bool) {
 		client = cloud66.GetClient(cxHome(), tokenFile, VERSION)
 		organization, err := org(c)
 		if err != nil {
-			printFatal("Unable to retrieve organization due to %s", err.Error())
+			printFatal("Unable to retrieve organization")
 			os.Exit(2)
 		}
 		if organization != nil {

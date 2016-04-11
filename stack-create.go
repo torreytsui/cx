@@ -41,8 +41,7 @@ func runCreateStack(c *cli.Context) {
 	must(err)
 	serviceYaml := string(serviceYamlBytes)
 
-	accountInfo, err := org(c)
-	must(err)
+	accountInfo := mustOrg(c)
 
 	fmt.Printf("Using account: %s\n", accountInfo.Owner)
 
