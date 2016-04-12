@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.development
-    volumes:
+    #volumes:
     #  - ${PWD}:/usr/local/go/src/github.com/cloud66/cx
     command: go run cx 
       

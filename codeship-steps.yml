@@ -1,6 +1,6 @@
 - name: test_step
   service: cx
-  command: go test
+  command: ginkgo
 - name: build_test_step
   service: cx
   command: ./compile.sh

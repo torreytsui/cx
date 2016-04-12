@@ -19,4 +19,4 @@ ADD . /usr/local/go/src/github.com/cloud66/cx
 #switch to our app directory
 WORKDIR /usr/local/go/src/github.com/cloud66/cx
 
-RUN ginkgo 
+#RUN ginkgo 
