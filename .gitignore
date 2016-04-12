@@ -16,6 +16,7 @@ _cgo_export.*
 _testmain.go
 *.exe
 *.test
+cx.coverprofile
 /source_dev.sh
 /source_stage.sh
 /cx

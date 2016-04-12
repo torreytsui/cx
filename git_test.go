@@ -1,7 +1,8 @@
 package main
 
 import (
-	"testing"
+	. "github.com/onsi/ginkgo"
+    . "github.com/onsi/gomega"
 )
 
 var prepareGitMatches = []struct {
@@ -37,15 +38,19 @@ var prepareGitMatches = []struct {
 	{"identical - allow spaces - https", "https://github.com/cloud66/stacks-test.git ", " https://github.com/cloud66/stacks-test.git", true},
 }
 
-func TestAreSameRemotes(t *testing.T) {
-	for _, m := range prepareGitMatches {
-		result, err := areSameRemotes(m.lhs, m.rhs)
-		if err != nil {
-			t.Errorf("Error %v in %s\n", err, m.name)
-		}
 
-		if result != m.shouldMatch {
-			t.Errorf("%s failed with with %t. Should have been %t\n", m.name, result, m.shouldMatch)
-		}
-	}
-}
+
+var _ = Describe("Git", func() {
+	Context("a list of different git repos", func() {
+		It("should match of they are the same remote or don't", func() {
+			for _, m := range prepareGitMatches {
+				result, err := areSameRemotes(m.lhs, m.rhs)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(result).To(Equal(m.shouldMatch))
+			}
+		})
+	})
+})
+
+
+
