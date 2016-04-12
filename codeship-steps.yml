@@ -1,3 +1,9 @@
 - name: test_step
   service: cx
   command: go test
+- name: build_test_step
+  service: cx
+  command: ./compile.sh
+- name: upload_step
+  service: cx
+  command: echo 'need a implementation'
