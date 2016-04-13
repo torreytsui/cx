@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile.development
     volumes:
       - ${PWD}:/usr/local/go/src/github.com/cloud66/cx
-    command: go build
+    command: ginkgo watch -cover -p -depth 0
     ports:
       - 8080:8080
       
