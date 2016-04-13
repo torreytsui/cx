@@ -7,4 +7,6 @@ services:
     volumes:
       - ${PWD}:/usr/local/go/src/github.com/cloud66/cx
     command: go build
+    ports:
+      - 8080:8080
       

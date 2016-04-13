@@ -1,6 +1,8 @@
 #use the golang base image
-FROM golang:1.6
+FROM golang:1.5.4
 MAINTAINER Daniël van Gils
+
+ENV GO15VENDOREXPERIMENT=1
 
 #get all the go crosscompile stuff
 RUN go get github.com/mitchellh/gox
