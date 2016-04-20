@@ -65,6 +65,14 @@
 		{
 			"ImportPath": "github.com/skratchdot/open-golang/open",
 			"Rev": "c8748311a7528d0ba7330d302adbc5a677ef9c9e"
+		},
+		{
+			"ImportPath": "github.com/h2non/gock",
+			"Rev": "ac281cf5581a75f500bc180d9b845ed21229a58c"
+		},
+		{
+			"ImportPath": "github.com/toqueteos/webbrowser",
+			"Rev": "21fc9f95c83442fd164094666f7cb4f9fdd56cd6"
 		}
 	]
 }

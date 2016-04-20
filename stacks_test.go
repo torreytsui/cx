@@ -5,7 +5,6 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/cloud66/cli"
 	"flag"
-	"./helpers"
 )
 
 var _ = Describe("Stacks list command", func() {
@@ -15,8 +14,8 @@ var _ = Describe("Stacks list command", func() {
 
 		BeforeEach(func() {
 			//capture output and mock API endpoint
-			helpers.StartCaptureStdout()
-			helpers.MockApiCall("/stacks.json", 200, "./mocks/stacks/list.json")
+			StartCaptureStdout()
+			MockApiCall("/stacks.json", 200, "./mocks/stacks/list.json")
 			flagSet = flag.NewFlagSet("test", 0)
 		})
 
@@ -29,7 +28,7 @@ var _ = Describe("Stacks list command", func() {
 			runStacks(context)
 			
 			// read stdout
-			output := helpers.StopCaptureStdout()
+			output := StopCaptureStdout()
 
 			// check the actual output
 			Expect(output[0]).To(Equal("Awesome App1  production  Deployed successfully  Aug 14  2014"))
@@ -42,7 +41,7 @@ var _ = Describe("Stacks list command", func() {
 			runStacks(context)
 			
 			// read stdout
-			output := helpers.StopCaptureStdout()
+			output := StopCaptureStdout()
 
 			// check the actual output
 			Expect(output[0]).To(Equal("Awesome App1  production  Deployed successfully  Aug 14  2014"))
@@ -58,7 +57,7 @@ var _ = Describe("Stacks list command", func() {
 			runStacks(context)
 			
 			// read stdout
-			output := helpers.StopCaptureStdout()
+			output := StopCaptureStdout()
 
 			// check the actual output
 			Expect(len(output)-1).To(Equal(0))

@@ -1,9 +1,9 @@
 //helpers
-package helpers
+package main
 
 import (
 	"io/ioutil"
-	"gopkg.in/h2non/gock.v0"
+	"github.com/h2non/gock"
 )
 
 func MockApiCall (request string, http_status int, fixture string) {
