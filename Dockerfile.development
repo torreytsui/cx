@@ -1,8 +1,6 @@
 #use the golang base image
-FROM golang:1.5.4
+FROM golang:1.6
 MAINTAINER Daniël van Gils
-
-ENV GO15VENDOREXPERIMENT=1
 
 #get all the go crosscompile stuff
 RUN go get github.com/mitchellh/gox
@@ -10,7 +8,7 @@ RUN go get github.com/mitchellh/gox
 #get all the go testing stuff
 RUN go get github.com/onsi/ginkgo/ginkgo
 RUN go get github.com/onsi/gomega
-RUN go get -u gopkg.in/h2non/gock.v0
+RUN go get -u github.com/h2non/gock
 
 #get package manager
 RUN go get github.com/tools/godep

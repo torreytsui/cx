@@ -3,7 +3,7 @@ package main
 import (
 	. "github.com/onsi/ginkgo"
     . "github.com/onsi/gomega"
-    "gopkg.in/h2non/gock.v0"
+    "github.com/h2non/gock"
 )
 
 var _ = Describe("Update", func() {
