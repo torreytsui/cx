@@ -68,7 +68,8 @@
 		},
 		{
 			"ImportPath": "github.com/h2non/gock",
-			"Rev": "ac281cf5581a75f500bc180d9b845ed21229a58c"
+			"Comment": "v0.1.6-1-g029e5f2",
+			"Rev": "029e5f2873a46acb40329d84261f397c7daffe77"
 		},
 		{
 			"ImportPath": "github.com/toqueteos/webbrowser",
