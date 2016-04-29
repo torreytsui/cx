@@ -375,5 +375,5 @@ func findGatwayInfo(c *cli.Context, gatewayName string) (int, int, string) {
 		os.Exit(2)
 	}
 
-	return resultGatewayId, resultAccountId, resultState
+	return resultAccountId, resultGatewayId, resultState
 }

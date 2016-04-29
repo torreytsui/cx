@@ -1,0 +1,24 @@
+{
+  "response": [
+    {
+      "id": 139,
+      "owner": "test@cloud66.com",
+      "created_at_iso": "2013-06-19T11:08:03Z",
+      "updated_at_iso": "2014-02-20T12:55:58Z",
+      "stack_count": 2,
+      "used_clouds": ["digitalocean","rackspace"],
+      "current_account": true,
+      "friendly_name":"test_org"
+    }
+  ],
+  "count":1,
+  "pagination":{
+    "previous": null,
+    "next": null,
+    "current": 1,
+    "per_page": 30,
+    "count": 1,
+    "pages": 1
+  }
+}
+

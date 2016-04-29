@@ -128,6 +128,16 @@ func (c *Context) GlobalIsSet(name string) bool {
 	return c.globalSetFlags[name] == true
 }
 
+//Set all flag to be visited (for test purpose)
+func (c *Context) SetAllFlags()  {
+	if c.setFlags == nil {
+		c.setFlags = make(map[string]bool)
+		c.flagSet.VisitAll(func(f *flag.Flag) {
+			c.setFlags[f.Name] = true
+		})
+	}
+}
+
 // Returns a slice of flag names used in this context.
 func (c *Context) FlagNames() (names []string) {
 	for _, flag := range c.Command.Flags {

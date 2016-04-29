@@ -15,7 +15,7 @@ var _ = Describe("Stacks list command", func() {
 		BeforeEach(func() {
 			//capture output and mock API endpoint
 			StartCaptureStdout()
-			MockApiCall("/stacks.json", 200, "./mocks/stacks/list.json")
+			MockApiGetCall("/stacks.json", 200, "./mocks/stacks/list.json")
 			flagSet = flag.NewFlagSet("test", 0)
 		})
 
