@@ -1,7 +1,7 @@
 Cloud 66 Toolbelt - CX
 ==
 
-[ ![Codeship Status for kamerblauwlicht/cx](https://codeship.com/projects/735d0bb0-e316-0133-8bf0-2a76926f778d/status?branch=feature/testing)](https://codeship.com/projects/145823)
+![Codeship Status for cloud66/cx](https://codeship.com/projects/dde986d0-e913-0133-618b-0a601490f276/status)
 
 The Cloud 66 toobelt is a command line tool to interact with Cloud 66, and is available for Linux, Mac and Windows. To get started, simply [download the toolbelt executable](https://app.cloud66.com/toolbelt), unzip and copy it to a directory accessible in your PATH.
 
