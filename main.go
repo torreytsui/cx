@@ -61,6 +61,7 @@ var commands = []*Command{
 	cmdUsers,
 	cmdGateway,
 	cmdProcesses,
+	cmdRegisterServer,
 }
 
 var (
