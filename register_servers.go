@@ -30,6 +30,10 @@ var cmdRegisterServer = &Command{
 			Name:  "user",
 			Usage: "username for connecting to the server",
 		},
+		cli.StringFlag{
+			Name:  "force-local-ip",
+			Usage: "force-local-ip for using the local ip address of the registered server",
+		},
 	},
 	Run:        runRegisterServer,
 	NeedsStack: false,
@@ -41,6 +45,7 @@ var cmdRegisterServer = &Command{
 Example:
 $ cx register-server --org team --user root --server 149.56.134.22 --key ~/.ssh/private_key
 $ cx register-server --org team --user ubuntu --file servers.txt --key ~/.ssh/private_key
+$ cx register-server --org team --user ubuntu --file servers.txt --key ~/.ssh/private_key --force-local-ip true
 `,
 }
 
@@ -49,6 +54,7 @@ func runRegisterServer(c *cli.Context) {
 		printFatal("Not supported on Windows")
 		os.Exit(2)
 	}
+
 
 	org := mustOrg(c)
 	info, err := client.AccountInfo(org.Id, false)
@@ -73,8 +79,11 @@ func runRegisterServer(c *cli.Context) {
 		printFatal("No --user specified")
 	}
 
+	use_local_ip := c.String("force-local-ip") == "true"
+
+
 	if c.String("server") != "" {
-		if err = registerServer(c.String("server"), regScript, c.String("key"), c.String("user")); err != nil {
+		if err = registerServer(c.String("server"), regScript, c.String("key"), c.String("user"), use_local_ip); err != nil {
 			printFatal(err.Error())
 		}
 	} else if c.String("file") != "" {
@@ -87,7 +96,7 @@ func runRegisterServer(c *cli.Context) {
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			s := scanner.Text()
-			if err = registerServer(s, regScript, c.String("key"), c.String("user")); err != nil {
+			if err = registerServer(s, regScript, c.String("key"), c.String("user"), use_local_ip); err != nil {
 				printError("Failed to register %s due to %s", s, err.Error())
 			}
 		}
@@ -95,11 +104,17 @@ func runRegisterServer(c *cli.Context) {
 			printFatal(err.Error())
 		}
 	}
+	fmt.Printf("Register server(s) done.\n")
+	
 
 }
 
-func registerServer(server string, script string, keyFile string, user string) error {
-	toRun := fmt.Sprintf("'curl -s %s| bash -s'", script)
+func registerServer(server string, script string, keyFile string, user string, use_local_ip bool) error {
+	extra_header := ""
+	if use_local_ip {
+		extra_header = "--header \"X-Force-Local-IP:true\""
+	}
+	toRun := fmt.Sprintf("'curl %s -s %s| bash -s'", extra_header, script)
 	if keyFile == "" {
 		return startProgram("ssh", []string{
 			user + "@" + server,

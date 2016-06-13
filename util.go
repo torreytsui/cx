@@ -24,6 +24,8 @@ import (
 	"github.com/mgutz/ansi"
 )
 
+var lastCommandExecuted *exec.Cmd
+
 func cxHome() string {
 	return filepath.Join(homePath(), ".cloud66")
 }
@@ -289,6 +291,7 @@ func runCommand(command string, args, env []string) error {
 }
 
 func startProgram(command string, args []string) error {
+
 	if runtime.GOOS != "windows" {
 		p, err := exec.LookPath(command)
 		if err != nil {
@@ -306,6 +309,14 @@ func startProgram(command string, args []string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
+
+	//TODO: ugly to mock startProgram when testing, need better solution
+	if underTest {
+		lastCommandExecuted = cmd 
+		return nil 
+	}
+
+
 	if err := cmd.Run(); err != nil {
 		return err
 	}
