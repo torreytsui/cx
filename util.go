@@ -24,6 +24,8 @@ import (
 	"github.com/mgutz/ansi"
 )
 
+var lastCommandExecuted *exec.Cmd
+
 func cxHome() string {
 	return filepath.Join(homePath(), ".cloud66")
 }
@@ -310,7 +312,7 @@ func startProgram(command string, args []string) error {
 
 	//TODO: ugly to mock startProgram when testing, need better solution
 	if underTest {
-		startProgramTest = cmd 
+		lastCommandExecuted = cmd 
 		return nil 
 	}
 
