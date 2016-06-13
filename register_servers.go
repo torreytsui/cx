@@ -112,7 +112,7 @@ func runRegisterServer(c *cli.Context) {
 func registerServer(server string, script string, keyFile string, user string, use_local_ip bool) error {
 	extra_header := ""
 	if use_local_ip {
-		extra_header = "--header \"X-Force-Local-IP: true\""
+		extra_header = "--header \"X-Force-Local-IP:true\""
 	}
 	toRun := fmt.Sprintf("'curl %s -s %s| bash -s'", extra_header, script)
 	if keyFile == "" {

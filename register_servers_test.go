@@ -39,7 +39,7 @@ var _ = Describe("Register a new server", func() {
 
 			// read stdout
 			output := StopCaptureStdout()
-			Expect(startProgramTest.Args[17]).To(HavePrefix("'curl --header \"X-Force-Local-IP: true\" -s http://app.cloud66.com/xxx| bash -s'"))
+			Expect(startProgramTest.Args[17]).To(HavePrefix("'curl --header \"X-Force-Local-IP:true\" -s http://app.cloud66.com/xxx| bash -s'"))
 			Expect(output[0]).To(HavePrefix("Register server(s) done."))
 		})
 	})

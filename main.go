@@ -29,7 +29,7 @@ type Command struct {
 var (
 	client       cloud66.Client
 	debugMode    bool   = false
-	underTest    bool 	= false
+	underTest    bool   = false
 	VERSION      string = "dev"
 	BUILD_DATE   string = ""
 	tokenFile    string = "cx.json"
