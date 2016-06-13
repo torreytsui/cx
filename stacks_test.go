@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-
 	"github.com/cloud66/cli"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
