@@ -25,7 +25,7 @@ func runEnvVarsSet(c *cli.Context) {
 		os.Exit(2)
 	}
 
-	key := strings.ToUpper(kvs[0])
+	key := kvs[0]
 	value := kvs[1]
 
 	stack := mustStack(c)
