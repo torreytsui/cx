@@ -21,6 +21,8 @@ cx.coverprofile
 /source_stage.sh
 /cx
 build/
+compiled
+*.key
 /cxdist/tmp/
 /cxdist/cxdist
 cx.sublime-workspace
