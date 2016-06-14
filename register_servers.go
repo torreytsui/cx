@@ -124,8 +124,9 @@ func registerServer(server string, script string, keyFile string, user string, u
 			"-o", "LogLevel=QUIET",
 			"-o", "IdentitiesOnly=yes",
 			"-A",
+			"-t",
 			"-p", "22",
-			"su", "-c",
+			"sudo su - -c",
 			toRun,
 		})
 	} else {
@@ -138,8 +139,9 @@ func registerServer(server string, script string, keyFile string, user string, u
 			"-o", "LogLevel=QUIET",
 			"-o", "IdentitiesOnly=yes",
 			"-A",
+			"-t",
 			"-p", "22",
-			"su", "-c",
+			"sudo su - -c",
 			toRun,
 		})
 	}
