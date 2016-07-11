@@ -2,6 +2,7 @@ package cloud66
 
 import (
 	"fmt"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -22,6 +23,11 @@ type Account struct {
 	CurrentAccount     bool              `json:"current_account"`
 	UnmanagedServers   []UnmanagedServer `json:"unmanaged_servers"`
 	ServerRegistration string            `json:"server_registration_script"`
+}
+
+type OTP struct {
+	OK   bool   `json:"ok"`
+	Code string `json:"otp"`
 }
 
 func (c *Client) AccountInfo(accountId int, getUnmanaged bool) (*Account, error) {
@@ -70,4 +76,20 @@ func (c *Client) AccountInfos() ([]Account, error) {
 	}
 
 	return result, nil
+}
+
+// AccountOTP returns the OTP from the server. If accountId and stackId are passed
+// (!= 0) then they will be passed up
+func (c *Client) AccountOTP() (string, error) {
+	var req *http.Request
+	var err error
+	req, err = c.NewRequest("GET", "/accounts/otp.json", nil, nil)
+
+	var otp *OTP
+	err = c.DoReq(req, &otp, nil)
+	if err != nil {
+		return "", err
+	}
+
+	return otp.Code, nil
 }
