@@ -1,6 +1,7 @@
 {
 	"ImportPath": "github.com/cloud66/cx",
 	"GoVersion": "go1.6",
+	"GodepVersion": "v74",
 	"Deps": [
 		{
 			"ImportPath": "code.google.com/p/go-uuid/uuid",
@@ -19,8 +20,8 @@
 		},
 		{
 			"ImportPath": "github.com/cloud66/cloud66",
-			"Comment": "0.1.27-54-g0a265d5",
-			"Rev": "0a265d57202d86d65419031434acdb1ad957c5d2"
+			"Comment": "0.1.27-55-g01e30d3",
+			"Rev": "01e30d3ebc1f5bc726849250ef0d38ce5f5c6959"
 		},
 		{
 			"ImportPath": "github.com/cloud66/fayego/fayeclient",
@@ -205,6 +206,36 @@
 		{
 			"ImportPath": "github.com/toqueteos/webbrowser",
 			"Rev": "21fc9f95c83442fd164094666f7cb4f9fdd56cd6"
+		},
+		{
+			"ImportPath": "github.com/cloud66/cloud66/vendor/code.google.com/p/go-uuid/uuid",
+			"Comment": "0.1.27-55-g01e30d3",
+			"Rev": "01e30d3ebc1f5bc726849250ef0d38ce5f5c6959"
+		},
+		{
+			"ImportPath": "github.com/cloud66/cloud66/vendor/code.google.com/p/goauth2/oauth",
+			"Comment": "0.1.27-55-g01e30d3",
+			"Rev": "01e30d3ebc1f5bc726849250ef0d38ce5f5c6959"
+		},
+		{
+			"ImportPath": "github.com/cloud66/cloud66/vendor/github.com/cloud66/fayego/fayeclient",
+			"Comment": "0.1.27-55-g01e30d3",
+			"Rev": "01e30d3ebc1f5bc726849250ef0d38ce5f5c6959"
+		},
+		{
+			"ImportPath": "github.com/cloud66/cloud66/vendor/github.com/toqueteos/webbrowser",
+			"Comment": "0.1.27-55-g01e30d3",
+			"Rev": "01e30d3ebc1f5bc726849250ef0d38ce5f5c6959"
+		},
+		{
+			"ImportPath": "github.com/cloud66/cloud66/vendor/github.com/cloud66/fayego/fayeserver",
+			"Comment": "0.1.27-55-g01e30d3",
+			"Rev": "01e30d3ebc1f5bc726849250ef0d38ce5f5c6959"
+		},
+		{
+			"ImportPath": "github.com/cloud66/cloud66/vendor/github.com/gorilla/websocket",
+			"Comment": "0.1.27-55-g01e30d3",
+			"Rev": "01e30d3ebc1f5bc726849250ef0d38ce5f5c6959"
 		}
 	]
 }
