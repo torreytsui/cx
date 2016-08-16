@@ -6,6 +6,7 @@ import (
 	"os"
 	"sort"
 	"text/tabwriter"
+	"time"
 
 	"github.com/cloud66/cli"
 	"github.com/cloud66/cloud66"
@@ -73,6 +74,64 @@ $ cx processes scale -s mystack --server backend1 --name worker [+5]
 $ cx processes scale -s mystack --server backend2 --name worker [-5]
 $ cx processes scale -s mystack --server backend3 --name worker 15
 $ cx processes scale -s mystack --name worker 2`},
+cli.Command{
+	Name:   "restart",
+	Action: runProcessRestart,
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name: "server",
+		},
+		cli.StringFlag{
+			Name: "process",
+		},
+	},
+	Usage: "restarts all processes from the given service and/or server",
+	Description: `Restarts all processes from the given service and/or server.
+
+Examples:
+$ cx services restart -s mystack --process a_backend_process
+$ cx services restart -s mystack --server my_server
+$ cx services restart -s mystack --server my_server --process a_backend_process
+`},
+cli.Command{
+	Name:   "pause",
+	Action: runProcessPause,
+	Usage:  "pauses all processes from the given service and/or server",
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name: "server",
+		},
+		cli.StringFlag{
+			Name: "process",
+		},
+	},
+	Description: `Pauses all processes from the given service and/or server",
+
+Examples:
+$ cx services pause -s mystack --process a_backend_process
+$ cx services pause -s mystack --server my_server
+$ cx services pause -s mystack --server my_server --process a_backend_process
+`},
+cli.Command{
+	Name:   "resume",
+	Action: runProcessResume,
+	Usage:  "resumes all paused processes from the given service and/or server",
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name: "server",
+		},
+		cli.StringFlag{
+			Name: "process",
+		},
+	},
+	Description: `Resumes all paused processes from the given service and/or server",
+
+Examples:
+$ cx services resume -s mystack --process a_backend_process
+$ cx services resume -s mystack --server my_server
+$ cx services resume -s mystack --server my_server --process a_backend_process
+`},
+
 	}
 
 	return base
@@ -159,6 +218,18 @@ func listProcess(w io.Writer, process cloud66.Process) {
 			count,
 		)
 	}
+}
+
+func startProcessAction(stackUid string, processName *string, serverUid *string, action string) (*int, error) {
+	asyncRes, err := client.InvokeProcessAction(stackUid, processName, serverUid, action)
+	if err != nil {
+		return nil, err
+	}
+	return &asyncRes.Id, err
+}
+
+func endProcessAction(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
+	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 10*time.Minute, true)
 }
 
 type ProcessByNameServer []cloud66.Process

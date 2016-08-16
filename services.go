@@ -6,9 +6,8 @@ import (
 	"os"
 	"sort"
 	"text/tabwriter"
-
+"time"
 	"github.com/cloud66/cloud66"
-
 	"github.com/cloud66/cli"
 )
 
@@ -61,6 +60,42 @@ Examples:
 $ cx services stop -s mystack my_web_service
 $ cx services stop -s mystack a_backend_service
 $ cx services stop -s mystack --server my_server my_web_service
+`},
+cli.Command{
+	Name:   "pause",
+	Action: runServicePause,
+	Usage:  "pauses all the containers from the given service",
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name: "server",
+		},
+	},
+	Description: `Pauses all the containers from the given service.
+The list of available stack services can be obtained through the 'services' command.
+If the server is provided it will only act on the specified server.
+
+Examples:
+$ cx services pause -s mystack my_web_service
+$ cx services pause -s mystack a_backend_service
+$ cx services pause -s mystack --server my_server my_web_service
+`},
+cli.Command{
+	Name:   "resume",
+	Action: runServiceResume,
+	Usage:  "resumes all the containers from the given service that were previously paused",
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name: "server",
+		},
+	},
+	Description: `Resumes all the containers from the given service that were previously paused.
+The list of available stack services can be obtained through the 'services' command.
+If the server is provided it will only act on the specified server.
+
+Examples:
+$ cx services pause -s mystack my_web_service
+$ cx services pause -s mystack a_backend_service
+$ cx services pause -s mystack --server my_server my_web_service
 `},
 		cli.Command{
 			Name:   "scale",
@@ -208,6 +243,18 @@ func listService(w io.Writer, a cloud66.Service, flagServer string) {
 		)
 	}
 
+}
+
+func startServiceAction(stackUid string, serviceName *string, serverUid *string, action string) (*int, error) {
+	asyncRes, err := client.InvokeServiceAction(stackUid, serviceName, serverUid, action)
+	if err != nil {
+		return nil, err
+	}
+	return &asyncRes.Id, err
+}
+
+func endServiceAction(asyncId int, stackUid string) (*cloud66.GenericResponse, error) {
+	return client.WaitStackAsyncAction(asyncId, stackUid, 5*time.Second, 10*time.Minute, true)
 }
 
 type ServiceByNameServer []cloud66.Service

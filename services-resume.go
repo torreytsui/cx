@@ -6,7 +6,7 @@ import (
 	"github.com/cloud66/cli"
 )
 
-func runServiceRestart(c *cli.Context) {
+func runServiceResume(c *cli.Context) {
 	if len(c.Args()) != 1 {
 		cli.ShowSubcommandHelp(c)
 		os.Exit(2)
@@ -30,7 +30,7 @@ func runServiceRestart(c *cli.Context) {
 		serviceName = &flagService
 	}
 
-	asyncId, err := startServiceAction(stack.Uid, serviceName, serverUID, "service_restart")
+	asyncId, err := startServiceAction(stack.Uid, serviceName, serverUID, "service_resume")
 	if err != nil {
 		printFatal(err.Error())
 	}

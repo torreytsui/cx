@@ -6,7 +6,7 @@ import (
 	"github.com/cloud66/cli"
 )
 
-func runServiceRestart(c *cli.Context) {
+func runProcessPause(c *cli.Context) {
 	if len(c.Args()) != 1 {
 		cli.ShowSubcommandHelp(c)
 		os.Exit(2)
@@ -23,18 +23,18 @@ func runServiceRestart(c *cli.Context) {
 		serverUID = &server.Uid
 	}
 
-	// get serviceName
-	var serviceName *string
-	flagService := c.String("service")
-	if flagService != "" {
-		serviceName = &flagService
+	// get processName
+	var processName *string
+	flagProcess := c.String("process")
+	if flagProcess != "" {
+		processName = &flagProcess
 	}
 
-	asyncId, err := startServiceAction(stack.Uid, serviceName, serverUID, "service_restart")
+	asyncId, err := startProcessAction(stack.Uid, processName, serverUID, "process_pause")
 	if err != nil {
 		printFatal(err.Error())
 	}
-	genericRes, err := endServiceAction(*asyncId, stack.Uid)
+	genericRes, err := endProcessAction(*asyncId, stack.Uid)
 	if err != nil {
 		printFatal(err.Error())
 	}

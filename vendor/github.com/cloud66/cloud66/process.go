@@ -3,10 +3,11 @@ package cloud66
 import "strconv"
 
 type Process struct {
-	Name               string         `json:"name"`
-	Md5                string         `json:"md5"`
-	Command            string         `json:"command"`
-	ServerProcessCount map[string]int `json:"servers"`
+	Name                string         `json:"name"`
+	Md5                 string         `json:"md5"`
+	Command             string         `json:"command"`
+	ServerProcessCount  map[string]int `json:"servers"`
+	ServerProcessPauses map[string]int `json:"servers_pauses"`
 }
 
 func (c *Client) GetProcesses(stackUid string, serverUid *string) ([]Process, error) {
@@ -78,6 +79,43 @@ func (c *Client) ScaleProcess(stackUid string, processName string, serverCount m
 		ServerCount: serverCount,
 	}
 	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/processes.json", params, nil)
+	if err != nil {
+		return nil, err
+	}
+	var asyncRes *AsyncResult
+	return asyncRes, c.DoReq(req, &asyncRes, nil)
+}
+
+func (c *Client) InvokeProcessAction(stackUid string, processName *string, serverUid *string, action string) (*AsyncResult, error) {
+	var params interface{}
+	if serverUid != nil && processName != nil {
+		params = struct {
+			Command     string `json:"command"`
+			ProcessName string `json:"process_name"`
+			ServerUid   string `json:"server_uid"`
+		}{
+			Command:     action,
+			ProcessName: *processName,
+			ServerUid:   *serverUid,
+		}
+	} else if serverUid == nil {
+		params = struct {
+			Command     string `json:"command"`
+			ProcessName string `json:"process_name"`
+		}{
+			Command:     action,
+			ProcessName: *processName,
+		}
+	} else if processName == nil {
+		params = struct {
+			Command   string `json:"command"`
+			ServerUid string `json:"server_uid"`
+		}{
+			Command:   action,
+			ServerUid: *serverUid,
+		}
+	}
+	req, err := c.NewRequest("POST", "/stacks/"+stackUid+"/actions.json", params, nil)
 	if err != nil {
 		return nil, err
 	}
