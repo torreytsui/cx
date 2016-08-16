@@ -12,11 +12,25 @@ func runServicePause(c *cli.Context) {
 		os.Exit(2)
 	}
 
+	// get stack
 	stack := mustStack(c)
-	serviceName := c.Args()[0]
-	serverUid := findServerUid(*stack, c)
 
-	asyncId, err := startServiceAction(stack.Uid, &serviceName, serverUid, "service_pause")
+	// get serverUID
+	var serverUID *string
+	flagServer := c.String("server")
+	if flagServer != "" {
+		server := mustServer(c, *stack, flagServer)
+		serverUID = &server.Uid
+	}
+
+	// get serviceName
+	var serviceName *string
+	flagService := c.String("service")
+	if flagService != "" {
+		serviceName = &flagService
+	}
+
+	asyncId, err := startServiceAction(stack.Uid, serviceName, serverUID, "service_pause")
 	if err != nil {
 		printFatal(err.Error())
 	}
