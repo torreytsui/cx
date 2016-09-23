@@ -69,7 +69,7 @@ func runRedeploy(c *cli.Context) {
 		must(err)
 
 		if stack.HealthCode == 2 || stack.HealthCode == 4 || stack.StatusCode == 2 || stack.StatusCode == 7 {
-			fmt.Println("Completed with some errors!")
+			printFatal("Completed with some errors!")
 		} else {
 			fmt.Println("Completed successfully!")
 		}
