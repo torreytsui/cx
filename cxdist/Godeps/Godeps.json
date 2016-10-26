@@ -1,6 +1,7 @@
 {
 	"ImportPath": "github.com/cloud66/cx/cxdist",
-	"GoVersion": "go1.5.1",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v74",
 	"Deps": [
 		{
 			"ImportPath": "github.com/kr/s3",
