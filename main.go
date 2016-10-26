@@ -64,6 +64,7 @@ var commands = []*Command{
 	cmdGateway,
 	cmdProcesses,
 	cmdRegisterServer,
+	cmdVersion,
 }
 
 var (
@@ -79,11 +80,10 @@ func main() {
 	honeybadger.ApiKey = "09d82034"
 	defer recoverPanic()
 
-	cli.VersionPrinter = runVersion
-
 	app := cli.NewApp()
 
 	cmds := []cli.Command{}
+	cli.VersionPrinter = runVersion
 
 	for _, cmd := range commands {
 
@@ -286,6 +286,7 @@ func recoverPanic() {
 			report.AddContext("Version", VERSION)
 			report.AddContext("Platform", runtime.GOOS)
 			report.AddContext("Architecture", runtime.GOARCH)
+			report.AddContext("goversion", runtime.Version())
 			report.AddContext("DebugMode", debugMode)
 			result := report.Send()
 			if result != nil {

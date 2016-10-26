@@ -1,10 +1,6 @@
 package main
 
-import (
-	"fmt"
-
-	"github.com/cloud66/cli"
-)
+import "github.com/cloud66/cli"
 
 var cmdHelpEnviron = &Command{
 	Name:  "help-environ",
@@ -48,12 +44,4 @@ CXTOKEN
 
 func dummyCommand(c *cli.Context) {
 	cli.ShowCommandHelp(c, "help-environ")
-}
-
-func runVersion(c *cli.Context) {
-	fmt.Println(VERSION)
-	if debugMode {
-		fmt.Println("Running in debug mode")
-		fmt.Printf("Build date: %s\n", BUILD_DATE)
-	}
 }
