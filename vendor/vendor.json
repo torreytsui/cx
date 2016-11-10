@@ -1,0 +1,43 @@
+{
+	"comment": "",
+	"ignore": "",
+	"package": [
+		{
+			"checksumSHA1": "MTG7XNjqwIV5M7RYQFYzDlo0gEk=",
+			"path": "github.com/cloud66/cloud66",
+			"revision": "f1c2e429bec51c3323ea35d5133c85523cb51f2f",
+			"revisionTime": "2016-11-10T05:30:46Z"
+		},
+		{
+			"checksumSHA1": "vAcdaCm06hfGe01mlfsd/RFRsLQ=",
+			"path": "github.com/khash/oauth/oauth",
+			"revision": "29933d91e1e3d670d91953d364064f5edb0a8b85",
+			"revisionTime": "2016-11-10T04:51:03Z"
+		},
+		{
+			"checksumSHA1": "65JFLPgkaRcSSI3B5iNITn6wh18=",
+			"path": "github.com/kr/s3",
+			"revision": "c070c8f9a8f0032d48f0d2a77d4e382788bd8a1d",
+			"revisionTime": "2014-11-24T22:14:53Z"
+		},
+		{
+			"checksumSHA1": "+c/2I7LPwXdM1ZQSh7VeApITwsU=",
+			"path": "github.com/kr/s3/s3util",
+			"revision": "c070c8f9a8f0032d48f0d2a77d4e382788bd8a1d",
+			"revisionTime": "2014-11-24T22:14:53Z"
+		},
+		{
+			"checksumSHA1": "W5ipMLrFEUJLdAeVil1hQi/hJ00=",
+			"path": "github.com/pborman/uuid",
+			"revision": "3d4f2ba23642d3cfd06bd4b54cf03d99d95c0f1b",
+			"revisionTime": "2016-10-05T15:16:09Z"
+		},
+		{
+			"checksumSHA1": "U6KerxFfRUPTl5GrBy71Fh8Kbhw=",
+			"path": "github.com/toqueteos/webbrowser",
+			"revision": "970743f85c21bbfe01b0b7464aff85669eb0eb46",
+			"revisionTime": "2016-09-14T13:59:53Z"
+		}
+	],
+	"rootPath": "github.com/cloud66/cx"
+}
