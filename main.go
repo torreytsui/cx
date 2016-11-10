@@ -25,8 +25,15 @@ type Command struct {
 	NeedsOrg   bool
 }
 
+const (
+	redirectURL = "urn:ietf:wg:oauth:2.0:oob"
+	scope       = "public redeploy jobs users admin"
+)
+
 var (
 	client       cloud66.Client
+	clientId     string
+	clientSecret string
 	debugMode    bool   = false
 	underTest    bool   = false
 	VERSION      string = "dev"
@@ -194,6 +201,16 @@ func beforeCommand(c *cli.Context) error {
 		command = c.Args().First()
 	}
 
+	clientId = os.Getenv("CX_APP_ID")
+	clientSecret = os.Getenv("CX_APP_SECRET")
+
+	if clientId == "" {
+		clientId = "d4631fd51633bef0c04c6f946428a61fb9089abf4c1e13c15e9742cafd84a91f"
+	}
+	if clientSecret == "" {
+		clientSecret = "e663473f7b991504eb561e208995de15550f499b6840299df588cebe981ba48e"
+	}
+
 	if (command != "version") && (command != "help") && (command != "update") && (command != "test") {
 		initClients(c, true)
 	}
@@ -254,13 +271,13 @@ func initClients(c *cli.Context, startAuth bool) {
 	if err != nil {
 		fmt.Println("No previous authentication found.")
 		if startAuth {
-			cloud66.Authorize(cxHome(), tokenFile)
+			cloud66.Authorize(cxHome(), tokenFile, clientId, clientSecret, redirectURL, scope)
 			os.Exit(1)
 		} else {
 			os.Exit(1)
 		}
 	} else {
-		client = cloud66.GetClient(cxHome(), tokenFile, VERSION)
+		client = cloud66.GetClient(cxHome(), tokenFile, VERSION, "cx", clientId, clientSecret, redirectURL, scope)
 		organization, err := org(c)
 		if err != nil {
 			printFatal("Unable to retrieve organization")
