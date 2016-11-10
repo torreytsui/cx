@@ -26,3 +26,4 @@ compiled
 /cxdist/tmp/
 /cxdist/cxdist
 cx.sublime-workspace
+/.DS_Store

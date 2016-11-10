@@ -30,7 +30,8 @@ func cloneRepo(repo, branch, dir string) error {
 }
 
 func buildApp(dir, ver string) error {
-	if _, err := cmd("goxc", "-include=''", "-bc=linux,windows,darwin,freebsd", "-pv="+ver, "-d="+publishDir, "-main-dirs-exclude=Godeps,testdata,_project,vendor,cxdist", "-n=cx", "-wd="+dir); err != nil {
+	if _, err := cmd("goxc", "-include=''", "-bc=linux,windows,darwin,freebsd", "-pv="+ver, "-d="+publishDir, "-main-dirs-exclude=Godeps,testdata,_project,vendor,cxdist", "-n=cx", "-wd="+dir, "-tasks-=go-test,go-vet"); err != nil {
+		//if _, err := cmd("gox", "-ldflags=\"-X main.VERSION="+ver+"\"", "-osarch=\"darwin/386 darwin/amd64 linux/386 linux/amd64 windows/386 windows/amd64\"", "-output=\""+publishDir+"/{{.Dir}}_{{.OS}}_{{.Arch}}\""); err != nil {
 		return err
 	}
 	return nil
