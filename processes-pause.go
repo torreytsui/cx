@@ -1,10 +1,17 @@
 package main
 
 import (
+	"os"
+
 	"github.com/cloud66/cli"
 )
 
 func runProcessPause(c *cli.Context) {
+	if len(c.Args()) > 1 {
+		cli.ShowSubcommandHelp(c)
+		os.Exit(2)
+	}
+
 	// get stack
 	stack := mustStack(c)
 
@@ -14,13 +21,20 @@ func runProcessPause(c *cli.Context) {
 	if flagServer != "" {
 		server := mustServer(c, *stack, flagServer, true)
 		serverUID = &server.Uid
-	}
+		} else {
+			if len(c.Args()) == 0 {
+				cli.ShowSubcommandHelp(c)
+				os.Exit(2)
+			}
+		}
 
 	// get processName
 	var processName *string
-	flagProcess := c.String("process")
-	if flagProcess != "" {
-		processName = &flagProcess
+	if len(c.Args()) != 0 {
+		flagProcess := c.Args()[0]
+		if flagProcess != "" {
+			processName = &flagProcess
+		}
 	}
 
 	asyncId, err := startProcessAction(stack.Uid, processName, serverUID, "process_pause")

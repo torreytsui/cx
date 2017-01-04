@@ -81,17 +81,14 @@ cli.Command{
 		cli.StringFlag{
 			Name: "server",
 		},
-		cli.StringFlag{
-			Name: "process",
-		},
 	},
 	Usage: "restarts all processes from the given service and/or server",
 	Description: `Restarts all processes from the given service and/or server.
 
 Examples:
-$ cx processes restart -s mystack --process a_backend_process
+$ cx processes restart -s mystack a_backend_process
 $ cx processes restart -s mystack --server my_server
-$ cx processes restart -s mystack --server my_server --process a_backend_process
+$ cx processes restart -s mystack --server my_server a_backend_process
 `},
 cli.Command{
 	Name:   "pause",
@@ -101,16 +98,13 @@ cli.Command{
 		cli.StringFlag{
 			Name: "server",
 		},
-		cli.StringFlag{
-			Name: "process",
-		},
 	},
 	Description: `Pauses all processes from the given service and/or server",
 
 Examples:
-$ cx processes pause -s mystack --process a_backend_process
+$ cx processes pause -s mystack a_backend_process
 $ cx processes pause -s mystack --server my_server
-$ cx processes pause -s mystack --server my_server --process a_backend_process
+$ cx processes pause -s mystack --server my_server a_backend_process
 `},
 cli.Command{
 	Name:   "resume",
@@ -120,16 +114,13 @@ cli.Command{
 		cli.StringFlag{
 			Name: "server",
 		},
-		cli.StringFlag{
-			Name: "process",
-		},
 	},
 	Description: `Resumes all paused processes from the given service and/or server",
 
 Examples:
-$ cx processes resume -s mystack --process a_backend_process
+$ cx processes resume -s mystack a_backend_process
 $ cx processes resume -s mystack --server my_server
-$ cx processes resume -s mystack --server my_server --process a_backend_process
+$ cx processes resume -s mystack --server my_server a_backend_process
 `},
 
 	}
