@@ -1,17 +1,10 @@
 package main
 
 import (
-	"os"
-
 	"github.com/cloud66/cli"
 )
 
 func runProcessRestart(c *cli.Context) {
-	if len(c.Args()) != 1 {
-		cli.ShowSubcommandHelp(c)
-		os.Exit(2)
-	}
-
 	// get stack
 	stack := mustStack(c)
 
@@ -19,7 +12,7 @@ func runProcessRestart(c *cli.Context) {
 	var serverUID *string
 	flagServer := c.String("server")
 	if flagServer != "" {
-		server := mustServer(c, *stack, flagServer)
+		server := mustServer(c, *stack, flagServer, true)
 		serverUID = &server.Uid
 	}
 

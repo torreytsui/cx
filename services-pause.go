@@ -19,7 +19,7 @@ func runServicePause(c *cli.Context) {
 	var serverUID *string
 	flagServer := c.String("server")
 	if flagServer != "" {
-		server := mustServer(c, *stack, flagServer)
+		server := mustServer(c, *stack, flagServer, false)
 		serverUID = &server.Uid
 	}
 

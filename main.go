@@ -427,7 +427,7 @@ func mustStack(c *cli.Context) *cloud66.Stack {
 	return stack
 }
 
-func mustServer(c *cli.Context, stack cloud66.Stack, flagServer string) *cloud66.Server {
+func mustServer(c *cli.Context, stack cloud66.Stack, flagServer string, ignoreDocker bool) *cloud66.Server {
 	servers, err := client.Servers(stack.Uid)
 	if err != nil {
 		printFatal(err.Error())
@@ -439,7 +439,7 @@ func mustServer(c *cli.Context, stack cloud66.Stack, flagServer string) *cloud66
 	if server == nil {
 		printFatal("Server '" + flagServer + "' not found")
 	}
-	if !server.HasRole("docker") {
+	if !ignoreDocker && !server.HasRole("docker") {
 		printFatal("Server '" + flagServer + "' is not a docker server")
 	}
 	fmt.Printf("Server: %s\n", server.Name)

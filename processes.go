@@ -89,9 +89,9 @@ cli.Command{
 	Description: `Restarts all processes from the given service and/or server.
 
 Examples:
-$ cx services restart -s mystack --process a_backend_process
-$ cx services restart -s mystack --server my_server
-$ cx services restart -s mystack --server my_server --process a_backend_process
+$ cx processes restart -s mystack --process a_backend_process
+$ cx processes restart -s mystack --server my_server
+$ cx processes restart -s mystack --server my_server --process a_backend_process
 `},
 cli.Command{
 	Name:   "pause",
@@ -108,9 +108,9 @@ cli.Command{
 	Description: `Pauses all processes from the given service and/or server",
 
 Examples:
-$ cx services pause -s mystack --process a_backend_process
-$ cx services pause -s mystack --server my_server
-$ cx services pause -s mystack --server my_server --process a_backend_process
+$ cx processes pause -s mystack --process a_backend_process
+$ cx processes pause -s mystack --server my_server
+$ cx processes pause -s mystack --server my_server --process a_backend_process
 `},
 cli.Command{
 	Name:   "resume",
@@ -127,9 +127,9 @@ cli.Command{
 	Description: `Resumes all paused processes from the given service and/or server",
 
 Examples:
-$ cx services resume -s mystack --process a_backend_process
-$ cx services resume -s mystack --server my_server
-$ cx services resume -s mystack --server my_server --process a_backend_process
+$ cx processes resume -s mystack --process a_backend_process
+$ cx processes resume -s mystack --server my_server
+$ cx processes resume -s mystack --server my_server --process a_backend_process
 `},
 
 	}
