@@ -25,7 +25,7 @@ func runServiceResume(c *cli.Context) {
 
 	// get serviceName
 	var serviceName *string
-	flagService := c.String("service")
+	flagService := c.Args()[0]
 	if flagService != "" {
 		serviceName = &flagService
 	}
