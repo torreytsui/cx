@@ -7,7 +7,7 @@ import (
 )
 
 func runProcessRestart(c *cli.Context) {
-	if len(c.Args()) != 1 {
+	if len(c.Args()) > 1 {
 		cli.ShowSubcommandHelp(c)
 		os.Exit(2)
 	}
@@ -19,16 +19,23 @@ func runProcessRestart(c *cli.Context) {
 	var serverUID *string
 	flagServer := c.String("server")
 	if flagServer != "" {
-		server := mustServer(c, *stack, flagServer)
+		server := mustServer(c, *stack, flagServer, true)
 		serverUID = &server.Uid
-	}
+		} else {
+			if len(c.Args()) == 0 {
+				cli.ShowSubcommandHelp(c)
+				os.Exit(2)
+			}
+		}
 
-	// get processName
-	var processName *string
-	flagProcess := c.String("process")
-	if flagProcess != "" {
-		processName = &flagProcess
-	}
+		// get processName
+		var processName *string
+		if len(c.Args()) != 0 {
+			flagProcess := c.Args()[0]
+			if flagProcess != "" {
+				processName = &flagProcess
+			}
+		}
 
 	asyncId, err := startProcessAction(stack.Uid, processName, serverUID, "process_restart")
 	if err != nil {
