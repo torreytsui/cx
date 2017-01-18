@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/cloud66/cli"
-	"github.com/cloud66/cloud66"
 	"os"
 	"runtime"
 	"strings"
+
+	"github.com/cloud66/cli"
+	"github.com/cloud66/cloud66"
 )
 
 var cmdSsh = &Command{
@@ -18,6 +19,18 @@ var cmdSsh = &Command{
 			Name:  "gateway-key",
 			Usage: "path to the bastion server key",
 			Value: "",
+		},
+		cli.BoolFlag{
+			Name:  "v",
+			Usage: "run ssh with verbose flag",
+		},
+		cli.BoolFlag{
+			Name:  "vv",
+			Usage: "run ssh with very verbose flag",
+		},
+		cli.BoolFlag{
+			Name:  "vvv",
+			Usage: "run ssh with very very verbose flag",
 		},
 	},
 	NeedsStack: true,
@@ -92,16 +105,25 @@ func runSsh(c *cli.Context) {
 		}
 	}
 
+	verbosity := 0
+	if c.Bool("v") {
+		verbosity = 1
+	} else if c.Bool("vv") {
+		verbosity = 2
+	} else if c.Bool("vvv") {
+		verbosity = 3
+	}
+
 	fmt.Printf("Server: %s\n", server.Name)
 
-	err = sshToServer(*server, flagGatewayKey)
+	err = sshToServer(*server, flagGatewayKey, verbosity)
 	if err != nil {
 		printError("If you're having issues connecting to your server, you may find some help at http://help.cloud66.com/managing-your-stack/ssh-to-your-server")
 		printFatal(err.Error())
 	}
 }
 
-func sshToServer(server cloud66.Server, gatewayKey string) error {
+func sshToServer(server cloud66.Server, gatewayKey string, verbosity int) error {
 	sshFile, err := prepareLocalSshKey(server)
 	must(err)
 
@@ -116,6 +138,15 @@ func sshToServer(server cloud66.Server, gatewayKey string) error {
 
 	fmt.Printf("Connecting to %s (%s)...\n", server.Name, server.Address)
 
+	vflag := ""
+	if verbosity == 1 {
+		vflag = "-v"
+	} else if verbosity == 2 {
+		vflag = "-vv"
+	} else if verbosity == 3 {
+		vflag = "-vvv"
+	}
+
 	if server.HasDeployGateway {
 		tags := []string{
 			"ssh",
@@ -127,6 +158,7 @@ func sshToServer(server cloud66.Server, gatewayKey string) error {
 			"-o", "IdentitiesOnly=yes",
 			"-A",
 			"-p", "22",
+			vflag,
 			server.UserName + "@" + server.Address,
 			"-i", sshFile,
 		}
@@ -144,6 +176,7 @@ func sshToServer(server cloud66.Server, gatewayKey string) error {
 			"-o", "IdentitiesOnly=yes",
 			"-A",
 			"-p", "22",
+			vflag,
 		})
 	}
 }
