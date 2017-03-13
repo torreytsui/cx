@@ -20,13 +20,13 @@ func runEnvVarsSet(c *cli.Context) {
 	kv := c.Args()[0]
 	kvs := strings.Split(kv, "=")
 
-	if len(kvs) != 2 {
+	if len(kvs) < 2 {
 		cli.ShowSubcommandHelp(c)
 		os.Exit(2)
 	}
 
 	key := kvs[0]
-	value := kvs[1]
+	value := strings.Join(kvs[1:], "=")
 
 	stack := mustStack(c)
 
