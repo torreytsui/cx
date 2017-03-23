@@ -51,21 +51,18 @@ func runNewBackup(c *cli.Context) {
 		*flagRunonreplica = c.Bool("run-on-replica")
 	}
 
-	var flagBackupType *string
 	var logicalBackup *bool
 
 	if c.IsSet("backup-type") {
-		flagBackupType = new(string)
-		*flagBackupType = c.String("backup-type")
-
 		logicalBackup = new(bool)
 
-		if *flagBackupType == "binary" {
+		flagBackupType := c.String("backup-type")
+		if flagBackupType == "binary" {
 			*logicalBackup = false
-		} else if *flagBackupType == "logical" {
+		} else if flagBackupType == "logical" {
 			*logicalBackup = true
 		} else {
-			printFatal("Acceptable values for the 'backup-type' flag are 'binary' and 'logical'. You have entered '%s'.", *flagBackupType)
+			printFatal("Acceptable values for the 'backup-type' flag are 'binary' and 'logical'. You have entered '%s'.", flagBackupType)
 			return
 		}
 	}
