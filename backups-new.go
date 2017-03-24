@@ -57,10 +57,10 @@ func runNewBackup(c *cli.Context) {
 		flagBackupType := c.String("backup-type")
 		if flagBackupType == "binary" {
 			*logicalBackup = false
-		} else if flagBackupType == "logical" {
+		} else if flagBackupType == "text" {
 			*logicalBackup = true
 		} else {
-			printFatal("Acceptable values for the 'backup-type' flag are 'binary' and 'logical'. You have entered '%s'.", flagBackupType)
+			printFatal("Acceptable values for the 'backup-type' flag are 'binary' and 'text'. You have entered '%s'.", flagBackupType)
 			return
 		}
 	} else {

@@ -119,7 +119,7 @@ $ cx backups new -s mystack	--dbtypes=postgresql --frequency="0 */1 * * *" --gzi
 				},
 				cli.StringFlag{
 					Name:  "backup-type",
-					Usage: "Specify the type of backup to perform. Acceptable values are 'binary' and 'logical'. Default value is 'binary'.",
+					Usage: "Specify the type of backup to perform. Acceptable values are 'binary' and 'text'. Default value is 'binary'.",
 				},
 			},
 		},
