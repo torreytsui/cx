@@ -27,3 +27,4 @@ compiled
 /cxdist/cxdist
 cx.sublime-workspace
 /.DS_Store
+cx.iml

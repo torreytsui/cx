@@ -64,8 +64,8 @@ func runNewBackup(c *cli.Context) {
 			return
 		}
 	} else {
-		// Default is 'binary' backup
-		*logicalBackup = false
+		// Default is 'text' backup
+		*logicalBackup = true
 	}
 
 	err := client.NewBackup(stack.Uid, flagDbTypes, flagFrequency, flagKeep, flagGzip, flagExcludetables, flagRunonreplica, logicalBackup)
