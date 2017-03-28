@@ -22,6 +22,14 @@ var cmdRun = &Command{
 			Name:  "service",
 			Usage: "name of the server to run the command in (docker stacks only)",
 		},
+		cli.BoolFlag{
+			Name:  "stay",
+			Usage: "stay in shell after executing command",
+		},
+		cli.StringFlag{
+			Name:  "shell",
+			Usage: "shell to run. Default is /bin/bash. An example would be /bin/sh",
+		},
 	},
 	Run:        runRun,
 	NeedsStack: true,
@@ -101,13 +109,22 @@ func runRun(c *cli.Context) {
 	}
 
 	includeTty := c.String("service") != ""
-	err = SshToServerForCommand(*server, userCommand, includeTty)
+	stay := c.Bool("stay")
+	shell := c.String("shell")
+	if shell != "" && !stay {
+		printFatal("Cannot use 'shell' without 'stay'")
+	}
+	if shell == "" {
+		shell = "/bin/bash"
+	}
+
+	err = SshToServerForCommand(*server, userCommand, stay, includeTty, shell)
 	if err != nil {
 		printFatal(err.Error())
 	}
 }
 
-func SshToServerForCommand(server cloud66.Server, userCommand string, includeTty bool) error {
+func SshToServerForCommand(server cloud66.Server, userCommand string, stay bool, includeTty bool, shell string) error {
 	sshFile, err := prepareLocalSshKey(server)
 	must(err)
 
@@ -120,8 +137,13 @@ func SshToServerForCommand(server cloud66.Server, userCommand string, includeTty
 	}
 
 	// add source
-	userCommand = fmt.Sprintf("source /var/.cloud66_env &>/dev/null ; %s", userCommand)
-	if includeTty {
+	if stay {
+		userCommand = fmt.Sprintf("source /var/.cloud66_env &>/dev/null ; %s; %s", userCommand, shell)
+	} else {
+		userCommand = fmt.Sprintf("source /var/.cloud66_env &>/dev/null ; %s", userCommand)
+	}
+
+	if includeTty || stay {
 		fmt.Println("Note: you may need to push <enter> to view output after the connection completes..")
 		return startProgram("ssh", []string{
 			server.UserName + "@" + server.Address,
