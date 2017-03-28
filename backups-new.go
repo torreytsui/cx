@@ -51,7 +51,24 @@ func runNewBackup(c *cli.Context) {
 		*flagRunonreplica = c.Bool("run-on-replica")
 	}
 
-	err := client.NewBackup(stack.Uid, flagDbTypes, flagFrequency, flagKeep, flagGzip, flagExcludetables, flagRunonreplica)
+	logicalBackup := new(bool)
+
+	if c.IsSet("backup-type") {
+		flagBackupType := c.String("backup-type")
+		if flagBackupType == "binary" {
+			*logicalBackup = false
+		} else if flagBackupType == "text" {
+			*logicalBackup = true
+		} else {
+			printFatal("Acceptable values for the 'backup-type' flag are 'binary' and 'text'. You have entered '%s'.", flagBackupType)
+			return
+		}
+	} else {
+		// Default is 'text' backup
+		*logicalBackup = true
+	}
+
+	err := client.NewBackup(stack.Uid, flagDbTypes, flagFrequency, flagKeep, flagGzip, flagExcludetables, flagRunonreplica, logicalBackup)
 
 	if err != nil {
 		printFatal("Error during backup creation: " + err.Error())

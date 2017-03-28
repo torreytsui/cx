@@ -91,7 +91,7 @@ $ cx backups download -s mystack 123
 			Description: `Create a new backup task for your stack.
 
 Example:
-$ cx backups new -s mystack	--dbtypes=postgresql --frequency="0 */1 * * *" --gzip=true exclude-tables=my_log_table --run-on-replica=false`,
+$ cx backups new -s mystack	--dbtypes=postgresql --frequency="0 */1 * * *" --gzip=true exclude-tables=my_log_table --run-on-replica=false --backup-type=text`,
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "dbtypes",
@@ -116,6 +116,10 @@ $ cx backups new -s mystack	--dbtypes=postgresql --frequency="0 */1 * * *" --gzi
 				cli.BoolFlag{
 					Name:  "run-on-replica",
 					Usage: "Run backup task on replica server if available. Default value is true.",
+				},
+				cli.StringFlag{
+					Name:  "backup-type",
+					Usage: "Specify the type of backup to perform. Acceptable values are 'binary' and 'text'. Default value is 'text'.",
 				},
 			},
 		},

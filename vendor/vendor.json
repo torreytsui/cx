@@ -1,42 +1,258 @@
 {
 	"comment": "",
-	"ignore": "",
+	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "MTG7XNjqwIV5M7RYQFYzDlo0gEk=",
+			"comment": "null-15",
+			"path": "code.google.com/p/go-uuid/uuid",
+			"revision": "'35bc42037350f0078e3c974c6ea690f1926603ab'"
+		},
+		{
+			"comment": "weekly-57",
+			"path": "code.google.com/p/goauth2/oauth",
+			"revision": "'222e66a2882ef45c3153c86c0aa82fe65fc29a78'"
+		},
+		{
+			"comment": "1.2.0-65-g99fe3ed",
+			"path": "github.com/cloud66/cli",
+			"revision": "99fe3ed9502b7ed1fb1e2b39de0e4ca618123c12"
+		},
+		{
+			"checksumSHA1": "AKWGhZuz2tTA0+f2ZhAgtUFaTl0=",
 			"path": "github.com/cloud66/cloud66",
-			"revision": "f1c2e429bec51c3323ea35d5133c85523cb51f2f",
-			"revisionTime": "2016-11-10T05:30:46Z"
+			"revision": "3dcba696baf41367618aa611fc9f0ef602def5b5",
+			"revisionTime": "2017-03-23T10:08:58Z"
 		},
 		{
-			"checksumSHA1": "vAcdaCm06hfGe01mlfsd/RFRsLQ=",
-			"path": "github.com/khash/oauth/oauth",
-			"revision": "29933d91e1e3d670d91953d364064f5edb0a8b85",
-			"revisionTime": "2016-11-10T04:51:03Z"
+			"path": "github.com/cloud66/fayego/fayeclient",
+			"revision": "95df6d2fd2d062752e423aee118ab15361cc6339"
 		},
 		{
-			"checksumSHA1": "65JFLPgkaRcSSI3B5iNITn6wh18=",
-			"path": "github.com/kr/s3",
-			"revision": "c070c8f9a8f0032d48f0d2a77d4e382788bd8a1d",
-			"revisionTime": "2014-11-24T22:14:53Z"
+			"path": "github.com/cloud66/fayego/fayeserver",
+			"revision": "95df6d2fd2d062752e423aee118ab15361cc6339"
 		},
 		{
-			"checksumSHA1": "+c/2I7LPwXdM1ZQSh7VeApITwsU=",
-			"path": "github.com/kr/s3/s3util",
-			"revision": "c070c8f9a8f0032d48f0d2a77d4e382788bd8a1d",
-			"revisionTime": "2014-11-24T22:14:53Z"
+			"path": "github.com/cloud66/wray",
+			"revision": "19624b7fbd8037566e8298754bc5d2c917cc1fa3"
 		},
 		{
-			"checksumSHA1": "W5ipMLrFEUJLdAeVil1hQi/hJ00=",
-			"path": "github.com/pborman/uuid",
-			"revision": "3d4f2ba23642d3cfd06bd4b54cf03d99d95c0f1b",
-			"revisionTime": "2016-10-05T15:16:09Z"
+			"path": "github.com/gorilla/websocket",
+			"revision": "361d4c0ffd78338ebe0a9e6320cdbe115d7dc026"
 		},
 		{
-			"checksumSHA1": "U6KerxFfRUPTl5GrBy71Fh8Kbhw=",
+			"path": "github.com/gorilla/websocket/examples/autobahn",
+			"revision": "361d4c0ffd78338ebe0a9e6320cdbe115d7dc026"
+		},
+		{
+			"path": "github.com/gorilla/websocket/examples/chat",
+			"revision": "361d4c0ffd78338ebe0a9e6320cdbe115d7dc026"
+		},
+		{
+			"path": "github.com/gorilla/websocket/examples/filewatch",
+			"revision": "361d4c0ffd78338ebe0a9e6320cdbe115d7dc026"
+		},
+		{
+			"comment": "v0.1.6-1-g029e5f2",
+			"path": "github.com/h2non/gock",
+			"revision": "029e5f2873a46acb40329d84261f397c7daffe77"
+		},
+		{
+			"path": "github.com/inconshreveable/go-update",
+			"revision": "8455de157e5e3eee5d680febf627fc4c03b59332"
+		},
+		{
+			"path": "github.com/inconshreveable/go-update/internal/binarydist",
+			"revision": "8455de157e5e3eee5d680febf627fc4c03b59332"
+		},
+		{
+			"path": "github.com/inconshreveable/go-update/internal/osext",
+			"revision": "8455de157e5e3eee5d680febf627fc4c03b59332"
+		},
+		{
+			"path": "github.com/jcoene/honeybadger",
+			"revision": "3b3b55a9c3ace1d03cf71a52f833fe27cb885430"
+		},
+		{
+			"path": "github.com/kardianos/osext",
+			"revision": "6e7f843663477789fac7c02def0d0909e969b4e5"
+		},
+		{
+			"path": "github.com/mgutz/ansi",
+			"revision": "c286dcecd19ff979eeb73ea444e479b903f2cfcb"
+		},
+		{
+			"path": "github.com/mgutz/ansi/cmd/ansi-mgutz",
+			"revision": "c286dcecd19ff979eeb73ea444e479b903f2cfcb"
+		},
+		{
+			"comment": "v1.2.0-46-gc3a655f",
+			"path": "github.com/onsi/ginkgo",
+			"revision": "c3a655f9b37a2207fa39721b078b3173ee9218d6"
+		},
+		{
+			"comment": "v1.2.0-46-gc3a655f",
+			"path": "github.com/onsi/ginkgo/config",
+			"revision": "c3a655f9b37a2207fa39721b078b3173ee9218d6"
+		},
+		{
+			"comment": "v1.2.0-46-gc3a655f",
+			"path": "github.com/onsi/ginkgo/internal/codelocation",
+			"revision": "c3a655f9b37a2207fa39721b078b3173ee9218d6"
+		},
+		{
+			"comment": "v1.2.0-46-gc3a655f",
+			"path": "github.com/onsi/ginkgo/internal/containernode",
+			"revision": "c3a655f9b37a2207fa39721b078b3173ee9218d6"
+		},
+		{
+			"comment": "v1.2.0-46-gc3a655f",
+			"path": "github.com/onsi/ginkgo/internal/failer",
+			"revision": "c3a655f9b37a2207fa39721b078b3173ee9218d6"
+		},
+		{
+			"comment": "v1.2.0-46-gc3a655f",
+			"path": "github.com/onsi/ginkgo/internal/leafnodes",
+			"revision": "c3a655f9b37a2207fa39721b078b3173ee9218d6"
+		},
+		{
+			"comment": "v1.2.0-46-gc3a655f",
+			"path": "github.com/onsi/ginkgo/internal/remote",
+			"revision": "c3a655f9b37a2207fa39721b078b3173ee9218d6"
+		},
+		{
+			"comment": "v1.2.0-46-gc3a655f",
+			"path": "github.com/onsi/ginkgo/internal/spec",
+			"revision": "c3a655f9b37a2207fa39721b078b3173ee9218d6"
+		},
+		{
+			"comment": "v1.2.0-46-gc3a655f",
+			"path": "github.com/onsi/ginkgo/internal/specrunner",
+			"revision": "c3a655f9b37a2207fa39721b078b3173ee9218d6"
+		},
+		{
+			"comment": "v1.2.0-46-gc3a655f",
+			"path": "github.com/onsi/ginkgo/internal/suite",
+			"revision": "c3a655f9b37a2207fa39721b078b3173ee9218d6"
+		},
+		{
+			"comment": "v1.2.0-46-gc3a655f",
+			"path": "github.com/onsi/ginkgo/internal/testingtproxy",
+			"revision": "c3a655f9b37a2207fa39721b078b3173ee9218d6"
+		},
+		{
+			"comment": "v1.2.0-46-gc3a655f",
+			"path": "github.com/onsi/ginkgo/internal/writer",
+			"revision": "c3a655f9b37a2207fa39721b078b3173ee9218d6"
+		},
+		{
+			"comment": "v1.2.0-46-gc3a655f",
+			"path": "github.com/onsi/ginkgo/reporters",
+			"revision": "c3a655f9b37a2207fa39721b078b3173ee9218d6"
+		},
+		{
+			"comment": "v1.2.0-46-gc3a655f",
+			"path": "github.com/onsi/ginkgo/reporters/stenographer",
+			"revision": "c3a655f9b37a2207fa39721b078b3173ee9218d6"
+		},
+		{
+			"comment": "v1.2.0-46-gc3a655f",
+			"path": "github.com/onsi/ginkgo/types",
+			"revision": "c3a655f9b37a2207fa39721b078b3173ee9218d6"
+		},
+		{
+			"comment": "v1.0-91-g7ce781e",
+			"path": "github.com/onsi/gomega",
+			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
+		},
+		{
+			"comment": "v1.0-91-g7ce781e",
+			"path": "github.com/onsi/gomega/format",
+			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
+		},
+		{
+			"comment": "v1.0-91-g7ce781e",
+			"path": "github.com/onsi/gomega/gbytes",
+			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
+		},
+		{
+			"comment": "v1.0-91-g7ce781e",
+			"path": "github.com/onsi/gomega/ghttp",
+			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
+		},
+		{
+			"comment": "v1.0-91-g7ce781e",
+			"path": "github.com/onsi/gomega/ghttp/protobuf",
+			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
+		},
+		{
+			"comment": "v1.0-91-g7ce781e",
+			"path": "github.com/onsi/gomega/internal/assertion",
+			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
+		},
+		{
+			"comment": "v1.0-91-g7ce781e",
+			"path": "github.com/onsi/gomega/internal/asyncassertion",
+			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
+		},
+		{
+			"comment": "v1.0-91-g7ce781e",
+			"path": "github.com/onsi/gomega/internal/fakematcher",
+			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
+		},
+		{
+			"comment": "v1.0-91-g7ce781e",
+			"path": "github.com/onsi/gomega/internal/oraclematcher",
+			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
+		},
+		{
+			"comment": "v1.0-91-g7ce781e",
+			"path": "github.com/onsi/gomega/internal/testingtsupport",
+			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
+		},
+		{
+			"comment": "v1.0-91-g7ce781e",
+			"path": "github.com/onsi/gomega/matchers",
+			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
+		},
+		{
+			"comment": "v1.0-91-g7ce781e",
+			"path": "github.com/onsi/gomega/matchers/support/goraph/bipartitegraph",
+			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
+		},
+		{
+			"comment": "v1.0-91-g7ce781e",
+			"path": "github.com/onsi/gomega/matchers/support/goraph/edge",
+			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
+		},
+		{
+			"comment": "v1.0-91-g7ce781e",
+			"path": "github.com/onsi/gomega/matchers/support/goraph/node",
+			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
+		},
+		{
+			"comment": "v1.0-91-g7ce781e",
+			"path": "github.com/onsi/gomega/matchers/support/goraph/util",
+			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
+		},
+		{
+			"comment": "v1.0-91-g7ce781e",
+			"path": "github.com/onsi/gomega/types",
+			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
+		},
+		{
+			"checksumSHA1": "1x5iL8daETet8FjM7l2qp9Swvls=",
+			"origin": "github.com/cloud66/cx/cxdist/tmp/vendor/github.com/skratchdot/open-golang/open",
+			"path": "github.com/skratchdot/open-golang/open",
+			"revision": "66a067f182e979bebe5c949c96d2dac2a9ab08be",
+			"revisionTime": "2015-11-11T14:36:42Z"
+		},
+		{
 			"path": "github.com/toqueteos/webbrowser",
-			"revision": "970743f85c21bbfe01b0b7464aff85669eb0eb46",
-			"revisionTime": "2016-09-14T13:59:53Z"
+			"revision": "21fc9f95c83442fd164094666f7cb4f9fdd56cd6"
+		},
+		{
+			"path": "github.com/toqueteos/webbrowser/examples",
+			"revision": "21fc9f95c83442fd164094666f7cb4f9fdd56cd6"
 		}
 	],
 	"rootPath": "github.com/cloud66/cx"
