@@ -10,7 +10,7 @@ import (
 
 	"github.com/cloud66/cli"
 	"github.com/cloud66/cloud66"
-	"github.com/jcoene/honeybadger"
+	"github.com/getsentry/raven-go"
 	"github.com/mgutz/ansi"
 )
 
@@ -83,7 +83,7 @@ func main() {
 	// add aliases for commands
 	commands = populateAliases(commands)
 
-	honeybadger.ApiKey = "09d82034"
+	raven.SetDSN("https://39c187859231424fb4865e90d42a29a3:cfbc35db1b954f04be995a3d0ec3fbae@sentry.io/153008")
 	defer recoverPanic()
 
 	app := cli.NewApp()
@@ -181,9 +181,6 @@ func beforeCommand(c *cli.Context) error {
 		environment = "_" + c.GlobalString("runenv")
 
 		fmt.Printf(ansi.Color(fmt.Sprintf("Running against %s environment\n", c.GlobalString("runenv")), "grey"))
-		honeybadger.Environment = c.GlobalString("runenv")
-	} else {
-		honeybadger.Environment = "production"
 	}
 
 	if account != "" || environment != "" {
@@ -293,24 +290,15 @@ func initClients(c *cli.Context, startAuth bool) {
 
 func recoverPanic() {
 	if VERSION != "dev" {
-		if rec := recover(); rec != nil {
-			report, err := honeybadger.NewReport(rec)
-			if err != nil {
-				printError("reporting crash failed: %s", err.Error())
+		raven.CapturePanicAndWait(func() {
+			if rec := recover(); rec != nil {
 				panic(rec)
 			}
-			report.AddContext("Version", VERSION)
-			report.AddContext("Platform", runtime.GOOS)
-			report.AddContext("Architecture", runtime.GOARCH)
-			report.AddContext("goversion", runtime.Version())
-			report.AddContext("DebugMode", debugMode)
-			result := report.Send()
-			if result != nil {
-				printError("reporting crash failed: %s", result.Error())
-				panic(rec)
-			}
-			printFatal("cx encountered and reported an internal client error")
-		}
+		}, map[string]string{
+			"Version":      VERSION,
+			"Platform":     runtime.GOOS,
+			"Architecture": runtime.GOARCH,
+			"goversion":    runtime.Version()})
 	}
 }
 

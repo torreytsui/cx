@@ -13,6 +13,12 @@
 			"revision": "'222e66a2882ef45c3153c86c0aa82fe65fc29a78'"
 		},
 		{
+			"checksumSHA1": "TbUu0oEcNoMuYbLJbnJkTOpZ/iw=",
+			"path": "github.com/certifi/gocertifi",
+			"revision": "03be5e6bb9874570ea7fb0961225d193cbc374c5",
+			"revisionTime": "2017-01-23T21:22:43Z"
+		},
+		{
 			"comment": "1.2.0-65-g99fe3ed",
 			"path": "github.com/cloud66/cli",
 			"revision": "99fe3ed9502b7ed1fb1e2b39de0e4ca618123c12"
@@ -36,19 +42,13 @@
 			"revision": "19624b7fbd8037566e8298754bc5d2c917cc1fa3"
 		},
 		{
+			"checksumSHA1": "jDhLfV1cOkH/OP045rItu9uJeZU=",
+			"path": "github.com/getsentry/raven-go",
+			"revision": "aff752b3f9b36599a3ab28ac36255bea069b440b",
+			"revisionTime": "2017-03-09T16:35:36Z"
+		},
+		{
 			"path": "github.com/gorilla/websocket",
-			"revision": "361d4c0ffd78338ebe0a9e6320cdbe115d7dc026"
-		},
-		{
-			"path": "github.com/gorilla/websocket/examples/autobahn",
-			"revision": "361d4c0ffd78338ebe0a9e6320cdbe115d7dc026"
-		},
-		{
-			"path": "github.com/gorilla/websocket/examples/chat",
-			"revision": "361d4c0ffd78338ebe0a9e6320cdbe115d7dc026"
-		},
-		{
-			"path": "github.com/gorilla/websocket/examples/filewatch",
 			"revision": "361d4c0ffd78338ebe0a9e6320cdbe115d7dc026"
 		},
 		{
@@ -69,8 +69,11 @@
 			"revision": "8455de157e5e3eee5d680febf627fc4c03b59332"
 		},
 		{
+			"checksumSHA1": "PJLgXl3fgrcjNQx9NeaEt8EszWk=",
+			"origin": "github.com/cloud66/cx/cxdist/tmp/vendor/github.com/jcoene/honeybadger",
 			"path": "github.com/jcoene/honeybadger",
-			"revision": "3b3b55a9c3ace1d03cf71a52f833fe27cb885430"
+			"revision": "8b0683230f49120d02c20a892c7685612b2e6545",
+			"revisionTime": "2017-03-13T21:29:29Z"
 		},
 		{
 			"path": "github.com/kardianos/osext",
@@ -78,10 +81,6 @@
 		},
 		{
 			"path": "github.com/mgutz/ansi",
-			"revision": "c286dcecd19ff979eeb73ea444e479b903f2cfcb"
-		},
-		{
-			"path": "github.com/mgutz/ansi/cmd/ansi-mgutz",
 			"revision": "c286dcecd19ff979eeb73ea444e479b903f2cfcb"
 		},
 		{
@@ -171,32 +170,12 @@
 		},
 		{
 			"comment": "v1.0-91-g7ce781e",
-			"path": "github.com/onsi/gomega/gbytes",
-			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
-		},
-		{
-			"comment": "v1.0-91-g7ce781e",
-			"path": "github.com/onsi/gomega/ghttp",
-			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
-		},
-		{
-			"comment": "v1.0-91-g7ce781e",
-			"path": "github.com/onsi/gomega/ghttp/protobuf",
-			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
-		},
-		{
-			"comment": "v1.0-91-g7ce781e",
 			"path": "github.com/onsi/gomega/internal/assertion",
 			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
 		},
 		{
 			"comment": "v1.0-91-g7ce781e",
 			"path": "github.com/onsi/gomega/internal/asyncassertion",
-			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
-		},
-		{
-			"comment": "v1.0-91-g7ce781e",
-			"path": "github.com/onsi/gomega/internal/fakematcher",
 			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
 		},
 		{
@@ -240,15 +219,10 @@
 			"revision": "7ce781ea776b2fd506491011353bded2e40c8467"
 		},
 		{
-			"checksumSHA1": "1x5iL8daETet8FjM7l2qp9Swvls=",
-			"origin": "github.com/cloud66/cx/cxdist/tmp/vendor/github.com/skratchdot/open-golang/open",
-			"path": "github.com/skratchdot/open-golang/open",
-			"revision": "66a067f182e979bebe5c949c96d2dac2a9ab08be",
-			"revisionTime": "2015-11-11T14:36:42Z"
-		},
-		{
+			"checksumSHA1": "CvpFl4NDDa8DWjV5+sNu1DUO8yk=",
 			"path": "github.com/toqueteos/webbrowser",
-			"revision": "21fc9f95c83442fd164094666f7cb4f9fdd56cd6"
+			"revision": "22b60a18af033f78303729d2f68cb0f44213565a",
+			"revisionTime": "2017-01-07T12:16:10Z"
 		},
 		{
 			"path": "github.com/toqueteos/webbrowser/examples",
