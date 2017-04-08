@@ -52,6 +52,7 @@ var commands = []*Command{
 	cmdEnvVars,
 	cmdLease,
 	cmdRun,
+	cmdTunnel,
 	cmdServers,
 	cmdSsh,
 	cmdTail,
