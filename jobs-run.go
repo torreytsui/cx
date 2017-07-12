@@ -41,7 +41,7 @@ func runJobRun(c *cli.Context) {
 	if len(c.StringSlice("arg")) > 0 {
 		for i, arg := range c.StringSlice("arg") {
 			if i > 0 {
-				jobArgs = jobArgs + " "				
+				jobArgs = jobArgs + " "
 			}
 			jobArgs = jobArgs + "\"" + arg + "\""
 		}

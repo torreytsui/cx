@@ -312,10 +312,9 @@ func startProgram(command string, args []string) error {
 
 	//TODO: ugly to mock startProgram when testing, need better solution
 	if underTest {
-		lastCommandExecuted = cmd 
-		return nil 
+		lastCommandExecuted = cmd
+		return nil
 	}
-
 
 	if err := cmd.Run(); err != nil {
 		return err

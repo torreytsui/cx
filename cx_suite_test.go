@@ -6,18 +6,13 @@ import (
 	"testing"
 )
 
-
 func TestCX(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "CX")
 }
-
-
 
 var _ = BeforeSuite(func() {
 })
 
 var _ = AfterSuite(func() {
 })
-
-
