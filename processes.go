@@ -150,7 +150,7 @@ func runProcesses(c *cli.Context) {
 		if server == nil {
 			printFatal("Server '" + flagServer + "' not found")
 		}
-		if !server.HasRole("app") || server.HasRole("docker") {
+		if !server.HasRole("app") || server.HasRole("docker") || server.HasRole("kubes") {
 			printFatal("Server '" + flagServer + "' can not host processes")
 		}
 		fmt.Printf("Server: %s\n", server.Name)

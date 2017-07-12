@@ -185,7 +185,7 @@ func runServices(c *cli.Context) {
 		if server == nil {
 			printFatal("Server '" + flagServer + "' not found")
 		}
-		if !server.HasRole("docker") {
+		if !server.HasRole("docker") && !server.HasRole("kubes") {
 			printFatal("Server '" + flagServer + "' can not host containers")
 		}
 		fmt.Printf("Server: %s\n", server.Name)
