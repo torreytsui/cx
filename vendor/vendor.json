@@ -24,10 +24,10 @@
 			"revision": "99fe3ed9502b7ed1fb1e2b39de0e4ca618123c12"
 		},
 		{
-			"checksumSHA1": "AKWGhZuz2tTA0+f2ZhAgtUFaTl0=",
+			"checksumSHA1": "7hwv/+Fyl2+VNe/Y+Tpr9DNgusQ=",
 			"path": "github.com/cloud66/cloud66",
-			"revision": "3dcba696baf41367618aa611fc9f0ef602def5b5",
-			"revisionTime": "2017-03-23T10:08:58Z"
+			"revision": "2f4477a513c247085b5febc32bca57a7ea2ba1a7",
+			"revisionTime": "2017-07-13T10:34:03Z"
 		},
 		{
 			"path": "github.com/cloud66/fayego/fayeclient",
