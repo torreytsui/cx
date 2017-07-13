@@ -19,7 +19,10 @@ func runServiceScale(c *cli.Context) {
 	}
 
 	stack := mustStack(c)
+
 	serviceName := c.Args()[0]
+	service, err := client.GetService(stack.Uid, serviceName, nil, nil)
+	must(err)
 
 	count := c.Args()[1]
 	count = strings.Replace(count, "[", "", -1)
@@ -28,9 +31,6 @@ func runServiceScale(c *cli.Context) {
 
 	var absoluteCount int
 	if strings.ContainsAny(count, "+ & -") {
-		// fetch service information for existing counts
-		service, err := client.GetService(stack.Uid, serviceName, nil, nil)
-		must(err)
 		serviceCountCurrent := len(service.Containers)
 
 		relativeCount, err := strconv.Atoi(count)
@@ -60,7 +60,7 @@ func runServiceScale(c *cli.Context) {
 	groupMap["web"] = absoluteCount
 
 	var asyncId *int
-	asyncId, err := startServiceScaleByGroup(stack.Uid, serviceName, groupMap)
+	asyncId, err = startServiceScaleByGroup(stack.Uid, serviceName, groupMap)
 	must(err)
 
 	genericRes, err := endServiceScale(*asyncId, stack.Uid)
