@@ -31,7 +31,12 @@ func runServiceScale(c *cli.Context) {
 
 	var absoluteCount int
 	if strings.ContainsAny(count, "+ & -") {
-		serviceCountCurrent := len(service.Containers)
+		var serviceCountCurrent int
+		if stack.Backend == "kubernetes" {
+			serviceCountCurrent = service.DesiredCount
+		} else {
+			serviceCountCurrent = len(service.Containers)
+		}
 
 		relativeCount, err := strconv.Atoi(count)
 		if err != nil {
