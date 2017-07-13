@@ -26,91 +26,49 @@ func runServiceScale(c *cli.Context) {
 	count = strings.Replace(count, "]", "", -1)
 	count = strings.Replace(count, " ", "", -1)
 
-	flagServer := c.String("server")
-	flagGroup := c.String("group")
-
-	// fetch servers info
-	servers, err := client.Servers(stack.Uid)
-	must(err)
-
-	if flagServer != "" {
-		server, err := findServer(servers, flagServer)
-		must(err)
-		if server == nil {
-			printFatal("Server '" + flagServer + "' not found")
-		}
-		if !server.HasRole("docker") && !server.HasRole("kubes") {
-			printFatal("Server '" + flagServer + "' can not host containers")
-		}
-		fmt.Printf("Server: %s\n", server.Name)
-		// filter servers collection down
-		servers = make([]cloud66.Server, 1)
-		servers[0] = *server
-	}
-
-	if flagGroup != "" {
-		if flagGroup != "web" {
-			printFatal("Only web group is supported at the moment")
-		}
-	}
-
-	// param for api call
-	serverCountDesired := make(map[string]int)
-
 	var absoluteCount int
 	if strings.ContainsAny(count, "+ & -") {
-
 		// fetch service information for existing counts
 		service, err := client.GetService(stack.Uid, serviceName, nil, nil)
 		must(err)
+		serviceCountCurrent := len(service.Containers)
 
-		serverCountCurrent := service.ServerContainerCountMap()
-		relativeCount, _ := strconv.Atoi(count)
-
-		for _, server := range servers {
-			if _, present := serverCountCurrent[server.Name]; present {
-				serverCountDesired[server.Uid] = relativeCount + serverCountCurrent[server.Name]
-			} else {
-				serverCountDesired[server.Uid] = relativeCount
-			}
+		relativeCount, err := strconv.Atoi(count)
+		if err != nil {
+			printFatal("Could not parse the <count> argument provided (" + count + ")")
 		}
 
+		absoluteCount = serviceCountCurrent + relativeCount
 	} else {
-		absoluteCount, _ = strconv.Atoi(count)
-		for _, server := range servers {
-			serverCountDesired[server.Uid] = absoluteCount
+		parsedAbsoluteCount, err := strconv.Atoi(count)
+		if err != nil {
+			printFatal("Could not parse the <count> argument provided (" + count + ")")
 		}
+
+		absoluteCount = parsedAbsoluteCount
 	}
 
-	// validate non < 0
-	for serverUid, count := range serverCountDesired {
-		if count < 0 {
-			serverCountDesired[serverUid] = 0
-		}
+	if absoluteCount < 0 {
+		printWarning("With the <count> argument provided, the resulting amount of containers would be less than 0. Will scale to 0 instead.")
+		absoluteCount = 0
 	}
 
-	fmt.Println("Scaling your '" + serviceName + "' service")
+	fmt.Println("Scaling your '" + serviceName + "' service to " + strconv.Itoa(absoluteCount) + " containers.")
+
+	// param for api call
+	groupMap := make(map[string]int)
+	groupMap["web"] = absoluteCount
 
 	var asyncId *int
-	if flagGroup != "" {
-		var groupMap = make(map[string]int)
-		groupMap["web"] = absoluteCount
-		asyncId, err = startServiceScaleByGroup(stack.Uid, serviceName, groupMap)
-	} else {
-		asyncId, err = startServiceScale(stack.Uid, serviceName, serverCountDesired)
-	}
-
+	asyncId, err := startServiceScaleByGroup(stack.Uid, serviceName, groupMap)
 	must(err)
+
 	genericRes, err := endServiceScale(*asyncId, stack.Uid)
 	must(err)
-	printGenericResponse(*genericRes)
-	return
-}
 
-func startServiceScale(stackUid string, serviceName string, serverCount map[string]int) (*int, error) {
-	asyncRes, err := client.ScaleService(stackUid, serviceName, serverCount)
-	must(err)
-	return &asyncRes.Id, err
+	printGenericResponse(*genericRes)
+
+	return
 }
 
 func startServiceScaleByGroup(stackUid string, serviceName string, groupCount map[string]int) (*int, error) {

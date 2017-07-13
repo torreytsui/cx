@@ -101,26 +101,16 @@ $ cx services pause -s mystack --server my_server my_web_service
 			Name:   "scale",
 			Action: runServiceScale,
 			Usage:  "starts containers from the given service",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name: "server",
-				},
-				cli.StringFlag{
-					Name: "group",
-				},
-			},
-			Description: `Starts <count> containers from the given service.
-<count> can be an absolute value like "2" or a relative value like "[+2]" or "[-3]" etc.
-If server is provided, will start <count> containers on that server.
-If server is not provided, will start <count> containers on every server.
-If group is provided, will scale the containers of the service across all servers of a group. Currently only web is a valid group name.
-NOTE: the square brackets are required for relative count values
+			Flags:  []cli.Flag{},
+			Description: `Starts <count> containers of the given service across the stack.
+   If <count> is an absolute value like "2", then there will be a total of <count> containers across the stack.
+   If <count> is a relative value like "[+2]" or "[-3]", then the current total count of containers across the stack will be changed by <count>.
+   NOTE: the square brackets are required for relative count values.
 
 Examples:
-$ cx services scale -s mystack my_web_service 1
-$ cx services scale -s mystack --server backend a_backend_service [+5]
-$ cx services sclae -s mystack a_backend_service [-2]
-$ cx services sclae -s mystack --group web a_backend_service 15
+   $ cx services scale -s mystack my_web_service 1
+   $ cx services scale -s mystack a_backend_service [+5]
+   $ cx services scale -s mystack a_backend_service [-2]
 `},
 		cli.Command{
 			Name:   "restart",
