@@ -90,6 +90,7 @@ $ cx containers stop -s mystack web
    Examples:
    $ cx containers exec -s mystack container_uid command
    $ cx containers exec -s mystack --cli-flags="--stdin=true --tty=true" container_uid /bin/bash
+   $ cx container exec  -s mystack container_uid 'ls -al'
 `,
 		},
 		cli.Command{

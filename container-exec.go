@@ -63,7 +63,7 @@ func runContainerExec(c *cli.Context) {
 		}
 
 		namespace := stack.Namespaces[0]
-		userCommand = fmt.Sprintf("sudo kubectl --namespace=%s exec %s %s -- %s", namespace, cliFlags, container.Uid, command)
+		userCommand = fmt.Sprintf("kubectl --namespace=%s exec %s %s -- %s", namespace, cliFlags, container.Uid, command)
 	} else {
 		if cliFlags == "" {
 			cliFlags = "--interactive=true --tty=true --detach=false"

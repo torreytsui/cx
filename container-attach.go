@@ -55,7 +55,7 @@ func runContainerAttach(c *cli.Context) {
 	var userCommand string
 	if stack.Backend == "kubernetes" {
 		namespace := stack.Namespaces[0]
-		userCommand = fmt.Sprintf("sudo kubectl --namespace=%s attach --stdin=false --tty=false %s", namespace, container.Uid)
+		userCommand = fmt.Sprintf("kubectl --namespace=%s attach --stdin=false --tty=false %s", namespace, container.Uid)
 	} else {
 		userCommand = fmt.Sprintf("sudo docker attach --no-stdin=true --sig-proxy=false %s", container.Uid)
 	}
