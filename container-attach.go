@@ -28,10 +28,37 @@ func runContainerAttach(c *cli.Context) {
 		printFatal("Container with Id '" + containerUid + "' not found")
 	}
 
-	server, err := client.GetServer(stack.Uid, container.ServerUid, 0)
+	var serverUID string
+	if stack.Backend == "kubernetes" {
+		servers, err := client.Servers(stack.Uid)
+		must(err)
+
+		kubernetesMasterServerUID := ""
+		for _, server := range servers {
+			if server.IsKubernetesMaster {
+				kubernetesMasterServerUID = server.Uid
+			}
+		}
+
+		if kubernetesMasterServerUID == "" {
+			printFatal("Couldn't find a Kubernetes master server")
+		}
+
+		serverUID = kubernetesMasterServerUID
+	} else {
+		serverUID = container.ServerUid
+	}
+
+	server, err := client.GetServer(stack.Uid, serverUID, 0)
 	must(err)
 
-	userCommand := fmt.Sprintf("sudo docker attach --no-stdin=true --sig-proxy=false %s", container.Uid)
+	var userCommand string
+	if stack.Backend == "kubernetes" {
+		namespace := stack.Namespaces[0]
+		userCommand = fmt.Sprintf("sudo kubectl --namespace=%s attach --stdin=false --tty=false %s", namespace, container.Uid)
+	} else {
+		userCommand = fmt.Sprintf("sudo docker attach --no-stdin=true --sig-proxy=false %s", container.Uid)
+	}
 
 	err = SshToServerForCommand(*server, userCommand, false, false, "")
 	if err != nil {
