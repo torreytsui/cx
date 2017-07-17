@@ -26,8 +26,8 @@
 		{
 			"checksumSHA1": "pYXwBEy9o3cLe4PZuqd93WeN/Hk=",
 			"path": "github.com/cloud66/cloud66",
-			"revision": "aaa95d12e0bd9d2bbcfb9d6195999acfc5f7e6bd",
-			"revisionTime": "2017-07-13T18:11:50Z"
+			"revision": "c6be84b3877a01900e9014d4feef9fb2bd6f825b",
+			"revisionTime": "2017-07-17T09:46:55Z"
 		},
 		{
 			"path": "github.com/cloud66/fayego/fayeclient",
