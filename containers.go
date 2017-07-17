@@ -79,18 +79,18 @@ $ cx containers stop -s mystack web
 			Action: runContainerExec,
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name:  "docker-flags",
-					Value: "--interactive=true --tty=true --detach=false",
-					Usage: "specify docker flags",
+					Name:  "cli-flags,  docker-flags",
+					Usage: "specify cli flags",
 				},
 			},
 			Usage: "Execute a command within the context of a running container",
-			Description: `Execute a command within the context of a running container. The default docker-flags are for an interactive shell though they can be specified with the command.
+			Description: `Execute a command within the context of a running container. The default cli-flags are for an interactive shell though they can be specified with the command.
+   NOTE: the cli for Container v1 stacks is docker, but for Container v2 stacks it is kubectl, so be aware that the cli-flags will be different.
 
-Examples:
-$ cx containers exec -s mystack 2844142c /bin/bash
-$ cx containers exec -s mystack --docker-flags="--interactive=true --tty=true --detach=false" 2844142c /bin/bash
-$ cx containers exec -s mystack --docker-flags="--interactive=false --tty=false --detach=true" 2844142c /tmp/my_background_command
+   Examples:
+   $ cx containers exec -s mystack container_uid command
+   $ cx containers exec -s mystack --cli-flags="--stdin=true --tty=true" container_uid /bin/bash
+   $ cx container exec  -s mystack container_uid 'ls -al'
 `,
 		},
 		cli.Command{

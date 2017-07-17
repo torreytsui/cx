@@ -21,12 +21,12 @@ func runProcessPause(c *cli.Context) {
 	if flagServer != "" {
 		server := mustServer(c, *stack, flagServer, true)
 		serverUID = &server.Uid
-		} else {
-			if len(c.Args()) == 0 {
-				cli.ShowSubcommandHelp(c)
-				os.Exit(2)
-			}
+	} else {
+		if len(c.Args()) == 0 {
+			cli.ShowSubcommandHelp(c)
+			os.Exit(2)
 		}
+	}
 
 	// get processName
 	var processName *string

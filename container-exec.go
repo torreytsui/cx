@@ -17,6 +17,7 @@ func runContainerExec(c *cli.Context) {
 	fmt.Println("Running exec on container...")
 
 	stack := mustStack(c)
+
 	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
 	defer w.Flush()
 
@@ -29,11 +30,48 @@ func runContainerExec(c *cli.Context) {
 		printFatal("Container with Id '" + containerUid + "' not found")
 	}
 
-	server, err := client.GetServer(stack.Uid, container.ServerUid, 0)
+	var serverUID string
+	if stack.Backend == "kubernetes" {
+		servers, err := client.Servers(stack.Uid)
+		must(err)
+
+		kubernetesMasterServerUID := ""
+		for _, server := range servers {
+			if server.IsKubernetesMaster {
+				kubernetesMasterServerUID = server.Uid
+			}
+		}
+
+		if kubernetesMasterServerUID == "" {
+			printFatal("Couldn't find a Kubernetes master server")
+		}
+
+		serverUID = kubernetesMasterServerUID
+	} else {
+		serverUID = container.ServerUid
+	}
+
+	server, err := client.GetServer(stack.Uid, serverUID, 0)
 	must(err)
 
-	dockerFlags := c.String("docker-flags")
-	userCommand := fmt.Sprintf("sudo docker exec %s %s %s", dockerFlags, container.Uid, command)
+	cliFlags := c.String("cli-flags")
+
+	var userCommand string
+	if stack.Backend == "kubernetes" {
+		if cliFlags == "" {
+			cliFlags = "--stdin=true --tty=true"
+		}
+
+		namespace := stack.Namespaces[0]
+		userCommand = fmt.Sprintf("kubectl --namespace=%s exec %s %s -- %s", namespace, cliFlags, container.Uid, command)
+	} else {
+		if cliFlags == "" {
+			cliFlags = "--interactive=true --tty=true --detach=false"
+		}
+
+		userCommand = fmt.Sprintf("sudo docker exec %s %s %s", cliFlags, container.Uid, command)
+	}
+
 	err = SshToServerForCommand(*server, userCommand, false, true, "")
 	if err != nil {
 		printFatal(err.Error())

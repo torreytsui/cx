@@ -2,7 +2,7 @@ package main
 
 import (
 	. "github.com/onsi/ginkgo"
-    . "github.com/onsi/gomega"
+	. "github.com/onsi/gomega"
 )
 
 var prepareGitMatches = []struct {
@@ -38,8 +38,6 @@ var prepareGitMatches = []struct {
 	{"identical - allow spaces - https", "https://github.com/cloud66/stacks-test.git ", " https://github.com/cloud66/stacks-test.git", true},
 }
 
-
-
 var _ = Describe("Git", func() {
 	Context("a list of different git repos", func() {
 		It("should match of they are the same remote or don't", func() {
@@ -51,6 +49,3 @@ var _ = Describe("Git", func() {
 		})
 	})
 })
-
-
-

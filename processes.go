@@ -74,55 +74,54 @@ $ cx processes scale -s mystack --server backend1 --name worker [+5]
 $ cx processes scale -s mystack --server backend2 --name worker [-5]
 $ cx processes scale -s mystack --server backend3 --name worker 15
 $ cx processes scale -s mystack --name worker 2`},
-cli.Command{
-	Name:   "restart",
-	Action: runProcessRestart,
-	Flags: []cli.Flag{
-		cli.StringFlag{
-			Name: "server",
-		},
-	},
-	Usage: "restarts all processes from the given service and/or server",
-	Description: `Restarts all processes from the given service and/or server.
+		cli.Command{
+			Name:   "restart",
+			Action: runProcessRestart,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "server",
+				},
+			},
+			Usage: "restarts all processes from the given service and/or server",
+			Description: `Restarts all processes from the given service and/or server.
 
 Examples:
 $ cx processes restart -s mystack a_backend_process
 $ cx processes restart -s mystack --server my_server
 $ cx processes restart -s mystack --server my_server a_backend_process
 `},
-cli.Command{
-	Name:   "pause",
-	Action: runProcessPause,
-	Usage:  "pauses all processes from the given service and/or server",
-	Flags: []cli.Flag{
-		cli.StringFlag{
-			Name: "server",
-		},
-	},
-	Description: `Pauses all processes from the given service and/or server",
+		cli.Command{
+			Name:   "pause",
+			Action: runProcessPause,
+			Usage:  "pauses all processes from the given service and/or server",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "server",
+				},
+			},
+			Description: `Pauses all processes from the given service and/or server",
 
 Examples:
 $ cx processes pause -s mystack a_backend_process
 $ cx processes pause -s mystack --server my_server
 $ cx processes pause -s mystack --server my_server a_backend_process
 `},
-cli.Command{
-	Name:   "resume",
-	Action: runProcessResume,
-	Usage:  "resumes all paused processes from the given service and/or server",
-	Flags: []cli.Flag{
-		cli.StringFlag{
-			Name: "server",
-		},
-	},
-	Description: `Resumes all paused processes from the given service and/or server",
+		cli.Command{
+			Name:   "resume",
+			Action: runProcessResume,
+			Usage:  "resumes all paused processes from the given service and/or server",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "server",
+				},
+			},
+			Description: `Resumes all paused processes from the given service and/or server",
 
 Examples:
 $ cx processes resume -s mystack a_backend_process
 $ cx processes resume -s mystack --server my_server
 $ cx processes resume -s mystack --server my_server a_backend_process
 `},
-
 	}
 
 	return base
@@ -151,7 +150,7 @@ func runProcesses(c *cli.Context) {
 		if server == nil {
 			printFatal("Server '" + flagServer + "' not found")
 		}
-		if !server.HasRole("app") || server.HasRole("docker") {
+		if !server.HasRole("app") || server.HasRole("docker") || server.HasRole("kubes") {
 			printFatal("Server '" + flagServer + "' can not host processes")
 		}
 		fmt.Printf("Server: %s\n", server.Name)
