@@ -44,20 +44,29 @@ $ cx snapshots list -s mystack
 			Usage:  "renders the given formation based on the requested snapshot",
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name: "snapshot",
+					Name:  "snapshot",
+					Usage: "UID of the snapshot to be used",
 				},
 				cli.StringFlag{
-					Name: "formation",
+					Name:  "formation",
+					Usage: "UID of the formation to be used",
 				},
 				cli.StringSliceFlag{
 					Name:  "files",
 					Value: &cli.StringSlice{},
+					Usage: "files to pull. If not provided all files will be pulled",
 				},
 				cli.BoolTFlag{
-					Name: "latest",
+					Name:  "latest",
+					Usage: "use the HEAD for stencils. True by default. If false, it would use the snapshot's gitref",
 				},
 				cli.StringFlag{
-					Name: "outdir",
+					Name:  "outdir",
+					Usage: "if provided, it will save the rendered files in this directory",
+				},
+				cli.BoolFlag{
+					Name:  "ignore-errors",
+					Usage: "if set, it will return anything that can be rendered and ignores the errors",
 				},
 			},
 			Description: `Render the requested files for the given formation and snapshot
@@ -112,6 +121,7 @@ func runRenders(c *cli.Context) {
 	requestFiles := c.StringSlice("files")
 	useLatest := c.BoolT("latest")
 	outdir := c.String("outdir")
+	ignoreErrors := c.Bool("ignore-errors")
 
 	var renders *cloud66.Renders
 	var err error
@@ -121,6 +131,16 @@ func runRenders(c *cli.Context) {
 	if outdir != "" {
 		os.MkdirAll(outdir, os.ModePerm)
 	}
+
+	if !ignoreErrors && len(renders.Errors) != 0 {
+		fmt.Fprintln(os.Stderr, "Error during rendering of stencils:")
+		for _, renderError := range renders.Errors {
+			fmt.Fprintf(os.Stderr, "%s in %s\n", renderError.Text, renderError.Stencil)
+		}
+
+		return
+	}
+
 	// contaent
 	var buffer bytes.Buffer
 	for k, v := range renders.Content {
