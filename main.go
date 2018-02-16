@@ -185,7 +185,7 @@ func beforeCommand(c *cli.Context) error {
 		environment = "_" + c.GlobalString("runenv")
 
 		if terminal.IsTerminal(int(os.Stdout.Fd())) {
-			fmt.Printf(ansi.Color(fmt.Sprintf("Running against %s environment\n", c.GlobalString("runenv")), "grey"))
+			fmt.Println(ansi.ColorCode("green"), fmt.Sprintf("Running against %s environment\n", c.GlobalString("runenv")), ansi.ColorCode("reset"))
 		}
 	}
 

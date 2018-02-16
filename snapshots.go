@@ -45,7 +45,7 @@ $ cx snapshots list -s mystack
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "snapshot",
-					Usage: "UID of the snapshot to be used",
+					Usage: "UID of the snapshot to be used. Use 'latest' to use the most recent snapshnot",
 				},
 				cli.StringFlag{
 					Name:  "formation",
@@ -123,6 +123,17 @@ func runRenders(c *cli.Context) {
 	outdir := c.String("outdir")
 	ignoreErrors := c.Bool("ignore-errors")
 
+	if snapshotUID == "latest" {
+		snapshots, err := client.Snapshots(stack.Uid)
+		must(err)
+		sort.Sort(snapshotsByDate(snapshots))
+		if len(snapshots) == 0 {
+			printFatal("No snapshots found")
+		}
+
+		snapshotUID = snapshots[0].Uid
+	}
+
 	var renders *cloud66.Renders
 	var err error
 	renders, err = client.RenderSnapshot(stack.Uid, snapshotUID, formationUID, requestFiles, useLatest)
@@ -146,13 +157,14 @@ func runRenders(c *cli.Context) {
 	for k, v := range renders.Content {
 		if outdir != "" {
 			filename := filepath.Join(outdir, k)
-			err = ioutil.WriteFile(filename, []byte(v), 0644)
+			content := generateYamlComment(k, snapshotUID, formationUID) + v
+			err = ioutil.WriteFile(filename, []byte(content), 0644)
 			if err != nil {
 				printFatal(err.Error())
 			}
 		} else {
 			// concatenate
-			buffer.WriteString("\n---\n")
+			buffer.WriteString(fmt.Sprintf("\n---\n%s\n", generateYamlComment(k, snapshotUID, formationUID)))
 			buffer.WriteString(v)
 		}
 	}
@@ -160,6 +172,10 @@ func runRenders(c *cli.Context) {
 	if outdir == "" {
 		fmt.Print(buffer.String())
 	}
+}
+
+func generateYamlComment(filename string, snapshot string, formation string) string {
+	return fmt.Sprintf("# Stencil: %s\n# Formation: %s\n# Snapshot: %s\n", filename, formation, snapshot)
 }
 
 func printSnapshotList(w io.Writer, snapshots []cloud66.Snapshot) {
@@ -184,6 +200,8 @@ func listSnapshot(w io.Writer, a cloud66.Snapshot) {
 
 type snapshotsByDate []cloud66.Snapshot
 
-func (a snapshotsByDate) Len() int           { return len(a) }
-func (a snapshotsByDate) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a snapshotsByDate) Less(i, j int) bool { return a[i].TriggeredAt.Unix() < a[j].TriggeredAt.Unix() }
+func (a snapshotsByDate) Len() int      { return len(a) }
+func (a snapshotsByDate) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a snapshotsByDate) Less(i, j int) bool {
+	return a[i].TriggeredAt.Unix() >= a[j].TriggeredAt.Unix()
+}
