@@ -118,7 +118,7 @@ func runSsh(c *cli.Context) {
 
 	err = sshToServer(*server, flagGatewayKey, verbosity)
 	if err != nil {
-		printError("If you're having issues connecting to your server, you may find some help at http://help.cloud66.com/managing-your-stack/ssh-to-your-server")
+		printError("If you're having issues connecting to your server, you may find some help at https://help.cloud66.com/maestro/how-to-guides/deployment/ssh-to-server.html")
 		printFatal(err.Error())
 	}
 }
