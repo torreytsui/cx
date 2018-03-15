@@ -12,6 +12,7 @@ import (
 	"github.com/cloud66/cloud66"
 	"github.com/getsentry/raven-go"
 	"github.com/mgutz/ansi"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 type Command struct {
@@ -61,6 +62,8 @@ var commands = []*Command{
 	cmdBackups,
 	cmdContainers,
 	cmdServices,
+	cmdSnapshots,
+	cmdFormations,
 	cmdDatabases,
 	cmdJobs,
 	cmdHelpEnviron,
@@ -181,7 +184,9 @@ func beforeCommand(c *cli.Context) error {
 	if c.GlobalString("runenv") != "production" {
 		environment = "_" + c.GlobalString("runenv")
 
-		fmt.Printf(ansi.Color(fmt.Sprintf("Running against %s environment\n", c.GlobalString("runenv")), "grey"))
+		if terminal.IsTerminal(int(os.Stdout.Fd())) {
+			fmt.Println(ansi.ColorCode("green"), fmt.Sprintf("Running against %s environment\n", c.GlobalString("runenv")), ansi.ColorCode("reset"))
+		}
 	}
 
 	if account != "" || environment != "" {
