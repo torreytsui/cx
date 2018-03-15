@@ -116,7 +116,7 @@ func TunnelToServer(server cloud66.Server, localPort int, remotePort int) error 
 		printFatal("Unable to open server lease")
 	}
 
-	fmt.Printf("Openning Tunnel from local:%d to %s:%d (127.0.0.1:%d to %s:%d)...\n", localPort, server.Name, remotePort, localPort, server.Address, remotePort)
+	fmt.Printf("Opening Tunnel from local:%d to %s:%d (127.0.0.1:%d to %s:%d)...\n", localPort, server.Name, remotePort, localPort, server.Address, remotePort)
 	fmt.Println("Press Ctrl-C to exit")
 
 	return startProgram("ssh", []string{
