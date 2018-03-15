@@ -156,7 +156,7 @@ func main() {
 
 	app.Commands = cmds
 	app.Name = "cx"
-	app.Usage = "Cloud 66 Command line toolbelt (Detailed help: http://help.cloud66.com/toolbelt/toolbelt-introduction)"
+	app.Usage = "Cloud 66 Command line toolbelt (Detailed help: https://help.cloud66.com/maestro/quickstarts/using-cloud66-toolbelt.html)"
 	app.Author = "Cloud 66"
 	app.Email = "support@cloud66.com"
 	app.Version = VERSION
