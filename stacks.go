@@ -405,19 +405,19 @@ func listStack(w io.Writer, stack cloud66.Stack, output string) {
 	}
 	if output == "wide" {
 		listRec(w,
-			stack.Name,
-			environment,
-			stackType,
-			stack.Status(),
-			prettyTime{t},
-		)
-	} else {
-		listRec(w,
 			stack.AccountName,
 			stack.Name,
 			environment,
 			stackType,
 			clusterName,
+			stack.Status(),
+			prettyTime{t},
+		)
+	} else {
+		listRec(w,
+			stack.Name,
+			environment,
+			stackType,
 			stack.Status(),
 			prettyTime{t},
 		)
