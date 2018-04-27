@@ -29,8 +29,8 @@ func buildStacks() cli.Command {
 					Usage: "full or partial environment name",
 				},
 				cli.BoolFlag{
-					Name:  "verbose",
-					Usage: "Show more information about each stack",
+					Name:  "output,o",
+					Usage: "tailor output view (standard|wide)",
 				},
 			},
 			Action: runStacks,
@@ -43,11 +43,11 @@ mystack     production   Jan 2 12:34
 mystack     staging      Feb 2 12:34
 mystack-2   development  Jan 2 12:35
 
-$ cx stacks list mystack-2
+$ cx stacks list mystack-2 
 mystack-2   development  Jan 2 12:34
 
-$ cx stacks list mystack -e staging
-mystack     staging      Feb 2 12:34
+$ cx stacks list mystack -e staging -o wide
+
 `,
 		},
 		cli.Command{
@@ -308,11 +308,11 @@ $ cx stacks configure upload /tmp/mystack_edited_service.yml -f service.yml -s m
 func runStacks(c *cli.Context) {
 	names := c.Args()
 	environment := c.String("environment")
-	verbose := c.Bool("verbose")
-	listStacks(false, names, environment, verbose)
+	output := c.String("output")
+	listStacks(false, names, environment, output)
 }
 
-func listStacks(showClusters bool, names []string, environment string, verbose bool) {
+func listStacks(showClusters bool, names []string, environment, output string) {
 	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
 	defer w.Flush()
 	var stacks []cloud66.Stack
@@ -352,60 +352,76 @@ func listStacks(showClusters bool, names []string, environment string, verbose b
 			}
 		}
 	}
-	printStackList(w, stacks, verbose)
+	printStackList(w, stacks, output)
 }
 
-func printStackList(w io.Writer, stacks []cloud66.Stack, verbose bool) {
-	listRec(w,
-		"ACCOUNT",
-		"NAME",
-		"ENVIRONMENT",
-		"STACK TYPE",
-		"CLUSTER NAME",
-		"STATUS",
-		"LAST ACTIVITY")
+func printStackList(w io.Writer, stacks []cloud66.Stack, output string) {
+	if output == "wide" {
+		listRec(w,
+			"ACCOUNT",
+			"NAME",
+			"ENVIRONMENT",
+			"STACK TYPE",
+			"CLUSTER NAME",
+			"STATUS",
+			"LAST ACTIVITY")
+	} else {
+		listRec(w,
+			"NAME",
+			"ENVIRONMENT",
+			"STACK TYPE",
+			"STATUS",
+			"LAST ACTIVITY")
+	}
 	sort.Sort(stacksByAccountThenName(stacks))
 	for _, stack := range stacks {
 		if stack.Name != "" {
-			listStack(w, stack, verbose)
+			listStack(w, stack, output)
 		}
 	}
 }
 
-func listStack(w io.Writer, stack cloud66.Stack, verbose bool) {
+func listStack(w io.Writer, stack cloud66.Stack, output string) {
 	t := stack.CreatedAt
 	if stack.LastActivity != nil {
 		t = *stack.LastActivity
 	}
-
 	var stackType string
 	clusterName := "n/a"
 	environment := stack.Environment
 	if stack.IsCluster {
-		environment = "n/a"
 		stackType = "Kubernetes/Cluster"
 	} else if stack.IsInsideCluster {
 		clusterName = stack.ClusterName
-		stackType = "Kubernetes/InCluster"
+		stackType = "Kubernetes/In-Cluster"
 	} else {
 		if stack.Backend == "ruby" {
 			stackType = "Ruby"
 		} else if stack.Backend == "docker" {
 			stackType = "Docker"
 		} else if stack.Backend == "kubernetes" {
-			stackType = "Kubernetes"
+			stackType = "Kubernetes/Standalone"
 		}
 	}
-
-	listRec(w,
-		stack.AccountName,
-		stack.Name,
-		environment,
-		stackType,
-		clusterName,
-		stack.Status(),
-		prettyTime{t},
-	)
+	if output == "wide" {
+		listRec(w,
+			stack.Name,
+			environment,
+			stackType,
+			stack.Status(),
+			prettyTime{t},
+		)
+	} else {
+		listRec(w,
+			stack.AccountName,
+			stack.Name,
+			environment,
+			stackType,
+			clusterName,
+			stack.Status(),
+			prettyTime{t},
+		)
+	}
 }
 
 func basicFlags() []cli.Flag {
