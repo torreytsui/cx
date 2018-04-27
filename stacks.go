@@ -394,21 +394,21 @@ func listStack(w io.Writer, stack cloud66.Stack, output string) {
 	environment := stack.Environment
 	if stack.IsCluster {
 		environment = "n/a"
-		stackType = "Kubernetes/Cluster"
+		stackType = "kubernetes/cluster"
 	} else if stack.IsInsideCluster {
 		clusterName = stack.ClusterName
-		stackType = "Kubernetes/In-Cluster"
+		stackType = "kubernetes/in-cluster"
 	} else {
-		if stack.Backend == "docker" {
-			stackType = "Docker"
-		} else if stack.Backend == "kubernetes" {
-			stackType = "Kubernetes/Standalone"
+		if environment == "build_only" {
+			environment = "n/a"
+			stackType = "skycap"
 		} else {
-			if environment == "build_only" {
-				environment = "n/a"
-				stackType = "Skycap"
+			if stack.Backend == "docker" {
+				stackType = "docker"
+			} else if stack.Backend == "kubernetes" {
+				stackType = "kubernetes/standalone"
 			} else {
-				stackType = "Ruby/Rack"
+				stackType = "ruby/rack"
 			}
 		}
 	}
