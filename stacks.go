@@ -395,12 +395,12 @@ func listStack(w io.Writer, stack cloud66.Stack, output string) {
 		clusterName = stack.ClusterName
 		stackType = "Kubernetes/In-Cluster"
 	} else {
-		if stack.Backend == "ruby" {
-			stackType = "Ruby"
-		} else if stack.Backend == "docker" {
+		if stack.Backend == "docker" {
 			stackType = "Docker"
 		} else if stack.Backend == "kubernetes" {
 			stackType = "Kubernetes/Standalone"
+		} else {
+			stackType = "Ruby/Rack"
 		}
 	}
 	if output == "wide" {
