@@ -28,7 +28,7 @@ func buildStacks() cli.Command {
 					Name:  "environment,e",
 					Usage: "full or partial environment name",
 				},
-				cli.BoolFlag{
+				cli.StringFlag{
 					Name:  "output,o",
 					Usage: "tailor output view (standard|wide)",
 				},
@@ -309,6 +309,9 @@ func runStacks(c *cli.Context) {
 	names := c.Args()
 	environment := c.String("environment")
 	output := c.String("output")
+	if output == "" {
+		output = "standard"
+	}
 	listStacks(false, names, environment, output)
 }
 
@@ -390,6 +393,7 @@ func listStack(w io.Writer, stack cloud66.Stack, output string) {
 	clusterName := "n/a"
 	environment := stack.Environment
 	if stack.IsCluster {
+		environment = "n/a"
 		stackType = "Kubernetes/Cluster"
 	} else if stack.IsInsideCluster {
 		clusterName = stack.ClusterName
@@ -400,7 +404,12 @@ func listStack(w io.Writer, stack cloud66.Stack, output string) {
 		} else if stack.Backend == "kubernetes" {
 			stackType = "Kubernetes/Standalone"
 		} else {
-			stackType = "Ruby/Rack"
+			if environment == "build_only" {
+				environment = "n/a"
+				stackType = "Skycap"
+			} else {
+				stackType = "Ruby/Rack"
+			}
 		}
 	}
 	if output == "wide" {

@@ -167,10 +167,17 @@ type prettyTime struct {
 }
 
 func (s prettyTime) String() string {
+	sYear := s.Time.Year()
+	nYear := time.Now().Year()
+	sameYear := sYear == nYear
 	if time.Now().Sub(s.Time) < 12*30*24*time.Hour {
-		return s.Local().Format("Jan _2 15:04")
+		if sameYear {
+			return s.Local().Format("Jan _2 15:04")
+		} else {
+			return s.Local().Format("Jan _2 15:04 2006")
+		}
 	}
-	return s.Local().Format("Jan _2  2006")
+	return s.Local().Format("Jan _2 2006")
 }
 
 func HealthText(c cloud66.Container) string {
