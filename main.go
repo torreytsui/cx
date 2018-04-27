@@ -183,9 +183,8 @@ func beforeCommand(c *cli.Context) error {
 	// set the env vars from global options
 	if c.GlobalString("runenv") != "production" {
 		environment = "_" + c.GlobalString("runenv")
-
 		if terminal.IsTerminal(int(os.Stdout.Fd())) {
-			fmt.Println(ansi.ColorCode("green"), fmt.Sprintf("Running against %s environment\n", c.GlobalString("runenv")), ansi.ColorCode("reset"))
+			fmt.Println(ansi.ColorCode("green"), fmt.Sprintf("[Running against %s environment]", c.GlobalString("runenv")), ansi.ColorCode("reset"))
 		}
 	}
 
@@ -336,7 +335,7 @@ func org(c *cli.Context) (*cloud66.Account, error) {
 		var orgNames []string
 		for _, org := range orgs {
 			if org.Name == "" {
-				return nil, errors.New("One or more of the organizations you are a member of don't have a name. Please make sure you name the organizations.")
+				return nil, errors.New("One or more of the organizations you are a member of doesn't have a name. Please make sure you name the organizations")
 			}
 			orgNames = append(orgNames, org.Name)
 		}

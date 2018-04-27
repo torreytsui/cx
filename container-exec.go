@@ -61,18 +61,15 @@ func runContainerExec(c *cli.Context) {
 		if cliFlags == "" {
 			cliFlags = "--stdin=true --tty=true"
 		}
-
 		namespace := stack.Namespaces[0]
 		userCommand = fmt.Sprintf("kubectl --namespace=%s exec %s %s -- %s", namespace, cliFlags, container.Uid, command)
 	} else {
 		if cliFlags == "" {
 			cliFlags = "--interactive=true --tty=true --detach=false"
 		}
-
 		userCommand = fmt.Sprintf("sudo docker exec %s %s %s", cliFlags, container.Uid, command)
 	}
-
-	err = SshToServerForCommand(*server, userCommand, false, true, "")
+	err = runServerCommand(*server, userCommand, false, false)
 	if err != nil {
 		printFatal(err.Error())
 	}

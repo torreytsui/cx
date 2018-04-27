@@ -181,6 +181,8 @@ func HealthText(c cloud66.Container) string {
 		return fmt.Sprintf("Up (reported by %s)", c.HealthSource)
 	case cloud66.CNT_HEALTH_DOWN:
 		return fmt.Sprintf("Down (reported by %s)", c.HealthSource)
+	case cloud66.CNT_HEALTH_NA:
+		return fmt.Sprintf("N/A")
 	default:
 		return "Unknown health state"
 	}

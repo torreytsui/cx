@@ -36,7 +36,7 @@ func buildContainers() cli.Command {
 				},
 				cli.BoolFlag{
 					Name:  "verbose",
-					Usage: "Show more and full information about each container",
+					Usage: "Show more information about each container",
 				},
 			},
 			Usage: "lists all the running containers of a stack (or server)",

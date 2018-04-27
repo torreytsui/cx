@@ -7,9 +7,8 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/cloud66/cloud66"
-
 	"github.com/cloud66/cli"
+	"github.com/cloud66/cloud66"
 )
 
 var cmdStacks = &Command{
@@ -28,6 +27,10 @@ func buildStacks() cli.Command {
 				cli.StringFlag{
 					Name:  "environment,e",
 					Usage: "full or partial environment name",
+				},
+				cli.BoolFlag{
+					Name:  "verbose",
+					Usage: "Show more information about each stack",
 				},
 			},
 			Action: runStacks,
@@ -303,19 +306,23 @@ $ cx stacks configure upload /tmp/mystack_edited_service.yml -f service.yml -s m
 }
 
 func runStacks(c *cli.Context) {
+	names := c.Args()
+	environment := c.String("environment")
+	verbose := c.Bool("verbose")
+	listStacks(false, names, environment, verbose)
+}
+
+func listStacks(showClusters bool, names []string, environment string, verbose bool) {
 	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
 	defer w.Flush()
 	var stacks []cloud66.Stack
-	names := c.Args()
-	flagForcedEnvironment := c.String("environment")
 	if len(names) == 0 {
 		var err error
 		stacks, err = client.StackListWithFilter(func(item interface{}) bool {
-			if flagForcedEnvironment == "" {
+			if environment == "" {
 				return true
 			}
-
-			return strings.HasPrefix(strings.ToLower(item.(cloud66.Stack).Environment), strings.ToLower(flagForcedEnvironment))
+			return strings.HasPrefix(strings.ToLower(item.(cloud66.Stack).Environment), strings.ToLower(environment))
 		})
 		must(err)
 	} else {
@@ -326,7 +333,7 @@ func runStacks(c *cli.Context) {
 				stackch <- nil
 			} else {
 				go func(stackname string) {
-					if stack, err := client.StackInfoWithEnvironment(stackname, flagForcedEnvironment); err != nil {
+					if stack, err := client.StackInfoWithEnvironment(stackname, environment); err != nil {
 						errch <- err
 					} else {
 						stackch <- stack
@@ -334,7 +341,7 @@ func runStacks(c *cli.Context) {
 				}(name)
 			}
 		}
-		for _ = range names {
+		for range names {
 			select {
 			case err := <-errch:
 				printFatal(err.Error())
@@ -345,27 +352,58 @@ func runStacks(c *cli.Context) {
 			}
 		}
 	}
-	printStackList(w, stacks)
+	printStackList(w, stacks, verbose)
 }
 
-func printStackList(w io.Writer, stacks []cloud66.Stack) {
-	sort.Sort(stacksByName(stacks))
-	for _, a := range stacks {
-		if a.Name != "" {
-			listStack(w, a)
+func printStackList(w io.Writer, stacks []cloud66.Stack, verbose bool) {
+	listRec(w,
+		"ACCOUNT",
+		"NAME",
+		"ENVIRONMENT",
+		"STACK TYPE",
+		"CLUSTER NAME",
+		"STATUS",
+		"LAST ACTIVITY")
+	sort.Sort(stacksByAccountThenName(stacks))
+	for _, stack := range stacks {
+		if stack.Name != "" {
+			listStack(w, stack, verbose)
 		}
 	}
 }
 
-func listStack(w io.Writer, a cloud66.Stack) {
-	t := a.CreatedAt
-	if a.LastActivity != nil {
-		t = *a.LastActivity
+func listStack(w io.Writer, stack cloud66.Stack, verbose bool) {
+	t := stack.CreatedAt
+	if stack.LastActivity != nil {
+		t = *stack.LastActivity
 	}
+
+	var stackType string
+	clusterName := "n/a"
+	environment := stack.Environment
+	if stack.IsCluster {
+		environment = "n/a"
+		stackType = "Kubernetes/Cluster"
+	} else if stack.IsInsideCluster {
+		clusterName = stack.ClusterName
+		stackType = "Kubernetes/InCluster"
+	} else {
+		if stack.Backend == "ruby" {
+			stackType = "Ruby"
+		} else if stack.Backend == "docker" {
+			stackType = "Docker"
+		} else if stack.Backend == "kubernetes" {
+			stackType = "Kubernetes"
+		}
+	}
+
 	listRec(w,
-		a.Name,
-		a.Environment,
-		a.Status(),
+		stack.AccountName,
+		stack.Name,
+		environment,
+		stackType,
+		clusterName,
+		stack.Status(),
 		prettyTime{t},
 	)
 }
@@ -383,8 +421,14 @@ func basicFlags() []cli.Flag {
 	}
 }
 
-type stacksByName []cloud66.Stack
+type stacksByAccountThenName []cloud66.Stack
 
-func (a stacksByName) Len() int           { return len(a) }
-func (a stacksByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a stacksByName) Less(i, j int) bool { return a[i].Name < a[j].Name }
+func (arr stacksByAccountThenName) Len() int      { return len(arr) }
+func (arr stacksByAccountThenName) Swap(i, j int) { arr[i], arr[j] = arr[j], arr[i] }
+func (arr stacksByAccountThenName) Less(i, j int) bool {
+	accName1 := strings.ToLower(arr[i].AccountName)
+	accName2 := strings.ToLower(arr[j].AccountName)
+	name1 := strings.ToLower(arr[i].Name)
+	name2 := strings.ToLower(arr[j].Name)
+	return accName1 < accName2 || (accName1 < accName2 && name1 < name2)
+}

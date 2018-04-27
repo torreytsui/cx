@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"time"
 
 	"github.com/cloud66/cloud66"
 
@@ -16,36 +17,45 @@ var cmdRun = &Command{
 	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name:  "server",
-			Usage: "server to run the command",
+			Usage: "server on which to run the command [optional]",
 		},
 		cli.StringFlag{
 			Name:  "service",
-			Usage: "name of the server to run the command in (docker stacks only)",
+			Usage: "name of the service in which to run the command [optional - docker/kubernetes stacks only]",
+		},
+		cli.StringFlag{
+			Name:  "container",
+			Usage: "name of the pod/container in which to run the command [optional - docker/kubernetes stacks only]",
+		},
+		cli.BoolFlag{
+			Name:  "interactive",
+			Usage: "stay in shell with TTY",
 		},
 		cli.BoolFlag{
 			Name:  "stay",
-			Usage: "stay in shell after executing command",
+			Usage: "(deprecated)",
 		},
 		cli.StringFlag{
 			Name:  "shell",
-			Usage: "shell to run. Default is /bin/bash. An example would be /bin/sh",
+			Usage: "(deprecated)",
 		},
 	},
 	Run:        runRun,
 	NeedsStack: true,
 	NeedsOrg:   false,
-	Short:      "executes a command directly on the server",
-	Long: `This command will execute a command directly on the remote server.
+	Short:      "executes a command directly on the server/service/container",
+	Long: `This command will execute a command directly on the remote server, in a new service, or in a existing container
 
 For this purpose, this command will open the firewall for SSH from your IP address temporaritly (20 minutes), downloads the keys if you don't have them, starts a SSH session,
 and executes the command specified.
 
-If you have docker stack, you can provide and additional "service" argument, in which case the command will run in a new docker container based on the most recent service image.
-Note that for docker stacks the command you provide is optional if your image already defines a CMD.
+If you have docker/kubernetes stack, you can provide additional "service" or "container" arguments. 
+If you specify "service" the command will run in a newly created container based on the most recent service image.
+If you specify "container" the command will run in context of the existing container.
 
 You need to have the correct access permissions to use this command.
 You can use either the server name (ie lion) or the server IP (ie. 123.123.123.123) or the server role (ie. web)
-with thie command.
+with this command.
 
 If a role is specified the command will connect to the first server with that role.
 Names are case insensitive and will work with the starting characters as well.
@@ -55,35 +65,43 @@ This command is only supported on Linux and OS X (for Windows you can run this i
 Examples:
 $ cx run -s mystack --server lion 'ls -la'
 $ cx run -s mystack --server 52.65.34.98 'ls -la'
-$ cx run -s mystack --server web 'ls -la'
-$ cx run -s mystack --server web --service api 'bundle exec rails c'
+$ cx run -s mystack --service api 'bundle exec rails c'
+$ cx run -s mystack --container web-123 'bundle exec rails c'
 `,
 }
+
+// ShellCommand is the default command to start a shell
+const ShellCommand = "/bin/sh -c 'if [ -e /bin/bash ]; then /bin/bash; else /bin/sh; fi'"
 
 func runRun(c *cli.Context) {
 	if runtime.GOOS == "windows" {
 		printFatal("Not supported on Windows")
 		os.Exit(2)
 	}
-
-	stack := mustStack(c)
-	if c.String("service") != "" && stack.Framework != "docker" {
-		printFatal("The service option only applies to docker stacks")
+	serviceName := c.String("service")
+	containerName := c.String("container")
+	serverName := c.String("server")
+	interactive := c.Bool("interactive")
+	if serverName == "" && containerName == "" && serviceName == "" {
+		printFatal("At least ONE of server/service/container must be specified")
 		os.Exit(2)
 	}
 
-	serverName := c.String("server")
-
-	if !c.IsSet("service") {
-		if len(c.Args()) != 1 {
-			cli.ShowCommandHelp(c, "run")
-			os.Exit(2)
+	userCommand := ""
+	if len(c.Args()) > 0 {
+		for _, arg := range c.Args() {
+			userCommand = fmt.Sprintf("%s %s", userCommand, arg)
 		}
 	}
 
-	userCommand := ""
-	if len(c.Args()) == 1 {
-		userCommand = c.Args()[0]
+	stack := mustStack(c)
+	if (serviceName != "" || containerName != "") && stack.Backend != "docker" && stack.Backend != "kubernetes" {
+		printFatal("The service & container options only apply to docker/kubernetes stacks")
+		os.Exit(2)
+	}
+	if serviceName != "" && containerName != "" {
+		printFatal("Only one of options service OR container may be specified")
+		os.Exit(2)
 	}
 
 	servers, err := client.Servers(stack.Uid)
@@ -91,43 +109,138 @@ func runRun(c *cli.Context) {
 		printFatal(err.Error())
 	}
 
-	server, err := findServer(servers, serverName)
-	if err != nil {
-		printFatal(err.Error())
+	var server *cloud66.Server
+	if serverName != "" {
+		server, err = findServer(servers, serverName)
+		if err != nil {
+			printFatal(err.Error())
+		}
+		if server == nil {
+			printFatal("Server %s not found", serverName)
+		}
 	}
 
-	if server == nil {
-		printFatal("Server '" + serverName + "' not found")
-	}
-
-	if c.String("service") != "" {
-		// fetch service information for existing server/command
-		service, err := client.GetService(stack.Uid, c.String("service"), &server.Uid, &userCommand)
+	if serviceName == "" && containerName == "" {
+		// this is a server level command
+		if userCommand == "" && !interactive {
+			printFatal("A command is required if you're not running an interactive sesssion")
+		}
+		err = runServerCommand(*server, userCommand, interactive, false)
 		must(err)
-
-		userCommand = service.WrapCommand
+		return
 	}
 
-	includeTty := c.String("service") != ""
-	stay := c.Bool("stay")
-	shell := c.String("shell")
-	if shell != "" && !stay {
-		printFatal("Cannot use 'shell' without 'stay'")
-	}
-	if shell == "" {
-		shell = "/bin/bash"
-	}
+	if stack.Backend == "kubernetes" {
+		// we need to run this against the master
+		if server == nil {
+			for _, stackServer := range servers {
+				if stackServer.IsKubernetesMaster {
+					server = &stackServer
+					break
+				}
+			}
+		}
+		if server == nil {
+			printFatal("Master server can not be determined")
+		}
+		if serviceName != "" {
+			// this is a service level command
+			// we need a session
+			asyncResult, err := client.StartRemoteSession(stack.Uid, serviceName)
+			must(err)
+			genericRes, err := client.WaitStackAsyncAction(asyncResult.Id, stack.Uid, 5*time.Second, 4*time.Minute, false)
+			must(err)
+			if genericRes.Status != true {
+				printFatal("Unable to start session")
+			}
+			// get that session we've started
+			session, err := client.FetchRemoteSession(stack.Uid, nil, &serviceName)
+			must(err)
+			// now we have pods
+			err = runKubesCommand(*server, stack.Namespace(), session.PodName, userCommand, interactive)
+			must(err)
+		} else if containerName != "" {
+			// we have the pod name
+			err = runKubesCommand(*server, stack.Namespace(), containerName, userCommand, interactive)
+			must(err)
+		}
+	} else if stack.Backend == "docker" {
+		if serviceName != "" {
+			if server == nil {
+				for _, stackServer := range servers {
+					if _, err := fuzzyFind(stackServer.Roles, "docker", true); err == nil {
+						server = &stackServer
+						break
+					}
+				}
+			}
+			// fetch service information for existing server/command
+			service, err := client.GetService(stack.Uid, serviceName, &server.Uid, &userCommand)
+			must(err)
+			err = runServerCommand(*server, service.WrapCommand, interactive, true)
+			must(err)
 
-	err = SshToServerForCommand(*server, userCommand, stay, includeTty, shell)
-	if err != nil {
-		printFatal(err.Error())
+		} else if containerName != "" {
+			container, err := client.GetContainer(stack.Uid, containerName)
+			must(err)
+			server, err = findServer(servers, container.ServerName)
+			must(err)
+			if interactive {
+				userCommand = fmt.Sprintf("sudo docker exec -it %s %s", container.Uid, userCommand)
+			} else {
+				userCommand = fmt.Sprintf("sudo docker exec %s %s", container.Uid, userCommand)
+			}
+			err = runServerCommand(*server, userCommand, interactive, true)
+			must(err)
+			return
+		}
+	} else {
+		printFatal("not supported yet")
 	}
 }
 
-func SshToServerForCommand(server cloud66.Server, userCommand string, stay bool, includeTty bool, shell string) error {
+func runServerCommand(server cloud66.Server, userCommand string, interactive bool, showWarning bool) error {
+	// open lease, get address, get sshkey
+	sshFile, address := prepareForSSH(server)
+	if interactive {
+		// default user command if it isn't specified
+		if userCommand == "" {
+			userCommand = fmt.Sprintf("source /var/.cloud66_env &>/dev/null ; %s", ShellCommand)
+		} else {
+			userCommand = fmt.Sprintf("source /var/.cloud66_env &>/dev/null ; %s; %s", userCommand, ShellCommand)
+		}
+	} else {
+		if userCommand == "" {
+			userCommand = ShellCommand
+		}
+		userCommand = fmt.Sprintf("source /var/.cloud66_env &>/dev/null ; %s", userCommand)
+	}
+	// run the ssh
+	return runSSH(address, sshFile, userCommand, interactive, showWarning)
+}
+
+func runKubesCommand(server cloud66.Server, namespace string, podName string, userCommand string, interactive bool) error {
+	// open lease, get address, get sshkey
+	sshFile, address := prepareForSSH(server)
+	// default the command if not supplied
+	if userCommand == "" {
+		userCommand = ShellCommand
+	}
+	if interactive {
+		// override with shell for interactive
+		userCommand = fmt.Sprintf("kubectl --namespace %s exec -it %s -- %s", namespace, podName, userCommand)
+	} else {
+		userCommand = fmt.Sprintf("kubectl --namespace %s exec %s -- %s", namespace, podName, userCommand)
+	}
+	// run the ssh
+	return runSSH(address, sshFile, userCommand, interactive, false)
+}
+
+func prepareForSSH(server cloud66.Server) (string, string) {
+	address := fmt.Sprintf("%s@%s", server.UserName, server.Address)
+
 	sshFile, err := prepareLocalSshKey(server)
 	must(err)
-
 	// open the firewall
 	var timeToOpen = 2
 	genericRes, err := client.LeaseSync(server.StackUid, nil, &timeToOpen, nil, &server.Uid)
@@ -135,18 +248,16 @@ func SshToServerForCommand(server cloud66.Server, userCommand string, stay bool,
 	if genericRes.Status != true {
 		printFatal("Unable to open server lease")
 	}
+	return sshFile, address
+}
 
-	// add source
-	if stay {
-		userCommand = fmt.Sprintf("source /var/.cloud66_env &>/dev/null ; %s; %s", userCommand, shell)
-	} else {
-		userCommand = fmt.Sprintf("source /var/.cloud66_env &>/dev/null ; %s", userCommand)
-	}
-
-	if includeTty || stay {
-		fmt.Println("Note: you may need to push <enter> to view output after the connection completes..")
+func runSSH(address, sshFile, userCommand string, interactive bool, showWarning bool) error {
+	if interactive {
+		if showWarning {
+			fmt.Println("Note: you may need to push <enter> to view output after the connection completes..")
+		}
 		return startProgram("ssh", []string{
-			server.UserName + "@" + server.Address,
+			address,
 			"-i", sshFile,
 			"-o", "UserKnownHostsFile=/dev/null",
 			"-o", "CheckHostIP=no",
@@ -158,19 +269,17 @@ func SshToServerForCommand(server cloud66.Server, userCommand string, stay bool,
 			"-t",
 			userCommand,
 		})
-	} else {
-		return startProgram("ssh", []string{
-			server.UserName + "@" + server.Address,
-			"-i", sshFile,
-			"-o", "UserKnownHostsFile=/dev/null",
-			"-o", "CheckHostIP=no",
-			"-o", "StrictHostKeyChecking=no",
-			"-o", "LogLevel=QUIET",
-			"-o", "IdentitiesOnly=yes",
-			"-A",
-			"-p", "22",
-			userCommand,
-		})
 	}
-
+	return startProgram("ssh", []string{
+		address,
+		"-i", sshFile,
+		"-o", "UserKnownHostsFile=/dev/null",
+		"-o", "CheckHostIP=no",
+		"-o", "StrictHostKeyChecking=no",
+		"-o", "LogLevel=QUIET",
+		"-o", "IdentitiesOnly=yes",
+		"-A",
+		"-p", "22",
+		userCommand,
+	})
 }
