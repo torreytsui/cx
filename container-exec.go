@@ -69,7 +69,7 @@ func runContainerExec(c *cli.Context) {
 		}
 		userCommand = fmt.Sprintf("sudo docker exec %s %s %s", cliFlags, container.Uid, command)
 	}
-	err = runServerCommand(*server, userCommand, false, false)
+	err = runServerCommand(*server, userCommand, false)
 	if err != nil {
 		printFatal(err.Error())
 	}

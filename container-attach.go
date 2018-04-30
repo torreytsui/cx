@@ -60,7 +60,7 @@ func runContainerAttach(c *cli.Context) {
 		userCommand = fmt.Sprintf("sudo docker attach --no-stdin=true --sig-proxy=false %s", container.Uid)
 	}
 
-	err = runServerCommand(*server, userCommand, false, false)
+	err = runServerCommand(*server, userCommand, false)
 	if err != nil {
 		printFatal(err.Error())
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/cloud66/cloud66"
@@ -16,20 +17,20 @@ var cmdRun = &Command{
 	Build: buildBasicCommand,
 	Flags: []cli.Flag{
 		cli.StringFlag{
-			Name:  "server",
+			Name:  "server,svr",
 			Usage: "server on which to run the command [optional]",
 		},
 		cli.StringFlag{
-			Name:  "service",
+			Name:  "service,svc",
 			Usage: "name of the service in which to run the command [optional - docker/kubernetes stacks only]",
 		},
 		cli.StringFlag{
-			Name:  "container",
+			Name:  "container,cnt",
 			Usage: "name of the pod/container in which to run the command [optional - docker/kubernetes stacks only]",
 		},
 		cli.BoolFlag{
-			Name:  "interactive",
-			Usage: "stay in shell with TTY",
+			Name:  "interactive,i",
+			Usage: "stay in shell (with TTY attached)",
 		},
 		cli.BoolFlag{
 			Name:  "stay",
@@ -63,10 +64,20 @@ Names are case insensitive and will work with the starting characters as well.
 This command is only supported on Linux and OS X (for Windows you can run this in a virtual machine if necessary)
 
 Examples:
-$ cx run -s mystack --server lion 'ls -la'
-$ cx run -s mystack --server 52.65.34.98 'ls -la'
-$ cx run -s mystack --service api 'bundle exec rails c'
-$ cx run -s mystack --container web-123 'bundle exec rails c'
+$ cx run -s mystack --server lion 'ls -la' 
+(runs "ls -la" ON THE SERVER, returns the output, and exits)
+
+$ cx run -s mystack --server lion -i 
+(runs "bash or sh" ON THE SERVER", and remains in the session)
+
+$ cx run -s mystack --svc webapp 'ls -la'
+(runs "ls -la" IN A NEW CONTAINER OF THE SERVICE, returns the output, and exits)
+
+$ cx run -s mystack --service api --interactive 'bundle exec rails c'
+(runs "bundle exec rails c" IN A NEW CONTAINER OF THE SERVICE, and remains in the session)
+
+$ cx run -s mystack --container web-123 -i 'bundle exec rails c'
+(runs "bundle exec rails c" INSIDE THE SPECIFIED CONTAINER, and remains in the session)
 `,
 }
 
@@ -125,7 +136,7 @@ func runRun(c *cli.Context) {
 		if userCommand == "" && !interactive {
 			printFatal("A command is required if you're not running an interactive sesssion")
 		}
-		err = runServerCommand(*server, userCommand, interactive, false)
+		err = runServerCommand(*server, userCommand, interactive)
 		must(err)
 		return
 	}
@@ -177,9 +188,11 @@ func runRun(c *cli.Context) {
 			// fetch service information for existing server/command
 			service, err := client.GetService(stack.Uid, serviceName, &server.Uid, &userCommand)
 			must(err)
-			err = runServerCommand(*server, service.WrapCommand, interactive, true)
-			must(err)
-
+			userCommand = service.WrapCommand
+			if !interactive {
+				// we always get interactive back
+				userCommand = strings.Replace(userCommand, "-it", "", 1)
+			}
 		} else if containerName != "" {
 			container, err := client.GetContainer(stack.Uid, containerName)
 			must(err)
@@ -190,33 +203,27 @@ func runRun(c *cli.Context) {
 			} else {
 				userCommand = fmt.Sprintf("sudo docker exec %s %s", container.Uid, userCommand)
 			}
-			err = runServerCommand(*server, userCommand, interactive, true)
-			must(err)
-			return
 		}
+		err = runServerCommand(*server, userCommand, interactive)
+		must(err)
+
 	} else {
 		printFatal("not supported yet")
 	}
 }
 
-func runServerCommand(server cloud66.Server, userCommand string, interactive bool, showWarning bool) error {
+func runServerCommand(server cloud66.Server, userCommand string, interactive bool) error {
 	// open lease, get address, get sshkey
 	sshFile, address := prepareForSSH(server)
-	if interactive {
-		// default user command if it isn't specified
-		if userCommand == "" {
-			userCommand = fmt.Sprintf("source /var/.cloud66_env &>/dev/null ; %s", ShellCommand)
-		} else {
-			userCommand = fmt.Sprintf("source /var/.cloud66_env &>/dev/null ; %s; %s", userCommand, ShellCommand)
-		}
-	} else {
-		if userCommand == "" {
-			userCommand = ShellCommand
-		}
-		userCommand = fmt.Sprintf("source /var/.cloud66_env &>/dev/null ; %s", userCommand)
+
+	// default user command if it isn't specified
+	if userCommand == "" {
+		userCommand = ShellCommand
 	}
+	userCommand = fmt.Sprintf("source /var/.cloud66_env &>/dev/null ; %s", userCommand)
+
 	// run the ssh
-	return runSSH(address, sshFile, userCommand, interactive, showWarning)
+	return runSSH(address, sshFile, userCommand, interactive)
 }
 
 func runKubesCommand(server cloud66.Server, namespace string, podName string, userCommand string, interactive bool) error {
@@ -233,7 +240,7 @@ func runKubesCommand(server cloud66.Server, namespace string, podName string, us
 		userCommand = fmt.Sprintf("kubectl --namespace %s exec %s -- %s", namespace, podName, userCommand)
 	}
 	// run the ssh
-	return runSSH(address, sshFile, userCommand, interactive, false)
+	return runSSH(address, sshFile, userCommand, interactive)
 }
 
 func prepareForSSH(server cloud66.Server) (string, string) {
@@ -251,11 +258,8 @@ func prepareForSSH(server cloud66.Server) (string, string) {
 	return sshFile, address
 }
 
-func runSSH(address, sshFile, userCommand string, interactive bool, showWarning bool) error {
+func runSSH(address, sshFile, userCommand string, interactive bool) error {
 	if interactive {
-		if showWarning {
-			fmt.Println("Note: you may need to push <enter> to view output after the connection completes..")
-		}
 		return startProgram("ssh", []string{
 			address,
 			"-i", sshFile,
