@@ -198,6 +198,9 @@ func runRun(c *cli.Context) {
 			must(err)
 			server, err = findServer(servers, container.ServerName)
 			must(err)
+			if userCommand == "" {
+				userCommand = ShellCommand
+			}
 			if interactive {
 				userCommand = fmt.Sprintf("sudo docker exec -it %s %s", container.Uid, userCommand)
 			} else {
