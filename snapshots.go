@@ -157,20 +157,20 @@ func runRenders(c *cli.Context) {
 		return
 	}
 
-	// contaent
+	// content
 	var buffer bytes.Buffer
-	for k, v := range renders.Content {
+	for idx, v := range renders.Stencils {
+		filename := filepath.Join(outdir, fmt.Sprintf("%03d_%s", idx+1, v.Filename))
 		if outdir != "" {
-			filename := filepath.Join(outdir, k)
-			content := generateYamlComment(k, snapshotUID, formationUID) + v
+			content := generateYamlComment(v.Filename, snapshotUID, formationUID, v.Sequence) + v.Content
 			err = ioutil.WriteFile(filename, []byte(content), 0644)
 			if err != nil {
 				printFatal(err.Error())
 			}
 		} else {
 			// concatenate
-			buffer.WriteString(fmt.Sprintf("\n---\n%s\n", generateYamlComment(k, snapshotUID, formationUID)))
-			buffer.WriteString(v)
+			buffer.WriteString(fmt.Sprintf("\n---\n%s\n", generateYamlComment(filename, snapshotUID, formationUID, v.Sequence)))
+			buffer.WriteString(v.Content)
 		}
 	}
 
@@ -179,8 +179,8 @@ func runRenders(c *cli.Context) {
 	}
 }
 
-func generateYamlComment(filename string, snapshot string, formation string) string {
-	return fmt.Sprintf("# Stencil: %s\n# Formation: %s\n# Snapshot: %s\n", filename, formation, snapshot)
+func generateYamlComment(filename string, snapshot string, formation string, sequence int) string {
+	return fmt.Sprintf("# Stencil: %s\n# Formation: %s\n# Snapshot: %s\n# Sequence: %d\n", filename, formation, snapshot, sequence)
 }
 
 func printSnapshotList(w io.Writer, snapshots []cloud66.Snapshot) {
