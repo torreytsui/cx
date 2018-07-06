@@ -148,9 +148,10 @@ func runRenders(c *cli.Context) {
 		os.MkdirAll(outdir, os.ModePerm)
 	}
 
-	if !ignoreErrors && len(renders.Errors) != 0 {
+	foundErrors := renders.Errors()
+	if !ignoreErrors && len(foundErrors) != 0 {
 		fmt.Fprintln(os.Stderr, "Error during rendering of stencils:")
-		for _, renderError := range renders.Errors {
+		for _, renderError := range foundErrors {
 			fmt.Fprintf(os.Stderr, "%s in %s\n", renderError.Text, renderError.Stencil)
 		}
 
