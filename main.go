@@ -8,8 +8,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/cloud66/cli"
 	"github.com/cloud66-oss/cloud66"
+	"github.com/cloud66/cli"
 	"github.com/getsentry/raven-go"
 	"github.com/mgutz/ansi"
 	"golang.org/x/crypto/ssh/terminal"
@@ -71,6 +71,7 @@ var commands = []*Command{
 	cmdInfo,
 	cmdTest,
 	cmdUsers,
+	cmdTemplates,
 	cmdGateway,
 	cmdProcesses,
 	cmdRegisterServer,
