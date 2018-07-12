@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/cloud66/cli"
-	"github.com/cloud66/cloud66"
+	"github.com/cloud66-oss/cloud66"
 	"github.com/getsentry/raven-go"
 	"github.com/mgutz/ansi"
 	"golang.org/x/crypto/ssh/terminal"

@@ -14,10 +14,10 @@ RUN go get -u github.com/h2non/gock
 RUN go get github.com/tools/godep
 
 #copy the source files
-RUN mkdir -p /usr/local/go/src/github.com/cloud66/cx
-ADD . /usr/local/go/src/github.com/cloud66/cx
+RUN mkdir -p /usr/local/go/src/github.com/cloud66-oss/cx
+ADD . /usr/local/go/src/github.com/cloud66-oss/cx
 
 #switch to our app directory
-WORKDIR /usr/local/go/src/github.com/cloud66/cx
+WORKDIR /usr/local/go/src/github.com/cloud66-oss/cx
 
 #RUN ginkgo 
