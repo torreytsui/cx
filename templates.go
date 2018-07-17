@@ -48,7 +48,7 @@ Second Awesome Repository     bt-e2e869ee6ce97ee58a17aa264bed1e0c  git@github.co
 			Description: `
 
 Examples:
-$ cx --org='My Awesome Organization' templates resync 'First Awesome Repository'
+$ cx --org='My Awesome Organization' templates resync --template='bt-2e0810a17c33ab35d7970ff330b1f916'
 `,
 		},
 	}
