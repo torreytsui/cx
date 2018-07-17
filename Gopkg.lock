@@ -8,9 +8,10 @@
   version = "2017.01.23"
 
 [[projects]]
+  branch = "master"
   name = "github.com/cloud66-oss/cloud66"
   packages = ["."]
-  revision = "da76856ae327791f4a4f2ee13f96a44b96e69f0a"
+  revision = "358bed4768bfcb9ae63adf3a2499426caa35ae3a"
 
 [[projects]]
   name = "github.com/cloud66/cli"
@@ -129,7 +130,8 @@
 [[projects]]
   name = "github.com/toqueteos/webbrowser"
   packages = ["."]
-  revision = "22b60a18af033f78303729d2f68cb0f44213565a"
+  revision = "3232c91b8ede8ca86e8962981d881af78875542f"
+  version = "v1.1.0"
 
 [[projects]]
   branch = "master"
@@ -149,6 +151,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8c17144a9e601f7856e601fc5ff0b2e087644d467d0899ba5fd9839433218ff6"
+  inputs-digest = "44c8054bc04dd571467f86985837c4463a171334238c451cffd43a808db9e950"
   solver-name = "gps-cdcl"
   solver-version = 1
