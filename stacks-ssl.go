@@ -118,6 +118,13 @@ func generateSSLCertificate(c *cli.Context) (*cloud66.SslCertificate, error) {
 }
 
 func generateLetsEncryptSSLCertificate(c *cli.Context) (*cloud66.SslCertificate, error) {
+	invalidFlags := []string{"cert", "key", "intermediate"}
+	for _, invalidFlag := range invalidFlags {
+		if c.String(invalidFlag) != "" {
+			return nil, errors.New(fmt.Sprintf("The following flags are not valid for Let's Encrypt certificates: %s. Please remove them and try again.", strings.Join(invalidFlags, ", ")))
+		}
+	}
+
 	domains := c.StringSlice("domain")
 	if len(domains) == 0 {
 		return nil, errors.New("No domains names specified. Please use the repeatable --domain flag to specify domain names.")
