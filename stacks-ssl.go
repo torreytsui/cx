@@ -131,7 +131,7 @@ func generateLetsEncryptSSLCertificate(c *cli.Context) (*cloud66.SslCertificate,
 
 	domains := c.StringSlice("domain")
 	if len(domains) == 0 {
-		return nil, errors.New("No domains names specified. Please use the repeatable --domain flag to specify domain names.")
+		return nil, errors.New("No domain names specified. Please use the repeatable --domain flag to specify domain names.")
 	}
 
 	return &cloud66.SslCertificate{
