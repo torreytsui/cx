@@ -12,8 +12,8 @@ import (
 
 	"text/tabwriter"
 
-	"github.com/cloud66/cli"
 	"github.com/cloud66-oss/cloud66"
+	"github.com/cloud66/cli"
 )
 
 var cmdSnapshots = &Command{
@@ -186,6 +186,12 @@ func generateYamlComment(filename string, snapshot string, formation string, seq
 
 func printSnapshotList(w io.Writer, snapshots []cloud66.Snapshot) {
 	sort.Sort(snapshotsByDate(snapshots))
+	listRec(w,
+		"UID",
+		"LAST ACTION AT",
+		"LAST ACTION BY",
+		"ACTION")
+
 	for _, a := range snapshots {
 		if a.Uid != "" {
 			listSnapshot(w, a)

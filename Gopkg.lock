@@ -11,7 +11,7 @@
   branch = "master"
   name = "github.com/cloud66-oss/cloud66"
   packages = ["."]
-  revision = "358bed4768bfcb9ae63adf3a2499426caa35ae3a"
+  revision = "0fcfcb2b9bde1c8a0c9058098f8ce960caeb2405"
 
 [[projects]]
   name = "github.com/cloud66/cli"
