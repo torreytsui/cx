@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"github.com/cloud66-oss/cloud66"
 	"github.com/cloud66/cli"
@@ -36,9 +37,10 @@ func buildStacksSSL() cli.Command {
 						Name:  "intermediate",
 						Usage: fmt.Sprintf("SSL intermediate certificate file path (optional for type '%s')", cloud66.ManualSslCertificateType),
 					},
-					cli.StringFlag{
-						Name:  "domains",
-						Usage: fmt.Sprintf("comma separated list of domain names that apply to this SSL certificate (required for type '%s', optional for type '%s')", cloud66.LetsEncryptSslCertificateType, cloud66.ManualSslCertificateType),
+					cli.StringSliceFlag{
+						Name:  "domain",
+						Usage: fmt.Sprintf("Domain name applicable to this SSL certificate (required for type '%s', optional for type '%s'). Repeatable for multiple domains", cloud66.LetsEncryptSslCertificateType, cloud66.ManualSslCertificateType),
+						Value: &cli.StringSlice{},
 					},
 					cli.BoolFlag{
 						Name:  "overwrite",
@@ -116,14 +118,14 @@ func generateSSLCertificate(c *cli.Context) (*cloud66.SslCertificate, error) {
 }
 
 func generateLetsEncryptSSLCertificate(c *cli.Context) (*cloud66.SslCertificate, error) {
-	domains := c.String("domains")
-	if domains == "" {
-		return nil, errors.New("No domains names specified. Please use the --domains flag to specify a list of comma separated domain names.")
+	domains := c.StringSlice("domain")
+	if len(domains) == 0 {
+		return nil, errors.New("No domains names specified. Please use the repeatable --domain flag to specify domain names.")
 	}
 
 	return &cloud66.SslCertificate{
 		Type:        cloud66.LetsEncryptSslCertificateType,
-		ServerNames: domains,
+		ServerNames: generateSSLCertificateServerNames(c),
 	}, nil
 }
 
@@ -161,9 +163,13 @@ func generateManualSSLCertificate(c *cli.Context) (*cloud66.SslCertificate, erro
 
 	return &cloud66.SslCertificate{
 		Type:        cloud66.ManualSslCertificateType,
-		ServerNames: c.String("domains"),
+		ServerNames: generateSSLCertificateServerNames(c),
 		Certificate: &certificate,
 		Key:         &key,
 		IntermediateCertificate: intermediatePointer,
 	}, nil
+}
+
+func generateSSLCertificateServerNames(c *cli.Context) string {
+	return strings.Join(c.StringSlice("domain"), ",")
 }
