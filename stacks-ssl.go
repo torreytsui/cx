@@ -25,6 +25,10 @@ func buildStacksSSL() cli.Command {
 						Name:  "type",
 						Usage: fmt.Sprintf("type of the SSL certificate (one of '%s', or '%s')", cloud66.LetsEncryptSslCertificateType, cloud66.ManualSslCertificateType),
 					},
+					cli.BoolFlag{
+						Name:  "ssl-termination",
+						Usage: "enable SSL termination",
+					},
 					cli.StringFlag{
 						Name:  "cert",
 						Usage: fmt.Sprintf("SSL certificate file path (required for type '%s')", cloud66.ManualSslCertificateType),
@@ -131,8 +135,9 @@ func generateLetsEncryptSSLCertificate(c *cli.Context) (*cloud66.SslCertificate,
 	}
 
 	return &cloud66.SslCertificate{
-		Type:        cloud66.LetsEncryptSslCertificateType,
-		ServerNames: generateSSLCertificateServerNames(c),
+		Type:           cloud66.LetsEncryptSslCertificateType,
+		ServerNames:    generateSSLCertificateServerNames(c),
+		SSLTermination: c.Bool("ssl-termination"),
 	}, nil
 }
 
@@ -174,6 +179,7 @@ func generateManualSSLCertificate(c *cli.Context) (*cloud66.SslCertificate, erro
 		Certificate: &certificate,
 		Key:         &key,
 		IntermediateCertificate: intermediatePointer,
+		SSLTermination:          c.Bool("ssl-termination"),
 	}, nil
 }
 
