@@ -57,7 +57,7 @@ func buildStacksSSLAddDescription() string {
 	return `Add an SSL certificate to a stack.
 
 EXAMPLES:
-    $ cx stacks ssl add -s my-stack --type lets_encrypt --domains 'web.domain.com,api.domain.com'
+    $ cx stacks ssl add -s my-stack --type lets_encrypt --domain 'web.domain.com' --domain 'api.domain.com'
     $ cx stacks ssl add -s my-stack --type manual --cert certificate_file_path --key key_file_path --intermediate intermediate_file_path
 `
 }
