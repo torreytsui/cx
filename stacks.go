@@ -374,6 +374,7 @@ func printStackList(w io.Writer, stacks []cloud66.Stack, output string) {
 			"ENVIRONMENT",
 			"STACK TYPE",
 			"CLUSTER NAME",
+			"APPLICATION ADDRESS",
 			"STATUS",
 			"LAST ACTIVITY")
 	} else {
@@ -420,6 +421,12 @@ func listStack(w io.Writer, stack cloud66.Stack, output string) {
 			}
 		}
 	}
+
+	applicationAddress := "n/a"
+	if stack.ApplicationAddress != nil {
+		applicationAddress = *stack.ApplicationAddress
+	}
+
 	if output == "wide" {
 		listRec(w,
 			stack.AccountName,
@@ -427,6 +434,7 @@ func listStack(w io.Writer, stack cloud66.Stack, output string) {
 			environment,
 			stackType,
 			clusterName,
+			applicationAddress,
 			stack.Status(),
 			prettyTime{t},
 		)
