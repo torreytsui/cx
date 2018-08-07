@@ -48,7 +48,7 @@ func buildStacksSSL() cli.Command {
 					},
 					cli.BoolFlag{
 						Name:  "overwrite",
-						Usage: "update existing SSL certificate if it already exists",
+						Usage: "required confirmation flag to update an existing SSL certificate",
 					},
 				},
 				Description: buildStacksSSLAddDescription(),
