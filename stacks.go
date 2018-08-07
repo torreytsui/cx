@@ -300,9 +300,17 @@ $ cx stacks configure download -f service.yml -o /tmp/my_stack_servive.yml -s my
 $ cx stacks configure download -f manifest.yml -v f345 -s mystack
 $ cx stacks configure upload /tmp/mystack_edited_service.yml -f service.yml -s mystack --comments "new service added"
 `},
+		buildStacksSSL(),
 	}
 
 	return base
+}
+
+func buildStackFlag() cli.StringFlag {
+	return cli.StringFlag{
+		Name:  "stack,s",
+		Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
+	}
 }
 
 func runStacks(c *cli.Context) {
