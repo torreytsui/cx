@@ -2,87 +2,114 @@
 
 
 [[projects]]
+  digest = "1:48fe4883dedb04f1f8b4e1d49a49bfed93c3e1687036a05323a81b3b7c4554c7"
   name = "github.com/certifi/gocertifi"
   packages = ["."]
+  pruneopts = "UT"
   revision = "03be5e6bb9874570ea7fb0961225d193cbc374c5"
   version = "2017.01.23"
 
 [[projects]]
   branch = "master"
+  digest = "1:f298cd619d59eab430aa6c93cf00c91909b2f27616c0a67c1e5d36ae063c4408"
   name = "github.com/cloud66-oss/cloud66"
   packages = ["."]
-  revision = "0fcfcb2b9bde1c8a0c9058098f8ce960caeb2405"
+  pruneopts = "UT"
+  revision = "d9f43738d6c205ca25613c87b966550d7089b1c3"
 
 [[projects]]
+  digest = "1:4a2ef035c205a86c12b2c56b3f324d35c98658c2ae445e6236e3ee1ef8dac2fd"
   name = "github.com/cloud66/cli"
   packages = ["."]
+  pruneopts = "UT"
   revision = "99fe3ed9502b7ed1fb1e2b39de0e4ca618123c12"
 
 [[projects]]
   branch = "master"
+  digest = "1:feeee3a69c4f9e8a685d8b7438c34a2db019cd96b99b28a13a7a76497c626b3c"
   name = "github.com/cloud66/fayego"
   packages = [
     "fayeclient",
-    "fayeserver"
+    "fayeserver",
   ]
+  pruneopts = "UT"
   revision = "62f173dff4c0eaf5686464384fcd3b11415b4310"
 
 [[projects]]
   branch = "master"
+  digest = "1:f99c20947a1302802ea8f57b1de227b7ef3a10fdbcfa06db440cdeb46c3b0759"
   name = "github.com/cloud66/wray"
   packages = ["."]
+  pruneopts = "UT"
   revision = "19624b7fbd8037566e8298754bc5d2c917cc1fa3"
 
 [[projects]]
+  digest = "1:e3bb035dd2ee60debfd83a746867a2b632165fb284620a56384250e882b3f4af"
   name = "github.com/getsentry/raven-go"
   packages = ["."]
+  pruneopts = "UT"
   revision = "aff752b3f9b36599a3ab28ac36255bea069b440b"
 
 [[projects]]
+  digest = "1:b1888d094847a5198b91d76a299e45c2c8debe9f9b9eb9a6e7b1dc7ec2a27513"
   name = "github.com/gorilla/websocket"
   packages = ["."]
+  pruneopts = "UT"
   revision = "361d4c0ffd78338ebe0a9e6320cdbe115d7dc026"
 
 [[projects]]
+  digest = "1:5d452e34a30ba392f493797cd1e49bb489a25a2feb2cd1b568d7e3e4a34fa6c5"
   name = "github.com/h2non/gock"
   packages = ["."]
+  pruneopts = "UT"
   revision = "029e5f2873a46acb40329d84261f397c7daffe77"
 
 [[projects]]
+  digest = "1:f3b0cfd42716269884bf06df5d5be9e54161d5af0a2f0ccca08717928dd45fc5"
   name = "github.com/inconshreveable/go-update"
   packages = [
     ".",
     "internal/binarydist",
-    "internal/osext"
+    "internal/osext",
   ]
+  pruneopts = "UT"
   revision = "8455de157e5e3eee5d680febf627fc4c03b59332"
 
 [[projects]]
+  digest = "1:25933dc1991cc05e4d785fe933948b88464a27e424155ba5b6d129f3449f16a5"
   name = "github.com/kardianos/osext"
   packages = ["."]
+  pruneopts = "UT"
   revision = "6e7f843663477789fac7c02def0d0909e969b4e5"
 
 [[projects]]
   branch = "master"
+  digest = "1:041b1df118bc77031d26f3ad0bec538f3e1f76106a47d7657e20a6b56604de14"
   name = "github.com/khash/oauth"
   packages = ["oauth"]
+  pruneopts = "UT"
   revision = "29933d91e1e3d670d91953d364064f5edb0a8b85"
 
 [[projects]]
   branch = "master"
+  digest = "1:575a30b0d62bd85712847c4ac008325dd1c34bdf691ff91e34020bb83e75ecbf"
   name = "github.com/kr/s3"
   packages = [
     ".",
-    "s3util"
+    "s3util",
   ]
+  pruneopts = "UT"
   revision = "c070c8f9a8f0032d48f0d2a77d4e382788bd8a1d"
 
 [[projects]]
+  digest = "1:e74c7fcca6a9c96f8f1dacc7ae40a09338e51ce4b379f139069c88ba7ea08239"
   name = "github.com/mgutz/ansi"
   packages = ["."]
+  pruneopts = "UT"
   revision = "c286dcecd19ff979eeb73ea444e479b903f2cfcb"
 
 [[projects]]
+  digest = "1:97860933e64dfde497daaeb12719bff1191a7c464b45bca69604121abcdb56f3"
   name = "github.com/onsi/ginkgo"
   packages = [
     ".",
@@ -99,11 +126,13 @@
     "internal/writer",
     "reporters",
     "reporters/stenographer",
-    "types"
+    "types",
   ]
+  pruneopts = "UT"
   revision = "c3a655f9b37a2207fa39721b078b3173ee9218d6"
 
 [[projects]]
+  digest = "1:f9c481f06a060a6ee281d788f81bc32367daf58b3a4790abbc15181e4a5f18ff"
   name = "github.com/onsi/gomega"
   packages = [
     ".",
@@ -117,40 +146,63 @@
     "matchers/support/goraph/edge",
     "matchers/support/goraph/node",
     "matchers/support/goraph/util",
-    "types"
+    "types",
   ]
+  pruneopts = "UT"
   revision = "7ce781ea776b2fd506491011353bded2e40c8467"
 
 [[projects]]
+  digest = "1:361de06aa7ae272616cbe71c3994a654cc6316324e30998e650f7765b20c5b33"
   name = "github.com/pborman/uuid"
   packages = ["."]
+  pruneopts = "UT"
   revision = "e790cca94e6cc75c7064b1332e63811d4aae1a53"
   version = "v1.1"
 
 [[projects]]
+  digest = "1:e1cd343b3883ced86b6873fe4d2f76799259fba3d1656df6ac0a7fa92644c049"
   name = "github.com/toqueteos/webbrowser"
   packages = ["."]
+  pruneopts = "UT"
   revision = "3232c91b8ede8ca86e8962981d881af78875542f"
   version = "v1.1.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:3f3a05ae0b95893d90b9b3b5afdb79a9b3d96e4e36e099d841ae602e4aca0da8"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
+  pruneopts = "UT"
   revision = "a49355c7e3f8fe157a85be2f77e6e269a0f89602"
 
 [[projects]]
   branch = "master"
+  digest = "1:3364d01296ce7eeca363e3d530ae63a2092d6f8efb85fb3d101e8f6d7de83452"
   name = "golang.org/x/sys"
   packages = [
     "unix",
-    "windows"
+    "windows",
   ]
+  pruneopts = "UT"
   revision = "1b2967e3c290b7c545b3db0deeda16e9be4f98a2"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "44c8054bc04dd571467f86985837c4463a171334238c451cffd43a808db9e950"
+  input-imports = [
+    "github.com/cloud66-oss/cloud66",
+    "github.com/cloud66/cli",
+    "github.com/cloud66/wray",
+    "github.com/getsentry/raven-go",
+    "github.com/h2non/gock",
+    "github.com/inconshreveable/go-update",
+    "github.com/kardianos/osext",
+    "github.com/kr/s3",
+    "github.com/kr/s3/s3util",
+    "github.com/mgutz/ansi",
+    "github.com/onsi/ginkgo",
+    "github.com/onsi/gomega",
+    "golang.org/x/crypto/ssh/terminal",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

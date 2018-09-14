@@ -68,6 +68,10 @@ $ cx snapshots list -s mystack
 					Name:  "ignore-errors",
 					Usage: "if set, it will return anything that can be rendered and ignores the errors",
 				},
+				cli.BoolFlag{
+					Name:  "ignore-warnings",
+					Usage: "if set, it will return anything that can be rendered and ignores the warnings",
+				},
 				cli.StringFlag{
 					Name:  "stencil-group",
 					Usage: "if set, only stencils that match the given stencil group's rules will be returned",
@@ -126,6 +130,7 @@ func runRenders(c *cli.Context) {
 	useLatest := c.BoolT("latest")
 	outdir := c.String("outdir")
 	ignoreErrors := c.Bool("ignore-errors")
+	ignoreWarnings := c.Bool("ignore-warnings")
 	stencilGroup := c.String("stencil-group")
 
 	if snapshotUID == "latest" {
@@ -152,6 +157,16 @@ func runRenders(c *cli.Context) {
 	if !ignoreErrors && len(foundErrors) != 0 {
 		fmt.Fprintln(os.Stderr, "Error during rendering of stencils:")
 		for _, renderError := range foundErrors {
+			fmt.Fprintf(os.Stderr, "%s in %s\n", renderError.Text, renderError.Stencil)
+		}
+
+		return
+	}
+
+	foundWarnings := renders.Warnings()
+	if !ignoreWarnings && len(foundWarnings) != 0 {
+		fmt.Fprintln(os.Stderr, "Warning during rendering of stencils:")
+		for _, renderError := range foundWarnings {
 			fmt.Fprintf(os.Stderr, "%s in %s\n", renderError.Text, renderError.Stencil)
 		}
 
