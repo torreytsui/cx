@@ -16,6 +16,7 @@ import (
 
 type ConfigureFile struct {
 	Name         string
+	Type         string
 	ListFunc     func(*cli.Context, string)
 	DownloadFunc func(*cli.Context, string)
 	UploadFunc   func(*cli.Context, string)
@@ -43,28 +44,24 @@ func mustFile(c *cli.Context) ConfigureFile {
 	return file
 }
 
-func runStackConfigureFileList(c *cli.Context) {
+func runStackConfigureFileListVersions(c *cli.Context) {
 	stack := mustStack(c)
 	file := mustFile(c)
-
 	file.ListFunc(c, stack.Uid)
 }
 
 func runStackConfigureDownloadFile(c *cli.Context) {
 	stack := mustStack(c)
 	file := mustFile(c)
-
 	file.DownloadFunc(c, stack.Uid)
 }
 
 func runStackConfigureUploadFile(c *cli.Context) {
 	stack := mustStack(c)
 	file := mustFile(c)
-
 	file.UploadFunc(c, stack.Uid)
 }
 
-// --
 func runServiceYamlList(c *cli.Context, stackUid string) {
 	w := tabwriter.NewWriter(os.Stdout, 1, 2, 2, ' ', 0)
 	defer w.Flush()

@@ -108,6 +108,10 @@ func printWarning(message string, args ...interface{}) {
 
 // potentially needs refactor --> genericresponse type?
 func printGenericResponse(genericRes cloud66.GenericResponse) {
+	printGenericResponseCustom(genericRes, "", "")
+}
+
+func printGenericResponseCustom(genericRes cloud66.GenericResponse, successMessage, failMessage string) {
 	var result string
 	if genericRes.Status == true {
 		result = "Success"
@@ -116,6 +120,9 @@ func printGenericResponse(genericRes cloud66.GenericResponse) {
 		} else {
 			result = result + "!"
 		}
+		if successMessage != "" {
+			result = fmt.Sprintf("%s\n%s",result, successMessage)
+		}
 		log.Println(result)
 	} else {
 		result = "Failed"
@@ -123,6 +130,9 @@ func printGenericResponse(genericRes cloud66.GenericResponse) {
 			result = result + ": " + genericRes.Message
 		} else {
 			result = result + "!"
+		}
+		if failMessage != "" {
+			result = fmt.Sprintf("%s\n%s",result, failMessage)
 		}
 		printFatal(result)
 	}

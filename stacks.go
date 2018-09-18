@@ -216,11 +216,11 @@ $ cx stacks listen -s mystack
 `},
 		cli.Command{
 			Name:  "configure",
-			Usage: "list, download and upload of configuration files",
+			Usage: "list, download and upload of service.yml & manifest.yml files.\n   NOTE: this will ultimately be replaced by the \"configuration\" command",
 			Subcommands: []cli.Command{
 				cli.Command{
-					Name:   "list",
-					Action: runStackConfigureFileList,
+					Name:   "list-versions",
+					Action: runStackConfigureFileListVersions,
 					Usage:  "list of all versions of a configuration file",
 					Flags: []cli.Flag{
 						cli.StringFlag{
@@ -299,6 +299,109 @@ $ cx stacks configure download -f manifest.yml -s mystack
 $ cx stacks configure download -f service.yml -o /tmp/my_stack_servive.yml -s mystack
 $ cx stacks configure download -f manifest.yml -v f345 -s mystack
 $ cx stacks configure upload /tmp/mystack_edited_service.yml -f service.yml -s mystack --comments "new service added"
+`},
+		cli.Command{
+			Name:  "configuration",
+			Usage: "list, get and push stack configuration files.\n   NOTE: this will ultimately replace the \"configure\" command",
+			Subcommands: []cli.Command{
+				cli.Command{
+					Name:   "list",
+					Action: runStackConfigurationList,
+					Usage:  "list of all configuration files available for this stack",
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "environment,e",
+							Usage: "full or partial environment name",
+						},
+						cli.StringFlag{
+							Name:  "stack,s",
+							Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
+						},
+					},
+					Description: `This act lists all configuration files available on the stack.
+`},
+				cli.Command{
+					Name:   "download",
+					Action: runStackConfigurationDownload,
+					Usage:  "gets the content of the specified configuration type on the stack",
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "type,t",
+							Usage: "type of the configuration file (see `list` for types available on your stack)",
+						},
+						cli.StringFlag{
+							Name:  "output,o",
+							Usage: "save configuration output to a file (optional, default is stdout)",
+						},
+
+						cli.StringFlag{
+							Name:  "environment,e",
+							Usage: "full or partial environment name",
+						},
+						cli.StringFlag{
+							Name:  "stack,s",
+							Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
+						},
+					},
+					Description: `gets the content of the specified configuration type on the stack
+`},
+				cli.Command{
+					Name:   "upload",
+					Action: runStackConfigurationUpload,
+					Usage:  "sets the content of the specified configuration type on the stack",
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "type,t",
+							Usage: "type of the configuration file (see `list` for types available on your stack)",
+						},
+						cli.StringFlag{
+							Name:  "source",
+							Usage: "the source file containing the configuration you wish to push up to your stack",
+						},
+						cli.BoolFlag{
+							Name:  "no-apply",
+							Usage: "do not automatically apply the configuration changes to your servers (default behaviour is to apply changes immediately)",
+						},
+						cli.StringFlag{
+							Name:  "commit-message",
+							Usage: "a message to associate with the configuration update (optional)",
+						},
+						cli.StringFlag{
+							Name:  "environment,e",
+							Usage: "full or partial environment name",
+						},
+						cli.StringFlag{
+							Name:  "stack,s",
+							Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
+						},
+					},
+					Description: `sets the content of the specified configuration type on the stack
+`},
+				cli.Command{
+					Name:   "apply",
+					Action: runStackConfigurationApply,
+					Usage:  "apply the specified configuration type to the stack servers",
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "type,t",
+							Usage: "type of the configuration file (see `list` for types available on your stack)",
+						},
+						cli.StringFlag{
+							Name:  "environment,e",
+							Usage: "full or partial environment name",
+						},
+						cli.StringFlag{
+							Name:  "stack,s",
+							Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
+						},
+					},
+					Description: `apply the specified configuration type on the stack
+`},
+			},
+			Description: `
+
+Examples:
+$ cx stacks configuration list -s mystack
 `},
 		buildStacksSSL(),
 	}
