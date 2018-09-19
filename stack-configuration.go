@@ -40,11 +40,19 @@ func printConfigurationList(configurations []cloud66.Configuration) {
 		"CHANGED BY",
 		"COMMENTS",
 	)
+
 	for _, configuration := range configurations {
+		var bodySize interface{}
+		if len(configuration.Body) > 0 {
+			bodySize = len(configuration.Body)
+		} else {
+			bodySize = "<empty>"
+		}
+
 		listRec(w,
 			configuration.Type,
 			configuration.Name,
-			len(configuration.Body),
+			bodySize,
 			prettyTime{configuration.UpdatedAt},
 			configuration.ChangedBy,
 			configuration.Comments,
