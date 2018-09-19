@@ -216,7 +216,7 @@ $ cx stacks listen -s mystack
 `},
 		cli.Command{
 			Name:  "configure",
-			Usage: "list, download and upload of service.yml & manifest.yml files.\n   NOTE: this will ultimately be replaced by the \"configuration\" command",
+			Usage: "list, download & upload of service.yml & manifest.yml files (NOTE: eventually replaced by the \"configuration\" command)",
 			Subcommands: []cli.Command{
 				cli.Command{
 					Name:   "list-versions",
@@ -302,7 +302,7 @@ $ cx stacks configure upload /tmp/mystack_edited_service.yml -f service.yml -s m
 `},
 		cli.Command{
 			Name:  "configuration",
-			Usage: "list, get and push stack configuration files.\n   NOTE: this will ultimately replace the \"configure\" command",
+			Usage: "list, download, upload & apply configuration files (NOTE: eventually replacing the \"configure\" command)",
 			Subcommands: []cli.Command{
 				cli.Command{
 					Name:   "list",
@@ -348,7 +348,7 @@ $ cx stacks configure upload /tmp/mystack_edited_service.yml -f service.yml -s m
 				cli.Command{
 					Name:   "upload",
 					Action: runStackConfigurationUpload,
-					Usage:  "sets the content of the specified configuration type on the stack",
+					Usage:  "sets the content of the specified configuration type on the stack (optionally applies it)",
 					Flags: []cli.Flag{
 						cli.StringFlag{
 							Name:  "type,t",
