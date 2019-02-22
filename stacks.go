@@ -504,6 +504,9 @@ func listStack(w io.Writer, stack cloud66.Stack, output string) {
 	var stackType string
 	clusterName := "n/a"
 	environment := stack.Environment
+	if environment == "" {
+		environment = "n/a"
+	}
 	if stack.IsCluster {
 		environment = "n/a"
 		stackType = "kubernetes/cluster"
@@ -511,7 +514,7 @@ func listStack(w io.Writer, stack cloud66.Stack, output string) {
 		clusterName = stack.ClusterName
 		stackType = "kubernetes/in-cluster"
 	} else {
-		if environment == "build_only" {
+		if stack.Framework == "skycap" {
 			environment = "n/a"
 			stackType = "skycap"
 		} else {
