@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"strings"
 
-	b64 "encoding/base64"
+	"encoding/base64"
 	"github.com/cloud66-oss/cloud66"
 	"github.com/cloud66/cli"
 	"github.com/getsentry/raven-go"
@@ -312,7 +312,7 @@ func initClients(c *cli.Context, startAuth bool) {
 // write environment variable as auth token:
 func writeClientToken(tokenAbsolutePath, tokenValue string) error {
 	// convert tokenValue to un-base64 value
-	tokenValueDec, err := b64.StdEncoding.DecodeString(tokenValue)
+	tokenValueDec, err := base64.StdEncoding.DecodeString(tokenValue)
 	if err != nil {
 		return err
 	}
