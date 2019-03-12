@@ -3,11 +3,13 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 
+	b64 "encoding/base64"
 	"github.com/cloud66-oss/cloud66"
 	"github.com/cloud66/cli"
 	"github.com/getsentry/raven-go"
@@ -27,8 +29,9 @@ type Command struct {
 }
 
 const (
-	redirectURL = "urn:ietf:wg:oauth:2.0:oob"
-	scope       = "public redeploy jobs users admin"
+	redirectURL       = "urn:ietf:wg:oauth:2.0:oob"
+	scope             = "public redeploy jobs users admin"
+	clientTokenEnvVar = "CLOUD66_TOKEN"
 )
 
 var (
@@ -76,6 +79,7 @@ var commands = []*Command{
 	cmdProcesses,
 	cmdRegisterServer,
 	cmdVersion,
+	cmdDumpToken,
 }
 
 var (
@@ -270,28 +274,54 @@ func doMain(c *cli.Context) {
 
 func initClients(c *cli.Context, startAuth bool) {
 	// is there a token file?
-	_, err := os.Stat(filepath.Join(cxHome(), tokenFile))
+	tokenAbsolutePath := filepath.Join(cxHome(), tokenFile)
+	_, err := os.Stat(tokenAbsolutePath)
 	if err != nil {
-		fmt.Println("No previous authentication found.")
-		if startAuth {
-			cloud66.Authorize(cxHome(), tokenFile, clientId, clientSecret, redirectURL, scope)
-			os.Exit(1)
+		tokenValue := os.Getenv(clientTokenEnvVar)
+		// is there an env variable?
+		if tokenValue != "" {
+			err = writeClientToken(tokenAbsolutePath, tokenValue)
+			if err != nil {
+				fmt.Println("An error occurred trying to write environment variable as auth token.")
+				os.Exit(99)
+			}
 		} else {
-			os.Exit(1)
+			fmt.Println("No previous authentication found.")
+			if startAuth {
+				cloud66.Authorize(cxHome(), tokenFile, clientId, clientSecret, redirectURL, scope)
+				os.Exit(1)
+			} else {
+				os.Exit(1)
+			}
 		}
-	} else {
-		client = cloud66.GetClient(cxHome(), tokenFile, VERSION, "cx", clientId, clientSecret, redirectURL, scope)
-		organization, err := org(c)
-		if err != nil {
-			printFatal("Unable to retrieve organization")
-			os.Exit(2)
-		}
-		if organization != nil {
-			client.AccountId = &organization.Id
-		}
-		debugMode = c.GlobalBool("debug")
-		client.Debug = debugMode
 	}
+	client = cloud66.GetClient(cxHome(), tokenFile, VERSION, "cx", clientId, clientSecret, redirectURL, scope)
+	organization, err := org(c)
+	if err != nil {
+		printFatal("Unable to retrieve organization")
+		os.Exit(2)
+	}
+	if organization != nil {
+		client.AccountId = &organization.Id
+	}
+	debugMode = c.GlobalBool("debug")
+	client.Debug = debugMode
+
+}
+
+// write environment variable as auth token:
+func writeClientToken(tokenAbsolutePath, tokenValue string) error {
+	// convert tokenValue to un-base64 value
+	tokenValueDec, err := b64.StdEncoding.DecodeString(tokenValue)
+	if err != nil {
+		return err
+	}
+	// write the value to tokenFile unless there is an error
+	err = ioutil.WriteFile(tokenAbsolutePath, tokenValueDec, 0600)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func recoverPanic() {
