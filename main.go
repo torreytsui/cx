@@ -273,9 +273,15 @@ func doMain(c *cli.Context) {
 }
 
 func initClients(c *cli.Context, startAuth bool) {
-	// is there a token file?
+	// check if cxHome exists and create it if not
+	err := createDirIfNotExist(cxHome())
+	if err != nil {
+		fmt.Println("An error occurred trying create .cloud66 directory in HOME.")
+		os.Exit(99)
+	}
 	tokenAbsolutePath := filepath.Join(cxHome(), tokenFile)
-	_, err := os.Stat(tokenAbsolutePath)
+	// is there a token file?
+	_, err = os.Stat(tokenAbsolutePath)
 	if err != nil {
 		tokenValue := os.Getenv(clientTokenEnvVar)
 		// is there an env variable?
@@ -322,6 +328,16 @@ func writeClientToken(tokenAbsolutePath, tokenValue string) error {
 		return err
 	}
 	return nil
+}
+
+// create a directory if it doesn't exist
+func createDirIfNotExist(dir string) error {
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		err = os.MkdirAll(dir, 0700)
+		if err != nil {
+			return err
+		}
+	}
 }
 
 func recoverPanic() {
