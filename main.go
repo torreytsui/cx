@@ -338,6 +338,7 @@ func createDirIfNotExist(dir string) error {
 			return err
 		}
 	}
+	return nil
 }
 
 func recoverPanic() {
