@@ -4,17 +4,17 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 
 	"encoding/base64"
+
 	"github.com/cloud66-oss/cloud66"
 	"github.com/cloud66/cli"
 	"github.com/getsentry/raven-go"
-	"github.com/mgutz/ansi"
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 type Command struct {
@@ -29,21 +29,18 @@ type Command struct {
 }
 
 const (
-	redirectURL       = "urn:ietf:wg:oauth:2.0:oob"
-	scope             = "public redeploy jobs users admin"
-	clientTokenEnvVar = "CLOUD66_TOKEN"
+	redirectURL = "urn:ietf:wg:oauth:2.0:oob"
+	scope       = "public redeploy jobs users admin"
 )
 
 var (
-	client       cloud66.Client
-	clientId     string
-	clientSecret string
-	debugMode    bool   = false
-	underTest    bool   = false
-	VERSION      string = "dev"
-	BUILD_DATE   string = ""
-	tokenFile    string = "cx.json"
-	fayeEndpoint string = "https://sockets.cloud66.com:443/push"
+	client      cloud66.Client
+	debugMode   bool   = false
+	underTest   bool   = false
+	VERSION     string = "dev"
+	BUILD_DATE  string = ""
+	profile     *Profile
+	profilePath string
 )
 
 var commands = []*Command{
@@ -80,6 +77,7 @@ var commands = []*Command{
 	cmdRegisterServer,
 	cmdVersion,
 	cmdDumpToken,
+	cmdConfig,
 }
 
 var (
@@ -170,35 +168,30 @@ func main() {
 	app.Action = doMain
 
 	setGlobals(app)
-	app.Run(os.Args)
+	err := app.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func beforeCommand(c *cli.Context) error {
-	account := ""
-	environment := ""
-	if c.GlobalString("account") != "" {
-		account = "_" + c.GlobalString("account")
-		// remove all cached ssh keys upon account switch
+	profilePath = filepath.Join(cxHome(), "cxprofiles.json")
+	profiles, err := ReadProfiles(profilePath)
+	if err != nil {
+		return err
+	}
+
+	profileName := c.GlobalString("profile")
+	if profileName == "" {
+		profileName = profiles.LastProfile
+	}
+
+	if profileName != profiles.LastProfile {
+		// if profile is switched, clear the ssh cache
 		err := clearSshKeyCache()
 		if err != nil {
 			return err
 		}
-	}
-
-	// set the env vars from global options
-	if c.GlobalString("runenv") != "production" {
-		environment = "_" + c.GlobalString("runenv")
-		if terminal.IsTerminal(int(os.Stdout.Fd())) {
-			fmt.Println(ansi.ColorCode("green"), fmt.Sprintf("[Running against %s environment]", c.GlobalString("runenv")), ansi.ColorCode("reset"))
-		}
-	}
-
-	if account != "" || environment != "" {
-		tokenFile = "cx" + account + environment + ".json"
-	}
-
-	if c.GlobalString("fayeEndpoint") != "" {
-		fayeEndpoint = c.GlobalString("fayeEndpoint")
 	}
 
 	debugMode = c.GlobalBool("debug")
@@ -208,14 +201,10 @@ func beforeCommand(c *cli.Context) error {
 		command = c.Args().First()
 	}
 
-	clientId = os.Getenv("CX_APP_ID")
-	clientSecret = os.Getenv("CX_APP_SECRET")
+	profile = profiles.Profiles[profileName]
 
-	if clientId == "" {
-		clientId = "d4631fd51633bef0c04c6f946428a61fb9089abf4c1e13c15e9742cafd84a91f"
-	}
-	if clientSecret == "" {
-		clientSecret = "e663473f7b991504eb561e208995de15550f499b6840299df588cebe981ba48e"
+	if profile == nil {
+		return fmt.Errorf("no profile named %s found", profileName)
 	}
 
 	if (command != "version") && (command != "help") && (command != "update") && (command != "test") {
@@ -236,25 +225,9 @@ func beforeCommand(c *cli.Context) error {
 func setGlobals(app *cli.App) {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:   "runenv",
-			Usage:  "sets the environment this toolbelt is running against",
-			Value:  "production",
-			EnvVar: "CXENVIRONMENT",
-		},
-		cli.StringFlag{
-			Name:  "account",
+			Name:  "profile",
 			Usage: "switches between different Cloud 66 profiles (this is a cx client profile)",
 			Value: "",
-		},
-		cli.StringFlag{
-			Name:  "org",
-			Usage: "targets a specific organisation for a command (this is a Cloud 66 Organisation)",
-			Value: "",
-		},
-		cli.StringFlag{
-			Name:   "fayeEndpoint",
-			Usage:  "sets the Faye endpoint this toolbelt is running against",
-			EnvVar: "CX_FAYE_ENDPOINT",
 		},
 		cli.BoolFlag{
 			Name:   "debug",
@@ -273,35 +246,26 @@ func doMain(c *cli.Context) {
 }
 
 func initClients(c *cli.Context, startAuth bool) {
+	client = cloud66.GetClient(profile.BaseURL, cxHome(), profile.TokenFile, VERSION, "cx", profile.ClientID, profile.ClientSecret, redirectURL, scope)
+
 	// check if cxHome exists and create it if not
 	err := createDirIfNotExist(cxHome())
 	if err != nil {
 		fmt.Println("An error occurred trying create .cloud66 directory in HOME.")
 		os.Exit(99)
 	}
-	tokenAbsolutePath := filepath.Join(cxHome(), tokenFile)
+	tokenAbsolutePath := filepath.Join(cxHome(), profile.TokenFile)
 	// is there a token file?
 	_, err = os.Stat(tokenAbsolutePath)
 	if err != nil {
-		tokenValue := os.Getenv(clientTokenEnvVar)
-		// is there an env variable?
-		if tokenValue != "" {
-			err = writeClientToken(tokenAbsolutePath, tokenValue)
-			if err != nil {
-				fmt.Println("An error occurred trying to write environment variable as auth token.")
-				os.Exit(99)
-			}
+		fmt.Println("No previous authentication found.")
+		if startAuth {
+			client.Authorize(cxHome(), profile.TokenFile, profile.ClientID, profile.ClientSecret, redirectURL, scope)
+			os.Exit(1)
 		} else {
-			fmt.Println("No previous authentication found.")
-			if startAuth {
-				cloud66.Authorize(cxHome(), tokenFile, clientId, clientSecret, redirectURL, scope)
-				os.Exit(1)
-			} else {
-				os.Exit(1)
-			}
+			os.Exit(1)
 		}
 	}
-	client = cloud66.GetClient(cxHome(), tokenFile, VERSION, "cx", clientId, clientSecret, redirectURL, scope)
 	organization, err := org(c)
 	if err != nil {
 		printFatal("Unable to retrieve organization")
@@ -374,7 +338,14 @@ func org(c *cli.Context) (*cloud66.Account, error) {
 		return flagOrg, nil
 	}
 
-	if c.String("org") != "" {
+	if c.String("org") != "" || profile.Organization != "" {
+		var orgToFind string
+		if c.String("org") != "" {
+			orgToFind = c.String("org")
+		} else {
+			orgToFind = profile.Organization
+		}
+
 		orgs, err := client.AccountInfos()
 		if err != nil {
 			return nil, err
@@ -383,11 +354,11 @@ func org(c *cli.Context) (*cloud66.Account, error) {
 		var orgNames []string
 		for _, org := range orgs {
 			if org.Name == "" {
-				return nil, errors.New("One or more of the organizations you are a member of doesn't have a name. Please make sure you name the organizations")
+				return nil, errors.New("one or more of the organizations you are a member of doesn't have a name. Please make sure you name the organizations")
 			}
 			orgNames = append(orgNames, org.Name)
 		}
-		idx, err := fuzzyFind(orgNames, c.String("org"), false)
+		idx, err := fuzzyFind(orgNames, orgToFind, false)
 		if err != nil {
 			return nil, err
 		}

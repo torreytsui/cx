@@ -167,25 +167,6 @@
   revision = "3232c91b8ede8ca86e8962981d881af78875542f"
   version = "v1.1.0"
 
-[[projects]]
-  branch = "master"
-  digest = "1:3f3a05ae0b95893d90b9b3b5afdb79a9b3d96e4e36e099d841ae602e4aca0da8"
-  name = "golang.org/x/crypto"
-  packages = ["ssh/terminal"]
-  pruneopts = "UT"
-  revision = "a49355c7e3f8fe157a85be2f77e6e269a0f89602"
-
-[[projects]]
-  branch = "master"
-  digest = "1:3364d01296ce7eeca363e3d530ae63a2092d6f8efb85fb3d101e8f6d7de83452"
-  name = "golang.org/x/sys"
-  packages = [
-    "unix",
-    "windows",
-  ]
-  pruneopts = "UT"
-  revision = "1b2967e3c290b7c545b3db0deeda16e9be4f98a2"
-
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
@@ -202,7 +183,6 @@
     "github.com/mgutz/ansi",
     "github.com/onsi/ginkgo",
     "github.com/onsi/gomega",
-    "golang.org/x/crypto/ssh/terminal",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
