@@ -29,8 +29,9 @@ type Command struct {
 }
 
 const (
-	redirectURL = "urn:ietf:wg:oauth:2.0:oob"
-	scope       = "public redeploy jobs users admin"
+	redirectURL       = "urn:ietf:wg:oauth:2.0:oob"
+	scope             = "public redeploy jobs users admin"
+	clientTokenEnvVar = "CLOUD66_TOKEN"
 )
 
 var (
@@ -258,14 +259,25 @@ func initClients(c *cli.Context, startAuth bool) {
 	// is there a token file?
 	_, err = os.Stat(tokenAbsolutePath)
 	if err != nil {
-		fmt.Println("No previous authentication found.")
-		if startAuth {
-			client.Authorize(cxHome(), profile.TokenFile, profile.ClientID, profile.ClientSecret, redirectURL, scope)
-			os.Exit(1)
+		// are we running headless?
+		tokenValue := os.Getenv(clientTokenEnvVar)
+		// is there an env variable?
+		if tokenValue != "" {
+			err = writeClientToken(tokenAbsolutePath, tokenValue)
+			if err != nil {
+				printFatal("an error occurred trying to write environment variable as auth token.", err)
+			}
 		} else {
-			os.Exit(1)
+			fmt.Println("No previous authentication found.")
+			if startAuth {
+				client.Authorize(cxHome(), profile.TokenFile, profile.ClientID, profile.ClientSecret, redirectURL, scope)
+				os.Exit(1)
+			} else {
+				os.Exit(1)
+			}
 		}
 	}
+
 	organization, err := org(c)
 	if err != nil {
 		printFatal("Unable to retrieve organization")

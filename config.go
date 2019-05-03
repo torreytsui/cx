@@ -120,7 +120,10 @@ func runUseConfig(c *cli.Context) {
 	}
 
 	profiles := readProfiles()
-	findProfile(profiles, toUse)
+	if profiles.LastProfile == toUse {
+		fmt.Printf("current profile is %s already\n", toUse)
+		return
+	}
 
 	for _, profile := range profiles.Profiles {
 		if profile.Name == toUse {
@@ -129,11 +132,12 @@ func runUseConfig(c *cli.Context) {
 				printFatal("error saving profiles", err)
 			}
 
+			fmt.Println("profile switched")
 			return
 		}
 	}
 
-	fmt.Println("Profile switched")
+	printFatal("no profile found with the given name")
 }
 
 func runDeleteConfig(c *cli.Context) {
