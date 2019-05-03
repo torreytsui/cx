@@ -11,11 +11,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:169680f5a70ac458c609ac7015f004e6eaa18e00db456dd504de14b4e919d2c3"
+  digest = "1:fd800673cb39ef20ecb3fd6e1170b906c2be305eaa15068aa2958fa460ea2c97"
   name = "github.com/cloud66-oss/cloud66"
   packages = ["."]
   pruneopts = "UT"
-  revision = "5825a6e72aa8556fe98e9426c5b9964a1517fe11"
+  revision = "09efd32a055ab5bf1401d56fc0f8e40eaf2b4719"
 
 [[projects]]
   digest = "1:4a2ef035c205a86c12b2c56b3f324d35c98658c2ae445e6236e3ee1ef8dac2fd"
@@ -183,6 +183,7 @@
     "github.com/mgutz/ansi",
     "github.com/onsi/ginkgo",
     "github.com/onsi/gomega",
+    "github.com/toqueteos/webbrowser",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

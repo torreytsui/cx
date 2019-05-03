@@ -292,9 +292,6 @@ func initClients(c *cli.Context, startAuth bool) {
 					fmt.Println("Opening the browser so you can approve the client access")
 				}
 
-				// var s string
-				// fmt.Println("Authorization Code:")
-				// fmt.Scan(&s)
 				token, err := cloud66.FetchTokenFromCallback(5 * time.Minute)
 				if err != nil {
 					printFatal("failed to start the authentication listener %s", err)
