@@ -9,6 +9,9 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
+
+	"github.com/toqueteos/webbrowser"
 
 	"encoding/base64"
 
@@ -29,7 +32,7 @@ type Command struct {
 }
 
 const (
-	redirectURL       = "urn:ietf:wg:oauth:2.0:oob"
+	redirectURL       = "http://cx.cloud66.com:34543"
 	scope             = "public redeploy jobs users admin"
 	clientTokenEnvVar = "CLOUD66_TOKEN"
 )
@@ -247,7 +250,14 @@ func doMain(c *cli.Context) {
 }
 
 func initClients(c *cli.Context, startAuth bool) {
-	client = cloud66.GetClient(selectedProfile.BaseURL, cxHome(), selectedProfile.TokenFile, VERSION, "cx", selectedProfile.ClientID, selectedProfile.ClientSecret, redirectURL, scope)
+	clientConfig := cloud66.NewClientConfig(selectedProfile.BaseURL)
+	clientConfig.AgentPrefix = "cx"
+	clientConfig.ClientID = selectedProfile.ClientID
+	clientConfig.ClientSecret = selectedProfile.ClientSecret
+	clientConfig.RedirectURL = redirectURL
+	clientConfig.Scope = scope
+
+	client = cloud66.GetClient(selectedProfile.TokenFile, cxHome(), VERSION, clientConfig)
 
 	// check if cxHome exists and create it if not
 	err := createDirIfNotExist(cxHome())
@@ -270,7 +280,27 @@ func initClients(c *cli.Context, startAuth bool) {
 		} else {
 			fmt.Println("No previous authentication found.")
 			if startAuth {
-				client.Authorize(cxHome(), selectedProfile.TokenFile, selectedProfile.ClientID, selectedProfile.ClientSecret, redirectURL, scope)
+				url := client.GetAuthorizeURL()
+
+				fmt.Printf("Openning %s\n", url)
+				e := webbrowser.Open(url)
+				if e != nil {
+					fmt.Printf("Counldn't open the browser because %s\n", e.Error())
+					fmt.Println("Please open the following URL in your browser and paste the access code here:")
+					fmt.Println(url)
+				} else {
+					fmt.Println("Opening the browser so you can approve the client access")
+				}
+
+				// var s string
+				// fmt.Println("Authorization Code:")
+				// fmt.Scan(&s)
+				token, err := cloud66.FetchTokenFromCallback(5 * time.Minute)
+				if err != nil {
+					printFatal("failed to start the authentication listener %s", err)
+				}
+
+				client.Authorize(cxHome(), selectedProfile.TokenFile, token)
 				os.Exit(1)
 			} else {
 				os.Exit(1)
