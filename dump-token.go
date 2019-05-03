@@ -22,7 +22,7 @@ var cmdDumpToken = &Command{
 
 func runToken(*cli.Context) {
 
-	tokenAbsolutePath := filepath.Join(cxHome(), profile.TokenFile)
+	tokenAbsolutePath := filepath.Join(cxHome(), selectedProfile.TokenFile)
 	data, err := ioutil.ReadFile(tokenAbsolutePath)
 
 	if err != nil {

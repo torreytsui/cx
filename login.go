@@ -28,7 +28,7 @@ func runLogin(c *cli.Context) {
 		printFatal(err.Error())
 	}
 
-	toOpen := fmt.Sprintf("%s/otp?otp=%s", profile.BaseURL, otp)
+	toOpen := fmt.Sprintf("%s/otp?otp=%s", selectedProfile.BaseURL, otp)
 	err = openURL(toOpen)
 	if err != nil {
 		printFatal(err.Error())

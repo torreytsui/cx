@@ -36,7 +36,7 @@ func runListen(c *cli.Context) {
 
 func StartListen(stack *cloud66.Stack) {
 	if debugMode {
-		fmt.Printf("Connecting to Faye on %s\n", profile.FayeEndpoint)
+		fmt.Printf("Connecting to Faye on %s\n", selectedProfile.FayeEndpoint)
 	}
 
 	//	sigChan := make(chan os.Signal, 1)
@@ -46,7 +46,7 @@ func StartListen(stack *cloud66.Stack) {
 
 	wray.RegisterTransports([]wray.Transport{&wray.HttpTransport{}})
 
-	fc := wray.NewFayeClient(profile.FayeEndpoint)
+	fc := wray.NewFayeClient(selectedProfile.FayeEndpoint)
 	sub := fc.Subscribe(channel, true, handleMessage)
 	if debugMode {
 		fmt.Printf("Subscribed to %s\n", sub)

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/cloud66/cli"
@@ -75,6 +76,47 @@ Example:
 cx config create foo --org acme
 `,
 		},
+		cli.Command{
+			Name:   "rename",
+			Usage:  "renames a profile",
+			Action: runRenameProfile,
+		},
+		cli.Command{
+			Name:      "update",
+			Usage:     "update a profile",
+			ShortName: "update profile_name",
+			Action:    runUpdateConfig,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "org",
+					Usage: "Name of an organization you are a member of. Can be left empty. You can overwrite this using --org argument on other commands",
+				},
+				cli.StringFlag{
+					Name:  "api-url",
+					Usage: "URL for Cloud 66 API. Used for OnPrem and Dedicated installations of Cloud 66 Enterprise",
+				},
+				cli.StringFlag{
+					Name:  "base-url",
+					Usage: "URL for Cloud 66 Application. Used for OnPrem and Dedicated installations of Cloud 66 Enterprise",
+				},
+				cli.StringFlag{
+					Name:  "client-id",
+					Usage: "OAuth Client ID. Used for OnPrem and Dedicated installations of Cloud 66 Enterprise",
+				},
+				cli.StringFlag{
+					Name:  "client-secret",
+					Usage: "OAuth Client Secret. Used for OnPrem and Dedicated installations of Cloud 66 Enterprise",
+				},
+				cli.StringFlag{
+					Name:  "faye-endpoint",
+					Usage: "URL for realtime push service. Used for OnPrem and Dedicated installations of Cloud 66 Enterprise",
+				},
+			},
+			Description: `
+Example:
+cx config update foo --org acme
+`,
+		},
 	}
 
 	return base
@@ -129,7 +171,7 @@ func runUseConfig(c *cli.Context) {
 		if profile.Name == toUse {
 			profiles.LastProfile = toUse
 			if err := profiles.WriteProfiles(); err != nil {
-				printFatal("error saving profiles", err)
+				printFatal("error saving profiles %s", err)
 			}
 
 			fmt.Println("profile switched")
@@ -146,6 +188,10 @@ func runDeleteConfig(c *cli.Context) {
 		printFatal("no profile passed")
 	}
 
+	if toDelete == "default" {
+		printFatal("you cannot delete default profile")
+	}
+
 	profiles := readProfiles()
 	findProfile(profiles, toDelete)
 
@@ -153,15 +199,20 @@ func runDeleteConfig(c *cli.Context) {
 
 	if len(profiles.Profiles) == 0 {
 		if err := os.Remove(profilePath); err != nil {
-			printFatal("error deleting profile", err)
+			printFatal("error deleting profile %s", err)
 		}
 	} else {
 		if err := profiles.WriteProfiles(); err != nil {
-			printFatal("error deleting profile", err)
+			printFatal("error deleting profile %s", err)
 		}
 	}
 
-	fmt.Println("Profile deleted")
+	tokenFile := filepath.Join(cxHome(), fmt.Sprintf("cx_%s.json", strings.ToLower(toDelete)))
+	if err := os.Remove(tokenFile); err != nil {
+		printFatal("error during removing the token file %s", err)
+	}
+
+	fmt.Println("profile deleted")
 }
 
 func runCreateConfig(c *cli.Context) {
@@ -221,29 +272,128 @@ func runCreateConfig(c *cli.Context) {
 
 	profiles.Profiles[name] = profile
 	if err := profiles.WriteProfiles(); err != nil {
-		printFatal("error during saving profiles", err)
+		printFatal("error during saving profiles %s", err)
 	}
 
-	fmt.Println("Profile created")
+	fmt.Println("profile created")
+}
+
+func runRenameProfile(c *cli.Context) {
+	oldName := c.Args().First()
+
+	if oldName == "" {
+		printFatal("no old name given")
+	}
+
+	if oldName == "default" {
+		printFatal("you cannot rename the default profile")
+	}
+
+	newName := c.Args().Get(1)
+	if newName == "" {
+		printFatal("no new name given")
+	}
+
+	fmt.Printf("renaming profile %s to %s\n", oldName, newName)
+
+	profiles := readProfiles()
+	findProfile(profiles, oldName)
+
+	for _, profile := range profiles.Profiles {
+		if profile.Name == newName {
+			printFatal("another profile with the same name exists")
+		}
+	}
+
+	profile := profiles.Profiles[oldName]
+	profiles.Profiles[newName] = profile
+
+	delete(profiles.Profiles, oldName)
+	profile.Name = newName
+	profile.TokenFile = fmt.Sprintf("cx_%s.json", strings.ToLower(newName))
+
+	if err := profiles.WriteProfiles(); err != nil {
+		printFatal("error while writing profiles %s", err)
+	}
+
+	// rename the token file
+	oldTokenFile := filepath.Join(cxHome(), fmt.Sprintf("cx_%s.json", strings.ToLower(oldName)))
+	newTokenFile := filepath.Join(cxHome(), fmt.Sprintf("cx_%s.json", strings.ToLower(newName)))
+
+	if err := os.Rename(oldTokenFile, newTokenFile); err != nil {
+		printFatal("error during renaming of the token file %s", err)
+	}
+
+	fmt.Println("profile renamed")
+}
+
+func runUpdateConfig(c *cli.Context) {
+	name := c.Args().First()
+
+	if name == "" {
+		printFatal("no name given")
+	}
+
+	org := c.String("org")
+	apiURL := c.String("api-url")
+	baseURL := c.String("base-url")
+	fayeEndpoint := c.String("faye-endpoint")
+	clientID := c.String("client-id")
+	clientSecret := c.String("client-secret")
+
+	profiles := readProfiles()
+	profile := findProfile(profiles, name)
+
+	if apiURL == "" {
+		apiURL = profile.ApiURL
+	}
+	if baseURL == "" {
+		baseURL = profile.BaseURL
+	}
+	if fayeEndpoint == "" {
+		fayeEndpoint = profile.FayeEndpoint
+	}
+	if clientID == "" {
+		clientID = profile.ClientID
+	}
+	if clientSecret == "" {
+		clientSecret = profile.ClientSecret
+	}
+
+	newProfile := &Profile{
+		ApiURL:       apiURL,
+		BaseURL:      baseURL,
+		FayeEndpoint: fayeEndpoint,
+		Organization: org,
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+	}
+
+	profiles.Profiles[name] = newProfile
+	if err := profiles.WriteProfiles(); err != nil {
+		printFatal("error during saving profiles %s", err)
+	}
+
+	fmt.Println("profile updated")
 }
 
 func readProfiles() *Profiles {
 	profiles, err := ReadProfiles(profilePath)
 	if err != nil {
-		printFatal("reading profiles:", err)
+		printFatal("reading profiles %s", err)
 	}
 
 	return profiles
 }
 
 func findProfile(profiles *Profiles, name string) *Profile {
-	for idx, profile := range profiles.Profiles {
-		if profile.Name == name {
+	for idx, p := range profiles.Profiles {
+		if p.Name == name {
 			return profiles.Profiles[idx]
 		}
 	}
 
-	printFatal("cannot find the named profile")
+	printFatal("cannot find profile named %s", name)
 
 	return nil
 }

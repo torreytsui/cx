@@ -35,13 +35,13 @@ const (
 )
 
 var (
-	client      cloud66.Client
-	debugMode   bool   = false
-	underTest   bool   = false
-	VERSION     string = "dev"
-	BUILD_DATE  string = ""
-	profile     *Profile
-	profilePath string
+	client          cloud66.Client
+	debugMode       bool   = false
+	underTest       bool   = false
+	VERSION         string = "dev"
+	BUILD_DATE      string = ""
+	selectedProfile *Profile
+	profilePath     string
 )
 
 var commands = []*Command{
@@ -202,9 +202,9 @@ func beforeCommand(c *cli.Context) error {
 		command = c.Args().First()
 	}
 
-	profile = profiles.Profiles[profileName]
+	selectedProfile = profiles.Profiles[profileName]
 
-	if profile == nil {
+	if selectedProfile == nil {
 		return fmt.Errorf("no profile named %s found", profileName)
 	}
 
@@ -247,7 +247,7 @@ func doMain(c *cli.Context) {
 }
 
 func initClients(c *cli.Context, startAuth bool) {
-	client = cloud66.GetClient(profile.BaseURL, cxHome(), profile.TokenFile, VERSION, "cx", profile.ClientID, profile.ClientSecret, redirectURL, scope)
+	client = cloud66.GetClient(selectedProfile.BaseURL, cxHome(), selectedProfile.TokenFile, VERSION, "cx", selectedProfile.ClientID, selectedProfile.ClientSecret, redirectURL, scope)
 
 	// check if cxHome exists and create it if not
 	err := createDirIfNotExist(cxHome())
@@ -255,7 +255,7 @@ func initClients(c *cli.Context, startAuth bool) {
 		fmt.Println("An error occurred trying create .cloud66 directory in HOME.")
 		os.Exit(99)
 	}
-	tokenAbsolutePath := filepath.Join(cxHome(), profile.TokenFile)
+	tokenAbsolutePath := filepath.Join(cxHome(), selectedProfile.TokenFile)
 	// is there a token file?
 	_, err = os.Stat(tokenAbsolutePath)
 	if err != nil {
@@ -270,7 +270,7 @@ func initClients(c *cli.Context, startAuth bool) {
 		} else {
 			fmt.Println("No previous authentication found.")
 			if startAuth {
-				client.Authorize(cxHome(), profile.TokenFile, profile.ClientID, profile.ClientSecret, redirectURL, scope)
+				client.Authorize(cxHome(), selectedProfile.TokenFile, selectedProfile.ClientID, selectedProfile.ClientSecret, redirectURL, scope)
 				os.Exit(1)
 			} else {
 				os.Exit(1)
@@ -350,12 +350,12 @@ func org(c *cli.Context) (*cloud66.Account, error) {
 		return flagOrg, nil
 	}
 
-	if c.String("org") != "" || profile.Organization != "" {
+	if c.String("org") != "" || selectedProfile.Organization != "" {
 		var orgToFind string
 		if c.String("org") != "" {
 			orgToFind = c.String("org")
 		} else {
-			orgToFind = profile.Organization
+			orgToFind = selectedProfile.Organization
 		}
 
 		orgs, err := client.AccountInfos()
