@@ -15,7 +15,7 @@
   name = "github.com/cloud66-oss/cloud66"
   packages = ["."]
   pruneopts = "UT"
-  revision = "81520e3d0b9b67d4b26b33affcad518a0c67eda9"
+  revision = "00afdaecc2723f86fe9d3f6434553ebc5fe9528c"
 
 [[projects]]
   digest = "1:4a2ef035c205a86c12b2c56b3f324d35c98658c2ae445e6236e3ee1ef8dac2fd"
