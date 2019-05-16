@@ -17,8 +17,10 @@ import (
 	"time"
 
 	"github.com/cloud66-oss/cloud66"
+	notifiers "github.com/cloud66-oss/trackman/notifiers"
 	trackmanType "github.com/cloud66-oss/trackman/utils"
 	"github.com/cloud66/cli"
+	"github.com/sirupsen/logrus"
 )
 
 var cmdFormations = &Command{
@@ -83,6 +85,10 @@ $ cx formations list -s mystack foo bar // only show formations foo and bar
 				cli.BoolTFlag{
 					Name:  "use-latest",
 					Usage: "[OPTIONAL, DEFAULT: true] use the snapshot's HEAD gitref (and not the ref stored in the for stencil)",
+				},
+				cli.StringFlag{
+					Name:  "log-level",
+					Usage: "[OPTIONAL, DEFAULT: info] log level. Use debug to see process output",
 				},
 				//cli.StringFlag{
 				//	Name:  "steps",
@@ -327,16 +333,25 @@ func runDeployFormation(c *cli.Context) {
 	// use HEAD stencil instead of the version in in the snapshot
 	useLatest := c.BoolT("use-latest")
 
+	level := logrus.InfoLevel
+	logLevel := c.String("log-level")
+
+	if logLevel == "info" {
+		level = logrus.InfoLevel
+	} else if logLevel == "debug" {
+		level = logrus.DebugLevel
+	}
+
 	workflowWrapper, err := client.GetWorkflow(stack.Uid, formation.Uid, snapshotUID, useLatest)
 	must(err)
 
 	ctx := context.Background()
+	ctx = context.WithValue(ctx, trackmanType.CtxLogLevel, level)
+
 	reader := bytes.NewReader(workflowWrapper.Workflow)
+
 	options := &trackmanType.WorkflowOptions{
-		Notifier: func(ctx context.Context, event *trackmanType.Event) error {
-			fmt.Println(event)
-			return nil
-		},
+		Notifier:    notifiers.ConsoleNotify,
 		Concurrency: runtime.NumCPU() - 1,
 		Timeout:     10 * time.Minute,
 	}
