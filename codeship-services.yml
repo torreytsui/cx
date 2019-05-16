@@ -1,4 +1,0 @@
-cx:
-  build:
-    path: .
-    dockerfile_path: Dockerfile.development

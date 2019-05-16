@@ -9,8 +9,8 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/cloud66/cli"
 	"github.com/cloud66-oss/cloud66"
+	"github.com/cloud66/cli"
 )
 
 var cmdUsers = &Command{
@@ -39,7 +39,7 @@ Id			Email
 		},
 		cli.Command{
 			Name:   "show",
-			Usage:  "returns detiails about a user",
+			Usage:  "returns details about a user",
 			Action: runShowUser,
 			Flags: []cli.Flag{
 				cli.StringFlag{

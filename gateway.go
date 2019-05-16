@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/cloud66/cli"
-	"github.com/cloud66-oss/cloud66"
 	"io/ioutil"
 	"os"
 	"strings"
 	"text/tabwriter"
 	"time"
+
+	"github.com/cloud66-oss/cloud66"
+	"github.com/cloud66/cli"
 )
 
 var cmdGateway = &Command{
@@ -218,13 +219,13 @@ func runAddGateway(c *cli.Context) {
 		os.Exit(2)
 	}
 
-	currentAccountId := findAccountId(c)
-	if currentAccountId == 0 {
+	currentAccountID := findAccountId(c)
+	if currentAccountID == 0 {
 		printFatal("Can not find current account")
 		os.Exit(2)
 	}
 
-	err := client.AddGateway(currentAccountId, gatewayName, flagAddress, flagUsername, flagPrivateIp)
+	err := client.AddGateway(currentAccountID, gatewayName, flagAddress, flagUsername, flagPrivateIp)
 
 	if err != nil {
 		printFatal("Error adding gateway : " + err.Error())

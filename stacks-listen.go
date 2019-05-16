@@ -9,8 +9,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/cloud66/cli"
 	"github.com/cloud66-oss/cloud66"
+	"github.com/cloud66/cli"
 	"github.com/cloud66/wray"
 	"github.com/mgutz/ansi"
 )
@@ -36,7 +36,7 @@ func runListen(c *cli.Context) {
 
 func StartListen(stack *cloud66.Stack) {
 	if debugMode {
-		fmt.Printf("Connecting to Faye on %s\n", fayeEndpoint)
+		fmt.Printf("Connecting to Faye on %s\n", selectedProfile.FayeEndpoint)
 	}
 
 	//	sigChan := make(chan os.Signal, 1)
@@ -46,7 +46,7 @@ func StartListen(stack *cloud66.Stack) {
 
 	wray.RegisterTransports([]wray.Transport{&wray.HttpTransport{}})
 
-	fc := wray.NewFayeClient(fayeEndpoint)
+	fc := wray.NewFayeClient(selectedProfile.FayeEndpoint)
 	sub := fc.Subscribe(channel, true, handleMessage)
 	if debugMode {
 		fmt.Printf("Subscribed to %s\n", sub)

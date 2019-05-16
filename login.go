@@ -2,13 +2,11 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/cloud66/cli"
 )
 
 var (
-	baseURL  = "https://app.cloud66.com"
 	cmdLogin = &Command{
 		Run:        runLogin,
 		Name:       "login",
@@ -30,12 +28,7 @@ func runLogin(c *cli.Context) {
 		printFatal(err.Error())
 	}
 
-	baseAPIURL := os.Getenv("CLOUD66_API_URL")
-	if baseAPIURL == "" {
-		baseAPIURL = baseURL
-	}
-
-	toOpen := fmt.Sprintf("%s/otp?otp=%s", baseAPIURL, otp)
+	toOpen := fmt.Sprintf("%s/otp?otp=%s", selectedProfile.BaseURL, otp)
 	err = openURL(toOpen)
 	if err != nil {
 		printFatal(err.Error())
