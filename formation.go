@@ -3,18 +3,22 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/cloud66-oss/cloud66"
-	"github.com/cloud66/cli"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
 	"text/tabwriter"
 	"time"
+
+	"github.com/cloud66-oss/cloud66"
+	trackmanType "github.com/cloud66-oss/trackman/utils"
+	"github.com/cloud66/cli"
 )
 
 var cmdFormations = &Command{
@@ -28,7 +32,7 @@ var cmdFormations = &Command{
 func buildFormations() cli.Command {
 	base := buildBasicCommand()
 	base.Subcommands = []cli.Command{
-		cli.Command{
+		{
 			Name:   "list",
 			Action: runListFormations,
 			Usage:  "lists all the formations of a stack.",
@@ -40,7 +44,7 @@ $ cx formations list -s mystack
 $ cx formations list -s mystack foo bar // only show formations foo and bar
 `,
 		},
-		cli.Command{
+		{
 			Name:   "create",
 			Action: runCreateFormation,
 			Usage:  "Create a new formation",
@@ -63,11 +67,46 @@ $ cx formations list -s mystack foo bar // only show formations foo and bar
 				},
 			},
 		},
-		cli.Command{
+		{
+			Name:   "deploy",
+			Action: runDeployFormation,
+			Usage:  "Deploy the existing formation",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "formation,f",
+					Usage: "the formation name",
+				},
+				cli.StringFlag{
+					Name:  "snapshot-uid",
+					Usage: "[OPTIONAL, DEFAULT: latest] UID of the snapshot to be used. Use 'latest' to use the most recent snapshot",
+				},
+				cli.BoolTFlag{
+					Name:  "use-latest",
+					Usage: "[OPTIONAL, DEFAULT: true] use the snapshot's HEAD gitref (and not the ref stored in the for stencil)",
+				},
+				//cli.StringFlag{
+				//	Name:  "steps",
+				//	Usage: "steps to be taken",
+				//},
+				//cli.BoolFlag{
+				//	Name:  "ignore-errors",
+				//	Usage: "[optional] return anything that can be rendered and ignore errors. Default: false",
+				//},
+				//cli.BoolFlag{
+				//	Name:  "ignore-warnings",
+				//	Usage: "[optional] return anything that can be rendered and ignore warnings. Default: false",
+				//},
+				//cli.StringFlag{
+				//	Name:  "outdir",
+				//	Usage: "[optional] save the rendered files in this directory",
+				//},
+			},
+		},
+		{
 			Name:  "bundle",
 			Usage: "formation bundle commands",
 			Subcommands: []cli.Command{
-				cli.Command{
+				{
 					Name:   "download",
 					Action: runBundleDownload,
 					Usage:  "Specify the formation to use",
@@ -90,7 +129,7 @@ $ cx formations list -s mystack foo bar // only show formations foo and bar
 						},
 					},
 				},
-				cli.Command{
+				{
 					Name:   "upload",
 					Usage:  "Upload a formation bundle to a new formation",
 					Action: runBundleUpload,
@@ -115,7 +154,7 @@ $ cx formations list -s mystack foo bar // only show formations foo and bar
 				},
 			},
 		},
-		cli.Command{
+		{
 			Name:  "stencils",
 			Usage: "formation stencil commands",
 			Subcommands: []cli.Command{
@@ -143,7 +182,7 @@ $ cx formations stencils list --formation foo
 $ cx formations stencils list --formation bar
 `,
 				},
-				cli.Command{
+				{
 					Name:   "show",
 					Usage:  "Shows the content of a single stencil",
 					Action: runShowStencil,
@@ -162,7 +201,7 @@ $ cx formations stencils list --formation bar
 						},
 					},
 				},
-				cli.Command{
+				{
 					Name:   "add",
 					Usage:  "Add a stencil to the formation",
 					Action: runAddStencil,
@@ -260,6 +299,59 @@ func runCreateFormation(c *cli.Context) {
 	fmt.Println("Formation created")
 }
 
+func runDeployFormation(c *cli.Context) {
+	stack := mustStack(c)
+
+	formationName := c.String("formation")
+	if formationName == "" {
+		printFatal("No formation provided. Please use --formation to specify a formation")
+	}
+
+	var formation *cloud66.Formation
+	formations, err := client.Formations(stack.Uid, true)
+	must(err)
+	for _, innerFormation := range formations {
+		if innerFormation.Name == formationName {
+			formation = &innerFormation
+		}
+	}
+	if formation == nil {
+		printFatal("Formation with name \"%v\" could not be found", formationName)
+	}
+
+	snapshotUID := c.String("snapshot-uid")
+	if snapshotUID == "" {
+		snapshotUID = "latest"
+	}
+
+	// use HEAD stencil instead of the version in in the snapshot
+	useLatest := c.BoolT("use-latest")
+
+	workflowWrapper, err := client.GetWorkflow(stack.Uid, formation.Uid, snapshotUID, useLatest)
+	must(err)
+
+	ctx := context.Background()
+	reader := bytes.NewReader(workflowWrapper.Workflow)
+	options := &trackmanType.WorkflowOptions{
+		Notifier: func(ctx context.Context, event *trackmanType.Event) error {
+			fmt.Println(event)
+			return nil
+		},
+		Concurrency: runtime.NumCPU() - 1,
+		Timeout:     10 * time.Minute,
+	}
+
+	workflow, err := trackmanType.LoadWorkflowFromReader(ctx, options, reader)
+	runErrors, stepErrors := workflow.Run(ctx)
+
+	if runErrors != nil {
+		printFatal(runErrors.Error())
+	}
+	if stepErrors != nil {
+		printFatal(stepErrors.Error())
+	}
+}
+
 func runBundleDownload(c *cli.Context) {
 	stack := mustStack(c)
 
@@ -340,7 +432,6 @@ func runBundleUpload(c *cli.Context) {
 	if err != nil {
 		printFatal(err.Error())
 	}
-
 
 	// create the formation and populate it with the stencils and policies
 	formation, err := createAndUploadFormations(fb, formationName, stack, bundlePath, message)
@@ -447,8 +538,8 @@ func bundleFormation(formation cloud66.Formation, bundleFile string, envVars []c
 	fmt.Println("Saving Environment Variables...")
 	var fileOut string
 	for _, envas := range envVars {
-		if !envas.Readonly{
-			fileOut = fileOut + envas.Key + "=" + envas.Value.(string)+ "\n"
+		if !envas.Readonly {
+			fileOut = fileOut + envas.Key + "=" + envas.Value.(string) + "\n"
 		}
 	}
 	filename := "formation-vars"
@@ -462,7 +553,7 @@ func bundleFormation(formation cloud66.Formation, bundleFile string, envVars []c
 	//add helm releases
 	fmt.Println("Saving helm releases...")
 	for _, release := range formation.HelmReleses {
-		fileName := filepath.Join(releasesDir,release.ChartName + "-values.yml")
+		fileName := filepath.Join(releasesDir, release.ChartName+"-values.yml")
 		file, err := os.Create(fileName)
 		defer file.Close()
 		if err != nil {
@@ -826,13 +917,12 @@ func verifyBtrPresence(fb *cloud66.FormationBundle) error {
 	return nil
 }
 
-
 func createAndUploadFormations(fb *cloud66.FormationBundle, formationName string, stack *cloud66.Stack, bundlePath string, message string) (*cloud66.Formation, error) {
 	fmt.Printf("Creating %s formation...\n", formationName)
 	/*
-	For now the formation can only have one BTR so we take the first one.
-	When we will allow a formation to have more than one BTR we will need to change the CreateFormation method to
-	accept an array of baseTemplates as argument.
+		For now the formation can only have one BTR so we take the first one.
+		When we will allow a formation to have more than one BTR we will need to change the CreateFormation method to
+		accept an array of baseTemplates as argument.
 	*/
 	formation, err := client.CreateFormation(stack.Uid, formationName, fb.BaseTemplates[0].Repo, fb.BaseTemplates[0].Branch, fb.Tags)
 	if err != nil {
@@ -840,7 +930,7 @@ func createAndUploadFormations(fb *cloud66.FormationBundle, formationName string
 	}
 	fmt.Println("Formation created")
 
-	for _, baseTemplate := range fb.BaseTemplates{
+	for _, baseTemplate := range fb.BaseTemplates {
 		// add stencils and policies
 		err = uploadStencilsPolicies(baseTemplate, formation, stack, bundlePath, message)
 		if err != nil {
@@ -871,7 +961,7 @@ func uploadStencilsPolicies(baseTemplate *cloud66.BundleBaseTemplates, formation
 	// add policies
 	fmt.Println("Adding policies...")
 	policies := make([]*cloud66.Policy, 0)
-	for _, policy := range baseTemplate.Policies{
+	for _, policy := range baseTemplate.Policies {
 		polItem, err := policy.AsPolicy(bundlePath)
 		if err != nil {
 			return err
@@ -889,7 +979,7 @@ func uploadStencilsPolicies(baseTemplate *cloud66.BundleBaseTemplates, formation
 	return nil
 }
 
-func uploadHelmReleases(fb *cloud66.FormationBundle, formation *cloud66.Formation, stack *cloud66.Stack, bundlePath string, message string) error{
+func uploadHelmReleases(fb *cloud66.FormationBundle, formation *cloud66.Formation, stack *cloud66.Stack, bundlePath string, message string) error {
 	var err error
 	fmt.Println("Adding helm releases...")
 	helmReleases := make([]*cloud66.HelmRelease, len(fb.HelmReleases))
@@ -920,11 +1010,11 @@ func uploadEnvironmentVariables(fb *cloud66.FormationBundle, formation *cloud66.
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			env := strings.Split(scanner.Text(), "=")
-			if len(env) < 2{
+			if len(env) < 2 {
 				fmt.Print("Wrong environment variable value\n")
 				continue
 			}
-			envVars[env[0]]= strings.Join(env[1:], "=")
+			envVars[env[0]] = strings.Join(env[1:], "=")
 		}
 
 		if err := scanner.Err(); err != nil {
@@ -932,11 +1022,11 @@ func uploadEnvironmentVariables(fb *cloud66.FormationBundle, formation *cloud66.
 		}
 	}
 	for key, value := range envVars {
-		asyncResult, err := client.StackEnvVarNew(stack.Uid, key, value )
+		asyncResult, err := client.StackEnvVarNew(stack.Uid, key, value)
 		if err != nil {
 			if err.Error() == "Another environment variable with the same key exists. Use PUT to change it." {
 				fmt.Print("Failed to add the ", key, " environment variable because already present\n")
-			}else{
+			} else {
 				return err
 			}
 		}

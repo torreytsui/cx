@@ -14,6 +14,7 @@ func populateAliases(commands []*Command) []*Command {
 	aliasMap["settings"] = []string{"setting"}
 	aliasMap["stacks"] = []string{"stack"}
 	aliasMap["processes"] = []string{"process"}
+	aliasMap["formations"] = []string{"formation"}
 
 	for key, aliases := range aliasMap {
 		for _, command := range commands {
