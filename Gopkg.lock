@@ -19,9 +19,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:416f7307e3cbcb6f47c7cf565412a6dfbb271bf40ece9b9679c2ba0f425c78bd"
+  digest = "1:b15d92c091f916eeaa3fa858eb51c9726109767a21cf7901d6001113cfc5d875"
   name = "github.com/cloud66-oss/trackman"
-  packages = ["utils"]
+  packages = [
+    "notifiers",
+    "utils",
+  ]
   pruneopts = "UT"
   revision = "a8349e661ed947df49500d7b5858770a9428adf4"
 
@@ -252,6 +255,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/cloud66-oss/cloud66",
+    "github.com/cloud66-oss/trackman/notifiers",
     "github.com/cloud66-oss/trackman/utils",
     "github.com/cloud66/cli",
     "github.com/cloud66/wray",
@@ -264,6 +268,7 @@
     "github.com/mgutz/ansi",
     "github.com/onsi/ginkgo",
     "github.com/onsi/gomega",
+    "github.com/sirupsen/logrus",
     "github.com/toqueteos/webbrowser",
   ]
   solver-name = "gps-cdcl"
