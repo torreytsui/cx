@@ -14,7 +14,7 @@ import (
 
 var cmdGateway = &Command{
 	NeedsStack: false,
-	NeedsOrg:   false,
+	NeedsOrg:   true,
 	Build:      buildGateways,
 	Name:       "gateways",
 	Short:      "commands to work with gateways",
