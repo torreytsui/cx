@@ -207,9 +207,12 @@ func runDeleteConfig(c *cli.Context) {
 		}
 	}
 
+	// do we have a token file? (it might not be there if profile was created by never activated)
 	tokenFile := filepath.Join(cxHome(), fmt.Sprintf("cx_%s.json", strings.ToLower(toDelete)))
 	if err := os.Remove(tokenFile); err != nil {
-		printFatal("error during removing the token file %s", err)
+		if !os.IsNotExist(err) {
+			printFatal("error during removing the token file %s", err)
+		}
 	}
 
 	fmt.Println("profile deleted")
@@ -321,7 +324,9 @@ func runRenameProfile(c *cli.Context) {
 	newTokenFile := filepath.Join(cxHome(), fmt.Sprintf("cx_%s.json", strings.ToLower(newName)))
 
 	if err := os.Rename(oldTokenFile, newTokenFile); err != nil {
-		printFatal("error during renaming of the token file %s", err)
+		if !os.IsNotExist(err) {
+			printFatal("error during renaming of the token file %s", err)
+		}
 	}
 
 	fmt.Println("profile renamed")
