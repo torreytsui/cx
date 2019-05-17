@@ -319,6 +319,7 @@ func runDeployFormation(c *cli.Context) {
 	for _, innerFormation := range formations {
 		if innerFormation.Name == formationName {
 			formation = &innerFormation
+			break
 		}
 	}
 	if formation == nil {
@@ -349,7 +350,6 @@ func runDeployFormation(c *cli.Context) {
 	ctx = context.WithValue(ctx, trackmanType.CtxLogLevel, level)
 
 	reader := bytes.NewReader(workflowWrapper.Workflow)
-
 	options := &trackmanType.WorkflowOptions{
 		Notifier:    notifiers.ConsoleNotify,
 		Concurrency: runtime.NumCPU() - 1,
@@ -358,7 +358,6 @@ func runDeployFormation(c *cli.Context) {
 
 	workflow, err := trackmanType.LoadWorkflowFromReader(ctx, options, reader)
 	runErrors, stepErrors := workflow.Run(ctx)
-
 	if runErrors != nil {
 		printFatal(runErrors.Error())
 	}
