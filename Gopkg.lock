@@ -11,11 +11,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:8fd4aa0f62182c8d87de4249ba695e80ddbde4b03275ddf736f2b695603a856b"
+  digest = "1:e7c50453b551bdd9dcd25b87b2c1bbb26c19e9745dc50366c5c38db2f6cdbdec"
   name = "github.com/cloud66-oss/cloud66"
   packages = ["."]
   pruneopts = "UT"
-  revision = "1ab02525e48b0738ba95ebd44b2909364c0d1378"
+  revision = "13019089d10e6e64e93519860750e41215afb1f7"
 
 [[projects]]
   branch = "master"
