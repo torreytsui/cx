@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -453,20 +454,8 @@ func runBundleUpload(c *cli.Context) {
 		printFatal(err.Error())
 	}
 
-	// add helm releases
-	err = uploadHelmReleases(fb, formation, stack, bundlePath, message)
-	if err != nil {
-		printFatal(err.Error())
-	}
-
 	// add the environment variables
 	err = uploadEnvironmentVariables(fb, formation, stack, bundlePath)
-	if err != nil {
-		printFatal(err.Error())
-	}
-
-	// add stencil groups
-	err = uploadStencilGroups(fb, formation, stack, bundlePath, message)
 	if err != nil {
 		printFatal(err.Error())
 	}
@@ -493,6 +482,11 @@ func bundleFormation(formation cloud66.Formation, bundleFile string, envVars []c
 	}
 	policiesDir := filepath.Join(dir, "policies")
 	err = os.MkdirAll(policiesDir, os.ModePerm)
+	if err != nil {
+		printFatal(err.Error())
+	}
+	transformationsDir := filepath.Join(dir, "transformations")
+	err = os.MkdirAll(transformationsDir, os.ModePerm)
 	if err != nil {
 		printFatal(err.Error())
 	}
@@ -548,6 +542,19 @@ func bundleFormation(formation cloud66.Formation, bundleFile string, envVars []c
 		file.WriteString(policy.Body)
 	}
 
+	// transformations
+	fmt.Println("Saving transformations...")
+	for _, transformation := range formation.Transformations {
+		fileName := filepath.Join(transformationsDir, transformation.Uid+".js")
+		file, err := os.Create(fileName)
+		defer file.Close()
+		if err != nil {
+			printFatal(err.Error())
+		}
+
+		file.WriteString(transformation.Body)
+	}
+
 	// environment variables
 	fmt.Println("Saving Environment Variables...")
 	var fileOut string
@@ -566,7 +573,7 @@ func bundleFormation(formation cloud66.Formation, bundleFile string, envVars []c
 
 	//add helm releases
 	fmt.Println("Saving helm releases...")
-	for _, release := range formation.HelmReleses {
+	for _, release := range formation.HelmReleases {
 		fileName := filepath.Join(releasesDir, release.ChartName+"-values.yml")
 		file, err := os.Create(fileName)
 		defer file.Close()
@@ -613,7 +620,7 @@ func listFormation(w io.Writer, a cloud66.Formation) {
 		len(a.Stencils),
 		len(a.StencilGroups),
 		len(a.Policies),
-		a.BaseTemplate,
+		a.BaseTemplates,
 		prettyTime{ta},
 		prettyTime{a.UpdatedAt},
 	)
@@ -731,6 +738,11 @@ func runAddStencil(c *cli.Context) {
 		printFatal("No stencil filename provided. Please use --stencil to specify a stencil file")
 	}
 
+	btrUuid := c.String("base-template")
+	if btrUuid == "" {
+		printFatal("No base template uuid provided. Please use --base-template to specify a stencil file")
+	}
+
 	tags := []string{}
 	contextID := c.String("service")
 	template := c.String("template")
@@ -760,7 +772,7 @@ func runAddStencil(c *cli.Context) {
 		}
 	}
 
-	if err := addStencil(stack, &foundFormation, stencilFile, contextID, template, sequence, message, tags); err != nil {
+	if err := addStencil(stack, &foundFormation, btrUuid, stencilFile, contextID, template, sequence, message, tags); err != nil {
 		printFatal(err.Error())
 	}
 
@@ -803,7 +815,7 @@ func printStencil(stencil cloud66.Stencil) {
 	fmt.Print(buffer.String())
 }
 
-func addStencil(stack *cloud66.Stack, formation *cloud66.Formation, stencilFile string, contextID string, templateFilename string, sequence int, message string, tags []string) error {
+func addStencil(stack *cloud66.Stack, formation *cloud66.Formation, btrUuid string, stencilFile string, contextID string, templateFilename string, sequence int, message string, tags []string) error {
 	body, err := ioutil.ReadFile(stencilFile)
 	if err != nil {
 		return err
@@ -819,7 +831,7 @@ func addStencil(stack *cloud66.Stack, formation *cloud66.Formation, stencilFile 
 		Sequence:         sequence,
 	}
 
-	_, err = client.AddStencils(stack.Uid, formation.Uid, []*cloud66.Stencil{stencil}, message)
+	_, err = client.AddStencils(stack.Uid, formation.Uid, btrUuid, []*cloud66.Stencil{stencil}, message)
 	if err != nil {
 		return err
 	}
@@ -892,7 +904,7 @@ func verifyBtrPresence(fb *cloud66.FormationBundle) error {
 	for _, btr := range fb.BaseTemplates {
 		var btrPresent bool = false
 		for _, remoteBTR := range baseTemplates {
-			if remoteBTR.GitRepo == btr.Repo && remoteBTR.GitBranch == btr.Branch && remoteBTR.StatusCode == 6 {
+			if strings.TrimSpace(remoteBTR.GitRepo) == strings.TrimSpace(btr.Repo) && strings.TrimSpace(remoteBTR.GitBranch) == strings.TrimSpace(btr.Branch) && remoteBTR.StatusCode == 6 {
 				btrPresent = true
 				break
 			}
@@ -920,7 +932,7 @@ func verifyBtrPresence(fb *cloud66.FormationBundle) error {
 			baseTemplates, err = client.ListBaseTemplates()
 			for _, btr := range addedBTRs {
 				for _, remoteBTR := range baseTemplates {
-					if btr.Uid == remoteBTR.Uid && remoteBTR.StatusCode != 5 && remoteBTR.StatusCode != 6 {
+					if btr.Uid == remoteBTR.Uid && remoteBTR.StatusCode != 5 && remoteBTR.StatusCode != 6 && remoteBTR.StatusCode != 7 {
 						ready = false
 						break
 					}
@@ -933,29 +945,51 @@ func verifyBtrPresence(fb *cloud66.FormationBundle) error {
 
 func createAndUploadFormations(fb *cloud66.FormationBundle, formationName string, stack *cloud66.Stack, bundlePath string, message string) (*cloud66.Formation, error) {
 	fmt.Printf("Creating %s formation...\n", formationName)
-	/*
-		For now the formation can only have one BTR so we take the first one.
-		When we will allow a formation to have more than one BTR we will need to change the CreateFormation method to
-		accept an array of baseTemplates as argument.
-	*/
-	formation, err := client.CreateFormation(stack.Uid, formationName, fb.BaseTemplates[0].Repo, fb.BaseTemplates[0].Branch, fb.Tags)
+
+	baseTemplates := getTemplateList(fb)
+	formation, err := client.CreateFormationMultiBtr(stack.Uid, formationName, baseTemplates, fb.Tags)
 	if err != nil {
 		return nil, err
 	}
 	fmt.Println("Formation created")
 
-	for _, baseTemplate := range fb.BaseTemplates {
-		// add stencils and policies
-		err = uploadStencilsPolicies(baseTemplate, formation, stack, bundlePath, message)
+	for _, baseTemplate := range fb.BaseTemplates{
+		// add stencils
+		err = uploadStencils(baseTemplate, formation, stack, bundlePath, message)
 		if err != nil {
 			return nil, err
 		}
 
 	}
+
+	// add the policies
+	err = uploadPolicies(fb, formation, stack, bundlePath, message)
+	if err != nil {
+		printFatal(err.Error())
+	}
+
+	// add the transformations
+	err = uploadTransformations(fb, formation, stack, bundlePath, message)
+	if err != nil {
+		printFatal(err.Error())
+	}
+
+	// add helm releases
+	err = uploadHelmReleases(fb, formation, stack, bundlePath, message)
+	if err != nil {
+		printFatal(err.Error())
+	}
+
+	// add stencil groups
+	err = uploadStencilGroups(fb, formation, stack, bundlePath, message)
+	if err != nil {
+		printFatal(err.Error())
+	}
+
 	return formation, nil
 }
 
-func uploadStencilsPolicies(baseTemplate *cloud66.BundleBaseTemplates, formation *cloud66.Formation, stack *cloud66.Stack, bundlePath string, message string) error {
+func uploadStencils(baseTemplate *cloud66.BundleBaseTemplates, formation *cloud66.Formation, stack *cloud66.Stack, bundlePath string, message string) error {
 	// add stencils
 	fmt.Println("Adding stencils...")
 	var err error
@@ -966,16 +1000,26 @@ func uploadStencilsPolicies(baseTemplate *cloud66.BundleBaseTemplates, formation
 			return err
 		}
 	}
-	_, err = client.AddStencils(stack.Uid, formation.Uid, stencils, message)
+
+	btrIndex := formation.FindIndexByRepoAndBranch(baseTemplate.Repo, baseTemplate.Branch)
+	if btrIndex == -1 {
+		return errors.New("base template repository not found")
+
+	}
+	_, err = client.AddStencils(stack.Uid, formation.Uid, formation.BaseTemplates[btrIndex].Uid, stencils, message)
 	if err != nil {
 		return err
 	}
 	fmt.Println("Stencils added")
 
+	return nil
+}
+
+func uploadPolicies(bundleFormation *cloud66.FormationBundle, formation *cloud66.Formation, stack *cloud66.Stack, bundlePath string, message string) error {
 	// add policies
 	fmt.Println("Adding policies...")
 	policies := make([]*cloud66.Policy, 0)
-	for _, policy := range baseTemplate.Policies {
+	for _, policy := range bundleFormation.Policies{
 		polItem, err := policy.AsPolicy(bundlePath)
 		if err != nil {
 			return err
@@ -985,11 +1029,33 @@ func uploadStencilsPolicies(baseTemplate *cloud66.BundleBaseTemplates, formation
 			return err
 		}
 	}
-	_, err = client.AddPolicies(stack.Uid, formation.Uid, policies, message)
+	_, err := client.AddPolicies(stack.Uid, formation.Uid, policies, message)
 	if err != nil {
 		return err
 	}
 	fmt.Println("Policies added")
+	return nil
+}
+
+func uploadTransformations(bundleFormation *cloud66.FormationBundle, formation *cloud66.Formation, stack *cloud66.Stack, bundlePath string, message string) error {
+	// add transformations
+	fmt.Println("Adding transformations...")
+	transformations := make([]*cloud66.Transformation, 0)
+	for _, transformation := range bundleFormation.Transformations{
+		trItem, err := transformation.AsTransformation(bundlePath)
+		if err != nil {
+			return err
+		}
+		transformations = append(transformations, trItem)
+		if err != nil {
+			return err
+		}
+	}
+	_, err := client.AddTransformations(stack.Uid, formation.Uid, transformations, message)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Transformations added")
 	return nil
 }
 
@@ -1070,6 +1136,19 @@ func uploadStencilGroups(fb *cloud66.FormationBundle, formation *cloud66.Formati
 	}
 	fmt.Println("Stencil Groups added")
 	return nil
+}
+
+func getTemplateList(fb *cloud66.FormationBundle) []*cloud66.BaseTemplate{
+	btrs := make([]*cloud66.BaseTemplate, 0)
+	for _, value := range fb.BaseTemplates {
+		btrs = append(btrs, &cloud66.BaseTemplate{
+			Name: value.Name,
+			GitRepo: value.Repo,
+			GitBranch: value.Branch,
+		})
+
+	}
+	return btrs
 }
 
 /* End Bundle Auxiliary Methods */
