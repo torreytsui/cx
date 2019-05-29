@@ -28,7 +28,7 @@ type Profiles struct {
 func ReadProfiles(path string) (*Profiles, error) {
 	var profiles *Profiles
 
-	if _, err := os.Stat(path); err != nil {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
 		// no cxprofile.json. create the base one
 		profile := defaultProfile()
 
