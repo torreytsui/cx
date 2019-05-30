@@ -179,6 +179,13 @@ func main() {
 }
 
 func beforeCommand(c *cli.Context) error {
+	// check if cxHome exists and create it if not
+	err := createDirIfNotExist(cxHome())
+	if err != nil {
+		fmt.Println("An error occurred trying create .cloud66 directory in HOME.")
+		os.Exit(99)
+	}
+
 	profilePath = filepath.Join(cxHome(), "cxprofiles.json")
 	profiles, err := ReadProfiles(profilePath)
 	if err != nil {
