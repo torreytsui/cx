@@ -32,7 +32,7 @@ type Command struct {
 }
 
 const (
-	redirectURL       = "http://cx.cloud66.com:34543"
+	redirectURL       = "http://127.0.0.1:34543"
 	scope             = "public redeploy jobs users admin"
 	clientTokenEnvVar = "CLOUD66_TOKEN"
 )
