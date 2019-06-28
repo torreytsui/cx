@@ -212,6 +212,33 @@ $ cx formations stencils list --formation bar
 					},
 				},
 				{
+					Name:   "render",
+					Usage:  "Renders a stencil based on the given content without committing it into the Formation git repository",
+					Action: runRenderStencil,
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "formation",
+							Usage: "Specify the formation to use",
+						},
+						cli.StringFlag{
+							Name:  "stack,s",
+							Usage: "full or partial stack name. This can be omitted if the current directory is a stack directory",
+						},
+						cli.StringFlag{
+							Name:  "stencil-file",
+							Usage: "Stencil filename. This can be a full file path but the file name should be identical to the one available as part of the Formation",
+						},
+						cli.StringFlag{
+							Name:  "snapshot",
+							Usage: "Snapshot ID. Default uses the latest snapshot",
+						},
+						cli.StringFlag{
+							Name:  "output",
+							Usage: "Full file name and path to save the rendered stencil. If missing it will output to stdout",
+						},
+					},
+				},
+				{
 					Name:   "add",
 					Usage:  "Add a stencil to the formation",
 					Action: runAddStencil,
@@ -745,6 +772,122 @@ func runListStencils(c *cli.Context) {
 	printFatal("No formation named '%s' found", formationName)
 }
 
+func runRenderStencil(c *cli.Context) {
+	stack := mustStack(c)
+
+	formationName := c.String("formation")
+	if formationName == "" {
+		printFatal("No formation provided. Please use --formation to specify a formation")
+	}
+
+	stencilFilename := c.String("stencil-file")
+	if stencilFilename == "" {
+		printFatal("No stencil name provided. Please use --stencil-file to specify a stencil file")
+	}
+
+	if does, _ := fileExists(stencilFilename); !does {
+		printFatal("Cannot find %s", stencilFilename)
+	}
+	// find the file. it should exist
+	stencilName := filepath.Base(stencilFilename)
+
+	// find the snapshot
+	snapshotID := c.String("snapshot")
+	var snapshotUID string
+	if snapshotID == "" || snapshotID == "latest" {
+		snapshots, err := client.Snapshots(stack.Uid)
+		must(err)
+		sort.Sort(snapshotsByDate(snapshots))
+		if len(snapshots) == 0 {
+			printFatal("No snapshots found")
+		}
+
+		snapshotUID = snapshots[0].Uid
+	} else {
+		snapshotUID = snapshotID
+	}
+
+	var formations []cloud66.Formation
+	var err error
+	formations, err = client.Formations(stack.Uid, false)
+	must(err)
+
+	output := c.String("output")
+
+	stencilUID := ""
+	formationUID := ""
+
+	for _, formation := range formations {
+		if formation.Name == formationName {
+			formationUID = formation.Uid
+			for _, stencil := range formation.Stencils {
+				if stencil.Filename == stencilName {
+					// we have the stencil get the ID
+					stencilUID = stencil.Uid
+				}
+			}
+
+			if stencilUID == "" {
+				printFatal("No stencil named '%s' found", stencilName)
+			}
+		}
+	}
+
+	if formationUID == "" {
+		printFatal("No formation named '%s' found", formationName)
+	}
+
+	// Read file to byte slice
+	body, err := ioutil.ReadFile(stencilFilename)
+	if err != nil {
+		printFatal("Failed to read %s: %s", stencilFilename, err.Error())
+	}
+
+	var renders *cloud66.Renders
+	renders, err = client.RenderStencil(stack.Uid, snapshotUID, formationUID, stencilUID, body)
+	must(err)
+
+	outdir := filepath.Dir(output)
+
+	if output != "" {
+		os.MkdirAll(outdir, os.ModePerm)
+	}
+
+	foundErrors := renders.Errors()
+	if len(foundErrors) != 0 {
+		fmt.Fprintln(os.Stderr, "Error during rendering of stencils:")
+		for _, renderError := range foundErrors {
+			fmt.Fprintf(os.Stderr, "%s in %s\n", renderError.Text, renderError.Stencil)
+		}
+
+		return
+	}
+
+	foundWarnings := renders.Warnings()
+	if len(foundWarnings) != 0 {
+		fmt.Fprintln(os.Stderr, "Warning during rendering of stencils:")
+		for _, renderError := range foundWarnings {
+			fmt.Fprintf(os.Stderr, "%s in %s\n", renderError.Text, renderError.Stencil)
+		}
+
+		return
+	}
+
+	// content
+	for _, v := range renders.Stencils {
+		// to a file
+		if output != "" {
+			err = ioutil.WriteFile(output, []byte(v.Content), 0644)
+			if err != nil {
+				printFatal(err.Error())
+			}
+		} else {
+			// concatenate
+			fmt.Print(v.Content)
+		}
+	}
+}
+
 func runShowStencil(c *cli.Context) {
 	stack := mustStack(c)
 
@@ -755,7 +898,7 @@ func runShowStencil(c *cli.Context) {
 
 	stencilName := c.String("stencil")
 	if stencilName == "" {
-		printFatal("No stencil name provided. Please use --stencil to specify a formation")
+		printFatal("No stencil name provided. Please use --stencil to specify a stencil")
 	}
 
 	var formations []cloud66.Formation
