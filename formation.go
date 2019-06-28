@@ -71,9 +71,28 @@ $ cx formations list -s mystack foo bar // only show formations foo and bar
 			},
 		},
 		{
+			Name:   "fetch",
+			Action: runFetchFormation,
+			Usage:  "Fetch all stencils of a Formation",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "formation,f",
+					Usage: "the formation name",
+				},
+				cli.StringFlag{
+					Name:  "outdir",
+					Usage: "Output director for the Formation. Will be created if missing",
+				},
+				cli.BoolFlag{
+					Name:  "overwrite",
+					Usage: "Overwrite existing files in outdir if present. Default is false and asks for overwrite permissions per file",
+				},
+			},
+		},
+		{
 			Name:   "deploy",
 			Action: runDeployFormation,
-			Usage:  "Deploy the existing formation",
+			Usage:  "Deploy an existing formation",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "formation,f",
@@ -91,22 +110,6 @@ $ cx formations list -s mystack foo bar // only show formations foo and bar
 					Name:  "log-level",
 					Usage: "[OPTIONAL, DEFAULT: info] log level. Use debug to see process output",
 				},
-				//cli.StringFlag{
-				//	Name:  "steps",
-				//	Usage: "steps to be taken",
-				//},
-				//cli.BoolFlag{
-				//	Name:  "ignore-errors",
-				//	Usage: "[optional] return anything that can be rendered and ignore errors. Default: false",
-				//},
-				//cli.BoolFlag{
-				//	Name:  "ignore-warnings",
-				//	Usage: "[optional] return anything that can be rendered and ignore warnings. Default: false",
-				//},
-				//cli.StringFlag{
-				//	Name:  "outdir",
-				//	Usage: "[optional] save the rendered files in this directory",
-				//},
 			},
 		},
 		{
@@ -215,7 +218,7 @@ $ cx formations stencils list --formation bar
 					Flags: []cli.Flag{
 						cli.StringFlag{
 							Name:  "formation",
-							Usage: "Specify the formaiton to use",
+							Usage: "Specify the formation to use",
 						},
 						cli.StringFlag{
 							Name:  "stack,s",
@@ -304,6 +307,62 @@ func runCreateFormation(c *cli.Context) {
 	}
 
 	fmt.Println("Formation created")
+}
+
+func runFetchFormation(c *cli.Context) {
+	stack := mustStack(c)
+
+	formationName := c.String("formation")
+	if formationName == "" {
+		printFatal("No formation provided. Please use --formation to specify a formation")
+	}
+
+	var formation *cloud66.Formation
+	formations, err := client.Formations(stack.Uid, true)
+	must(err)
+	for _, innerFormation := range formations {
+		if innerFormation.Name == formationName {
+			formation = &innerFormation
+			break
+		}
+	}
+	if formation == nil {
+		printFatal("Formation with name \"%v\" could not be found", formationName)
+	}
+
+	outDir := c.String("outdir")
+	if outDir == "" {
+		printFatal("No output directory provided. Use outdir option")
+		cli.ShowSubcommandHelp(c)
+	}
+
+	stencilDir := filepath.Join(outDir, "stencils")
+	if err := os.MkdirAll(stencilDir, os.ModePerm); err != nil {
+		printFatal("Unable to create directory %s: %s", outDir, err.Error())
+	}
+
+	overwrite := c.Bool("overwrite")
+
+	for _, stencil := range formation.Stencils {
+		body := []byte(stencil.Body)
+		write := false
+		stencilFile := filepath.Join(stencilDir, stencil.Filename)
+		if does, _ := fileExists(stencilFile); does {
+			if !overwrite {
+				write = ask(fmt.Sprintf("%s already exists. Overwrite N/y?", stencil.Filename), "y")
+			} else {
+				write = true
+			}
+		}
+
+		if write {
+			if err := ioutil.WriteFile(stencilFile, body, 0644); err != nil {
+				printFatal("Writing %s to %s failed: %s", stencil.Filename, stencilDir, err.Error())
+			}
+		}
+	}
+
+	fmt.Printf("\nFormation is available at %s\n", stencilDir)
 }
 
 func runDeployFormation(c *cli.Context) {
@@ -953,7 +1012,7 @@ func createAndUploadFormations(fb *cloud66.FormationBundle, formationName string
 	}
 	fmt.Println("Formation created")
 
-	for _, baseTemplate := range fb.BaseTemplates{
+	for _, baseTemplate := range fb.BaseTemplates {
 		// add stencils
 		err = uploadStencils(baseTemplate, formation, stack, bundlePath, message)
 		if err != nil {
@@ -1019,7 +1078,7 @@ func uploadPolicies(bundleFormation *cloud66.FormationBundle, formation *cloud66
 	// add policies
 	fmt.Println("Adding policies...")
 	policies := make([]*cloud66.Policy, 0)
-	for _, policy := range bundleFormation.Policies{
+	for _, policy := range bundleFormation.Policies {
 		polItem, err := policy.AsPolicy(bundlePath)
 		if err != nil {
 			return err
@@ -1041,7 +1100,7 @@ func uploadTransformations(bundleFormation *cloud66.FormationBundle, formation *
 	// add transformations
 	fmt.Println("Adding transformations...")
 	transformations := make([]*cloud66.Transformation, 0)
-	for _, transformation := range bundleFormation.Transformations{
+	for _, transformation := range bundleFormation.Transformations {
 		trItem, err := transformation.AsTransformation(bundlePath)
 		if err != nil {
 			return err
@@ -1138,12 +1197,12 @@ func uploadStencilGroups(fb *cloud66.FormationBundle, formation *cloud66.Formati
 	return nil
 }
 
-func getTemplateList(fb *cloud66.FormationBundle) []*cloud66.BaseTemplate{
+func getTemplateList(fb *cloud66.FormationBundle) []*cloud66.BaseTemplate {
 	btrs := make([]*cloud66.BaseTemplate, 0)
 	for _, value := range fb.BaseTemplates {
 		btrs = append(btrs, &cloud66.BaseTemplate{
-			Name: value.Name,
-			GitRepo: value.Repo,
+			Name:      value.Name,
+			GitRepo:   value.Repo,
 			GitBranch: value.Branch,
 		})
 
